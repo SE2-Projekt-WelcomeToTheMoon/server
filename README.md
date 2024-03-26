@@ -9,30 +9,25 @@
 ---
 ## File Struktur
 * `src/main/java`
-    * `ServerApplication.class`
-    * `messaging`
-        * `OutputMessage.class`
-        * `StompMessage.class`
+    * `WebSocketServerApplication.java`
+    * `game`
+      * `GameLogic.java`
+    * `messaging/dtos`
+        * `OutputMessage.java`
+        * `StompMessage.java`
     * `websocket`
         * `broker`
-            * `WebSocketBrokerConfig.class`
-            * `WebSocketBrokerController.class`
+            * `WebSocketBrokerConfig.java`
+            * `WebSocketBrokerController.java`
         * `handler`
-            * `WebSocketHandlerConfig.class`
-            * `WebSocketHandlerImpl.class`
+            * `WebSocketHandlerConfig.java`
+            * `WebSocketHandlerImpl.java`
 * `src/test/java`
-    * `ServerApplicationTest.class`
-    * `WebSocketBrokerIntegrationTest.class`
-    * `WebSocketHandleIntegrationTest.class`
-    * `client`
-        * `ClientImpl.class`
-    * `handler`
-        * `HandlerImplTest.class`
+    * `WebSocketBrokerIntegrationTest.java`
+    * `WebSocketHandleIntegrationTest.java`
     * `websocket`
-        * `StompFramgeHandlerClientImplTest.class`
-        * `WebSocketHandlerClientImplTest.class`
-
-**Anzahl der Klassen ändert sich im Implementierungsprozess.**
+        * `StompFramgeHandlerClientImpl.java`
+        * `WebSocketHandlerClientImpl.java`
 
 ---
 ## Broker
