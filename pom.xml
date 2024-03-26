@@ -38,6 +38,11 @@
             <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
         <!-- HINZUFÜGEN -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
