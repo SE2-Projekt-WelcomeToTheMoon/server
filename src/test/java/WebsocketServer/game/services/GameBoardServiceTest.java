@@ -1,6 +1,5 @@
 package WebsocketServer.game.services;
 
-import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.model.Chamber;
 import WebsocketServer.game.model.Field;

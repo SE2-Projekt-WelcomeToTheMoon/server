@@ -1,5 +1,8 @@
 package WebsocketServer.game.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum FieldValue {
     NONE(0),
     ONE(1),
@@ -24,7 +27,4 @@ public enum FieldValue {
         this.value = weight;
     }
 
-    public int getValue(){
-        return value;
-    }
 }
