@@ -23,7 +23,7 @@
             * `WebSocketHandlerConfig.java`
             * `WebSocketHandlerImpl.java`
 * `src/test/java`
-    * `WebSocketBrokerIntegrationTest.java`
+    
     * `WebSocketHandleIntegrationTest.java`
     * `websocket`
         * `StompFramgeHandlerClientImpl.java`
