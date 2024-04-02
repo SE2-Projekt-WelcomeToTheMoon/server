@@ -30,6 +30,11 @@
         * `WebSocketHandlerClientImpl.java`
 
 ---
+## Spiel Logik
+
+Logik bitte in `/game` directory.
+
+---
 ## Broker
 
 tbd

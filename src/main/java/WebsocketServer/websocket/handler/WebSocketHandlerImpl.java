@@ -1,5 +1,7 @@
 package WebsocketServer.websocket.handler;
 
+import WebsocketServer.services.UserClientService;
+import org.json.JSONObject;
 import org.springframework.web.socket.*;
 
 public class WebSocketHandlerImpl implements WebSocketHandler {
@@ -13,7 +15,13 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
         // TODO handle the messages here
-        System.out.println("Nachricht erhalten: "+ message.getPayload());
+        System.out.println("Nachricht erhalten: " + message.getPayload());
+        JSONObject messsage = (JSONObject) message.getPayload();
+        if (messsage.get("Username") != null && messsage.get("setUserButtonId") == "2") {
+            if (UserClientService.setUsername(messsage.get("Username").toString())) {
+                session.sendMessage(new TextMessage("Username set. Please continue."));
+            } else session.sendMessage(new TextMessage("Username already in use, please take another one."));
+        }
         session.sendMessage(new TextMessage("echo from handler: " + message.getPayload()));
     }
 
