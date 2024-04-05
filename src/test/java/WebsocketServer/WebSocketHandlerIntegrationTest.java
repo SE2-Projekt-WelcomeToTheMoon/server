@@ -1,6 +1,7 @@
 package WebsocketServer;
 
 import WebsocketServer.websocket.WebSocketHandlerClientImpl;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,6 +42,33 @@ class WebSocketHandlerIntegrationTest {
 
         var expectedResponse = "echo from handler: " + message;
         assertThat(messages.poll(1, TimeUnit.SECONDS)).isEqualTo(expectedResponse);
+    }
+
+    @Test
+    public void testJoinLobby() throws Exception {
+        WebSocketSession session = initStompSession();
+
+        //Simulation: Senden einer Nachricht
+        JSONObject joinLobbyMessage = new JSONObject()
+                .put("action", "joinLobby")
+                .put("username", "testUser");
+        session.sendMessage(new TextMessage(joinLobbyMessage.toString()));
+
+        // Erwartete Antwort
+        JSONObject expected = new JSONObject("{\"action\":\"joinedLobby\",\"success\":true}");
+        JSONObject actual = new JSONObject(messages.poll(5, TimeUnit.SECONDS));
+        assertThat(actual.similar(expected)).isTrue();
+    }
+
+    @Test
+    public void testJoinLobbyDefault() throws Exception{
+        WebSocketSession session = initStompSession();
+
+        JSONObject joinLobbyDefaultMessage = new JSONObject();
+        joinLobbyDefaultMessage.put("action", "ungültig");
+        joinLobbyDefaultMessage.put("username", "testUser");
+
+        session.sendMessage(new TextMessage(joinLobbyDefaultMessage.toString()));
     }
 
     /**
