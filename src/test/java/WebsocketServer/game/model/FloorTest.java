@@ -2,6 +2,7 @@ package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.enums.FieldValue;
+import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ class FloorTest {
     private Chamber secondChamberCompatible;
     private Chamber chamberIncompatible;
     private Chamber chamberAllNull;
+    private Chamber chamber;
 
     @BeforeEach
     void setUp() {
@@ -33,6 +35,8 @@ class FloorTest {
         chamberAllNull.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
         chamberAllNull.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
         chamberAllNull.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+
+        chamber = new Chamber(FieldCategory.ROBOTER);
     }
 
     @Test
@@ -125,5 +129,54 @@ class FloorTest {
     void testGetNonExistingChamber(){
         floor.finalizeFloor();
         assertThrows(IndexOutOfBoundsException.class, () -> floor.getChamber(3));
+    }
+
+    @Test
+    public void testIsFinalizedInitiallyFalse() {
+        assertFalse(floor.isFinalized());
+    }
+
+    @Test
+    public void testFinalizeFloorChangesIsFinalizedToTrue() {
+        floor.finalizeFloor();
+        assertTrue(floor.isFinalized());
+    }
+
+    @Test
+    public void testAddChamberAfterFloorFinalizationThrowsException() {
+        floor.finalizeFloor();
+        assertThrows(FinalizedException.class, () -> floor.addChamber(chamber));
+    }
+
+    @Test
+    public void testGetFieldAtIndexBeforeFloorFinalizationThrowsException() {
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        floor.addChamber(chamber);
+        assertThrows(FinalizedException.class, () -> floor.getFieldAtIndex(0));
+    }
+
+    @Test
+    public void testGetChamberBeforeFloorFinalizationThrowsException() {
+        floor.addChamber(new Chamber(FieldCategory.ROBOTER));
+        assertThrows(FinalizedException.class, () -> floor.getChamber(0));
+    }
+
+    @Test
+    public void testFinalizeFloorWithAlreadyFinalizedChamberThrowsException() {
+        chamber.finalizeChamber();
+        floor.addChamber(chamber);
+        assertThrows(FinalizedException.class, () -> floor.finalizeFloor());
+    }
+
+    @Test
+    public void testFinalizeFloorTwiceThrowsException() {
+        floor.finalizeFloor();
+        assertThrows(FinalizedException.class, floor::finalizeFloor);
+    }
+
+    @Test
+    public void testSetFieldAtIndexBeforeFloorFinalizationThrowsException() {
+        floor.addChamber(chamber);
+        assertThrows(FinalizedException.class, () -> floor.setFieldAtIndex(0, FieldValue.ONE));
     }
 }
