@@ -1,6 +1,7 @@
 package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.FieldCategory;
+import WebsocketServer.game.exceptions.FinalizedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,5 +51,43 @@ class ChamberTest {
     void testGetNegativeIndex() {
         chamber.finalizeChamber();
         assertThrows(IndexOutOfBoundsException.class, () -> chamber.getField(-1));
+    }
+
+    @Test
+    public void testIsFinalizedInitiallyFalse() {
+        assertFalse(chamber.isFinalized());
+    }
+
+    @Test
+    public void testFinalizeChamberChangesIsFinalizedToTrue() {
+        chamber.finalizeChamber();
+        assertTrue(chamber.isFinalized());
+    }
+
+    @Test
+    public void testAddFieldAfterChamberFinalizationThrowsException() {
+        Field field = new Field(FieldCategory.ROBOTER);
+        chamber.finalizeChamber();
+        assertThrows(FinalizedException.class, () -> chamber.addField(field));
+    }
+
+    @Test
+    public void testGetFieldBeforeChamberFinalizationThrowsException() {
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        assertThrows(FinalizedException.class, () -> chamber.getField(0));
+    }
+
+    @Test
+    public void testSomeFieldsAlreadyFinalized() {
+        Field field = new Field(FieldCategory.ROBOTER);
+        field.finalizeField();
+        chamber.addField(field);
+        assertThrows(FinalizedException.class, () -> chamber.finalizeChamber());
+    }
+
+    @Test
+    public void testFinalizeChamberTwiceThrowsException() {
+        chamber.finalizeChamber();
+        assertThrows(FinalizedException.class, chamber::finalizeChamber);
     }
 }
