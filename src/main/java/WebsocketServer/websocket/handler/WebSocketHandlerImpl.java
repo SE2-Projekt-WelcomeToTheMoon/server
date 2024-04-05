@@ -57,7 +57,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                 response.put("error", "unbekannte Aktion");
                 response.put("action", action);
                 session.sendMessage(new TextMessage(response.toString()));
-                System.out.println("Unbekannte Aktion erhalten: " + action + "von " + "testUser");
+                System.out.println("Unbekannte Aktion erhalten: " + action + " von " + "testUser");
                 break;
 
         }

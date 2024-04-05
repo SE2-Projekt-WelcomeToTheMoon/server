@@ -59,7 +59,6 @@ class WebSocketHandlerIntegrationTest {
         JSONObject actual = new JSONObject(messages.poll(5, TimeUnit.SECONDS));
         assertThat(actual.similar(expected)).isTrue();
     }
-
     @Test
     public void testJoinLobbyDefault() throws Exception{
         WebSocketSession session = initStompSession();
@@ -69,6 +68,13 @@ class WebSocketHandlerIntegrationTest {
         joinLobbyDefaultMessage.put("username", "testUser");
 
         session.sendMessage(new TextMessage(joinLobbyDefaultMessage.toString()));
+
+        // Erwarte eine Fehlermeldung als Antwort
+        String expectedErrorMessage = "{\"action\":\"ungültig\",\"error\":\"unbekannte Aktion\"}";
+        String actualResponse = messages.poll(5, TimeUnit.SECONDS);
+
+        // Überprüfung, ob die tatsächliche Antwort der erwarteten Fehlermeldung entspricht
+        assertThat(actualResponse).isEqualToIgnoringWhitespace(expectedErrorMessage);
     }
 
     /**
