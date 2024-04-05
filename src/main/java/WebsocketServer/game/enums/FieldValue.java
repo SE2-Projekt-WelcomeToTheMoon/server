@@ -23,7 +23,7 @@ public enum FieldValue {
 
     private final int value;
 
-    FieldValue(int weight){
+    FieldValue(int weight) {
         this.value = weight;
     }
 
