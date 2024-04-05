@@ -21,6 +21,8 @@ class GameBoardTest {
         Floor floor = new Floor(FieldCategory.ROBOTER);
         gameBoard.addFloor(floor);
 
+        gameBoard.finalizeGameBoard();
+
         assertEquals(1, gameBoard.getSize());
         assertDoesNotThrow(() -> gameBoard.getFloorAtIndex(0));
         assertEquals(floor, gameBoard.getFloorAtIndex(0));
@@ -29,7 +31,10 @@ class GameBoardTest {
 
     @Test
     void testGetFloorNotPresent() {
-        assertThrows(IndexOutOfBoundsException.class, () -> gameBoard.getFloorAtIndex(0));
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            gameBoard.finalizeGameBoard();
+            gameBoard.getFloorAtIndex(0);
+        });
     }
 
     @Test
@@ -40,6 +45,8 @@ class GameBoardTest {
         chamber.addField(field);
         floor.addChamber(chamber);
         gameBoard.addFloor(floor);
+
+        gameBoard.finalizeGameBoard();
 
         assertDoesNotThrow(() -> gameBoard.setValueWithinFloorAtIndex(0, 0, FieldValue.TWO));
         assertEquals(FieldValue.TWO, gameBoard.getFloorAtIndex(0).getFieldAtIndex(0).getFieldValue());
@@ -56,6 +63,8 @@ class GameBoardTest {
         floor.addChamber(chamber);
         gameBoard.addFloor(floor);
 
+        gameBoard.finalizeGameBoard();
+
         assertThrows(FloorSequenceException.class, () ->
                 gameBoard.setValueWithinFloorAtIndex(0, 0, FieldValue.FOUR));
 
@@ -63,6 +72,9 @@ class GameBoardTest {
 
     @Test
     void testGetFloorAtNegativeIndex(){
-        assertThrows(IndexOutOfBoundsException.class, () -> gameBoard.getFloorAtIndex(-1));
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            gameBoard.finalizeGameBoard();
+            gameBoard.getFloorAtIndex(-1);
+        });
     }
 }

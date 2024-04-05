@@ -21,7 +21,8 @@ class ChamberTest {
     @Test
     void testAddValidField() {
         assertDoesNotThrow(() -> chamber.addField(validField));
-        assertEquals(1, chamber.getFields().size());
+        chamber.finalizeChamber();
+        assertEquals(1, chamber.getSize());
         assertEquals(validField, chamber.getField(0));
     }
 
@@ -33,17 +34,21 @@ class ChamberTest {
     @Test
     void testGetValidField() {
         chamber.addField(validField);
+        chamber.finalizeChamber();
+
         assertDoesNotThrow(() -> chamber.getField(0));
         assertEquals(validField, chamber.getField(0));
     }
 
     @Test
     void testGetMissingField() {
+        chamber.finalizeChamber();
         assertThrows(IndexOutOfBoundsException.class, () -> chamber.getField(0));
     }
 
     @Test
     void testGetNegativeIndex() {
+        chamber.finalizeChamber();
         assertThrows(IndexOutOfBoundsException.class, () -> chamber.getField(-1));
     }
 }

@@ -2,6 +2,7 @@ package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.enums.FieldValue;
+import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
 import lombok.Getter;
 
@@ -13,6 +14,8 @@ public class Floor {
     private final List<Chamber> chambers;
     @Getter
     private FieldCategory fieldCategory;
+    @Getter
+    private boolean isFinalized = false;
 
     public Floor(FieldCategory fieldCategory) {
         this.fieldCategory = fieldCategory;
@@ -20,10 +23,14 @@ public class Floor {
     }
 
     public Field getFieldAtIndex(int index){
+        if (!isFinalized) {
+            throw new FinalizedException("Floor must be finalized.");
+        }
+
         int currentIndex = 0;
 
         for(Chamber chamber : chambers){
-            for(int i = 0; i< chamber.getFields().size(); i++){
+            for(int i = 0; i< chamber.getSize(); i++){
                 if(currentIndex == index){
                     return chamber.getField(i);
                 }else{
@@ -36,6 +43,10 @@ public class Floor {
     }
 
     public void addChamber(Chamber chamber){
+        if (isFinalized) {
+            throw new FinalizedException("Floor already finalized.");
+        }
+
         if(chamber.getFieldCategory().equals(fieldCategory)){
             chambers.add(chamber);
         }else {
@@ -44,12 +55,17 @@ public class Floor {
     }
 
     public void setFieldAtIndex(int index, FieldValue value) {
+        if (!isFinalized) {
+            throw new FinalizedException("Floor must be finalized.");
+        }
+
         int currentMax = 0;
         int currentIndex = 0;
         Field fieldToChange = null;
 
         for(Chamber chamber : chambers){
-            for(Field field : chamber.getFields()) {
+            for(int i = 0; i < chamber.getSize(); i++) {
+                Field field = chamber.getField(i);
                 if(currentIndex == index){
                     if(value.getValue() > 0 && value.getValue() > currentMax){
                         currentMax = value.getValue();
@@ -78,6 +94,10 @@ public class Floor {
     }
 
     public Chamber getChamber(int index){
+        if (!isFinalized) {
+            throw new FinalizedException("Floor must be finalized.");
+        }
+
         if(index >= 0 && index < chambers.size()){
             return chambers.get(index);
         }else {
@@ -98,4 +118,18 @@ public class Floor {
         return  sum;
     }
 
+    public void finalizeFloor() {
+        if (isFinalized) {
+            throw new FinalizedException("Floor already finalized.");
+        } else {
+            try {
+                for (Chamber chamber : chambers) {
+                    chamber.finalizeChamber();
+                }
+                isFinalized = true;
+            } catch (FinalizedException e) {
+                throw new FinalizedException("Some Chambers already finalized.");
+            }
+        }
+    }
 }

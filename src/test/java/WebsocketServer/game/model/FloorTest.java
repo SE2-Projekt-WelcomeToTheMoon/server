@@ -55,6 +55,8 @@ class FloorTest {
     void testGetField() {
         floor.addChamber(chamberCompatible);
         floor.addChamber(secondChamberCompatible);
+        floor.finalizeFloor();
+
         Field retrievedFieldTwo = floor.getFieldAtIndex(1);
         Field retrievedFieldFour = floor.getFieldAtIndex(3);
 
@@ -65,12 +67,14 @@ class FloorTest {
     @Test
     void testGetNonExistingField() {
         floor.addChamber(chamberCompatible);
+        floor.finalizeFloor();
         assertThrows(IndexOutOfBoundsException.class, () -> floor.getFieldAtIndex(5));
     }
 
     @Test
     void testSetFieldAtIndexValid() {
         floor.addChamber(chamberCompatible);
+        floor.finalizeFloor();
         assertDoesNotThrow(() -> floor.setFieldAtIndex(1, FieldValue.THREE));
         assertEquals(FieldValue.THREE, floor.getFieldAtIndex(1).getFieldValue());
     }
@@ -78,12 +82,14 @@ class FloorTest {
     @Test
     void testSetFieldAtIndexInvalid() {
         floor.addChamber(chamberCompatible);
+        floor.finalizeFloor();
         assertThrows(FloorSequenceException.class, () -> floor.setFieldAtIndex(1, FieldValue.ONE));
     }
 
     @Test
     void testSetFieldAtIndexNone(){
         floor.addChamber(chamberAllNull);
+        floor.finalizeFloor();
         assertDoesNotThrow(() -> floor.setFieldAtIndex(1, FieldValue.NONE));
     }
 
@@ -92,6 +98,9 @@ class FloorTest {
         floor.addChamber(chamberCompatible);
         floor.addChamber(chamberAllNull);
         floor.addChamber(secondChamberCompatible);
+
+        floor.finalizeFloor();
+
         assertDoesNotThrow(() -> floor.setFieldAtIndex(2, FieldValue.NONE));
 
 
@@ -101,17 +110,20 @@ class FloorTest {
     @Test
     void testSettingNoneValueDoesNotBreakSequence() {
         floor.addChamber(chamberAllNull);
+        floor.finalizeFloor();
         assertDoesNotThrow(() -> floor.setFieldAtIndex(0, FieldValue.ONE));
         assertDoesNotThrow(() -> floor.setFieldAtIndex(1, FieldValue.TWO));
     }
 
     @Test
     void testGetNegativeChamber(){
+        floor.finalizeFloor();
         assertThrows(IndexOutOfBoundsException.class, () -> floor.getChamber(-1));
     }
 
     @Test
     void testGetNonExistingChamber(){
+        floor.finalizeFloor();
         assertThrows(IndexOutOfBoundsException.class, () -> floor.getChamber(3));
     }
 }

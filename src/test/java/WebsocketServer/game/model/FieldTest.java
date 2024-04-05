@@ -11,6 +11,8 @@ class FieldTest {
     void testFieldConstructorAndDefaultValues() {
         Field field = new Field(FieldCategory.ROBOTER);
 
+        field.finalizeField();
+
         assertNotNull(field.getFieldCategory());
         assertEquals(FieldCategory.ROBOTER, field.getFieldCategory());
         assertEquals(FieldValue.NONE, field.getFieldValue());
@@ -20,6 +22,9 @@ class FieldTest {
     void testSetterAndGetter() {
         Field field = new Field(FieldCategory.ROBOTER);
         field.setFieldCategory(FieldCategory.WASSER);
+
+        field.finalizeField();
+
         field.setFieldValue(FieldValue.ONE);
 
         assertEquals(FieldCategory.WASSER, field.getFieldCategory());
@@ -29,6 +34,8 @@ class FieldTest {
     @Test
     void testNullValues() {
         Field field = new Field(null);
+        field.finalizeField();
+
         assertNull(field.getFieldCategory());
 
         field.setFieldValue(null);

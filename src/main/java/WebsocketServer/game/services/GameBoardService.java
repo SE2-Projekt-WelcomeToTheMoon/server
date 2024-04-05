@@ -24,6 +24,8 @@ public class GameBoardService {
         gameBoard.addFloor(createFloor(FieldCategory.PFLANZE, List.of(2,2,2,2)));
         gameBoard.addFloor(createFloor(FieldCategory.ANYTHING, List.of(2,2,2,2)));
 
+        gameBoard.finalizeGameBoard();
+
         return gameBoard;
     }
 
