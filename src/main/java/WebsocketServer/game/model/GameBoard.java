@@ -4,7 +4,6 @@ import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
 import lombok.Getter;
-
 import java.util.ArrayList;
 import java.util.List;
 

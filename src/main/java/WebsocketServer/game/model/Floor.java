@@ -5,7 +5,6 @@ import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
 import lombok.Getter;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,34 +21,34 @@ public class Floor {
         chambers = new ArrayList<>();
     }
 
-    public Field getFieldAtIndex(int index){
+    public Field getFieldAtIndex(int index) {
         if (!isFinalized) {
             throw new FinalizedException("Floor must be finalized.");
         }
 
         int currentIndex = 0;
 
-        for(Chamber chamber : chambers){
-            for(int i = 0; i< chamber.getSize(); i++){
-                if(currentIndex == index){
+        for (Chamber chamber : chambers) {
+            for (int i = 0; i < chamber.getSize(); i++) {
+                if (currentIndex == index) {
                     return chamber.getField(i);
-                }else{
+                } else {
                     currentIndex++;
                 }
             }
         }
 
-        throw  new IndexOutOfBoundsException("Field at index " + index + " is not present");
+        throw new IndexOutOfBoundsException("Field at index " + index + " is not present");
     }
 
-    public void addChamber(Chamber chamber){
+    public void addChamber(Chamber chamber) {
         if (isFinalized) {
             throw new FinalizedException("Floor already finalized.");
         }
 
-        if(chamber.getFieldCategory().equals(fieldCategory)){
+        if (chamber.getFieldCategory().equals(fieldCategory)) {
             chambers.add(chamber);
-        }else {
+        } else {
             throw new IllegalArgumentException("Chamber must have the same FieldCategory as Floor");
         }
     }
@@ -63,59 +62,58 @@ public class Floor {
         int currentIndex = 0;
         Field fieldToChange = null;
 
-        for(Chamber chamber : chambers){
-            for(int i = 0; i < chamber.getSize(); i++) {
+        for (Chamber chamber : chambers) {
+            for (int i = 0; i < chamber.getSize(); i++) {
                 Field field = chamber.getField(i);
-                if(currentIndex == index){
-                    if(value.getValue() > 0 && value.getValue() > currentMax){
+                if (currentIndex == index) {
+                    if (value.getValue() > 0 && value.getValue() > currentMax) {
                         currentMax = value.getValue();
                         fieldToChange = field;
-                    }else if(value.getValue() == 0) {
+                    } else if (value.getValue() == 0) {
                         continue;
-                    }
-                    else {
+                    } else {
                         throw new FloorSequenceException("Values within Floor must be in ascending order");
                     }
-                }else{
-                    if(field.getFieldValue().getValue() > 0 && field.getFieldValue().getValue() > currentMax){
+                } else {
+                    if (field.getFieldValue().getValue() > 0 && field.getFieldValue().getValue() > currentMax) {
                         currentMax = field.getFieldValue().getValue();
-                    }else if(field.getFieldValue().getValue() == 0) {
+                    } else if (field.getFieldValue().getValue() == 0) {
                         continue;
-                    }else {
+                    } else {
                         throw new FloorSequenceException("Values within Floor must be in ascending order");
                     }
                 }
                 currentIndex++;
             }
         }
-        if(fieldToChange != null){
+        if (fieldToChange != null) {
             fieldToChange.setFieldValue(value);
         }
     }
 
-    public Chamber getChamber(int index){
+    public Chamber getChamber(int index) {
         if (!isFinalized) {
             throw new FinalizedException("Floor must be finalized.");
         }
 
-        if(index >= 0 && index < chambers.size()){
+        if (index >= 0 && index < chambers.size()) {
             return chambers.get(index);
-        }else {
+        } else {
             throw new IndexOutOfBoundsException();
         }
     }
 
-    public int getNumberOfChambers(){
+    public int getNumberOfChambers() {
         return chambers.size();
     }
 
-    public int getSize(){
+    public int getSize() {
         int sum = 0;
-        for(Chamber chamber : chambers){
+        for (Chamber chamber : chambers) {
             sum += chamber.getSize();
         }
 
-        return  sum;
+        return sum;
     }
 
     public void finalizeFloor() {

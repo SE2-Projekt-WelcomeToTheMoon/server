@@ -4,8 +4,6 @@ import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.exceptions.FinalizedException;
 import lombok.Getter;
-import lombok.Setter;
-
 
 @Getter
 public class Field {
