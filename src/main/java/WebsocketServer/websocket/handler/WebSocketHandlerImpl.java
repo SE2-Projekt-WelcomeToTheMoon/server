@@ -1,14 +1,18 @@
 package WebsocketServer.websocket.handler;
 
+import WebsocketServer.services.GenerateJSONObjectService;
 import WebsocketServer.services.LobbyService;
 import WebsocketServer.services.UserClientService;
 import org.json.JSONObject;
+import org.springframework.boot.json.GsonJsonParser;
+import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.web.socket.*;
 
 public class WebSocketHandlerImpl implements WebSocketHandler {
 
     private LobbyService lobbyService;
     private final UserClientService userClientService;
+    private JSONObject messageJson;
 
     public WebSocketHandlerImpl(){
         this.lobbyService = new LobbyService();
@@ -27,35 +31,28 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
         System.out.println("Nachricht erhalten: " + message.getPayload());
 //        session.sendMessage(new TextMessage("echo from handler: " + message.getPayload()));
 
-                            //-------------------//
-
         if(message.getPayload().equals("Test message")){
             session.sendMessage(new TextMessage("echo from handler: " + message.getPayload()));
         }
+        messageJson = new JSONObject(message.getPayload().toString());
 
-        JSONObject messageJson = new JSONObject(message.getPayload().toString());
-        String action = messageJson.optString("action", "");
+        String action = (String) messageJson.getString("Action");
 
         switch (action) {
             case "registerUser":
-                //TODO: Method to register new User
-                /**
-                 *         JSONObject messsage = (JSONObject) message.getPayload();
-                 *         if (messsage.get("Username") != null && messsage.get("setUserButtonId") == "2") {
-                 *             if (UserClientService.setUsername(messsage.get("Username").toString())) {
-                 *                 session.sendMessage(new TextMessage("Username set. Please continue."));
-                 *             } else session.sendMessage(new TextMessage("Username already in use, please take another one."));
-                 *         }
-                 */
+                System.out.println("Setting Username...");
+                UserClientService.registerUser(session, messageJson);
+                System.out.println("Username set.");
+                break;
             case "joinLobby":
                 System.out.println("Versuchen zur Lobby hinzufügen : " + session.getId() + " testUser ");
                   lobbyService.handleJoinLobby(session, messageJson);
                 System.out.println("Erfolgreich zur Lobby hinzugefügt :  "+ session.getId() + " testUser ");
                   break;
             default:
-                JSONObject response = new JSONObject();
-                response.put("error", "unbekannte Aktion");
-                response.put("action", action);
+                JSONObject response = GenerateJSONObjectService.generateJSONObject();
+                response.put("Error", "Unbekannte Aktion");
+                response.put("Action", action);
                 session.sendMessage(new TextMessage(response.toString()));
                 System.out.println("Unbekannte Aktion erhalten: " + action + " von " + "testUser");
                 break;
