@@ -12,7 +12,7 @@ public class WebSocketHandlerConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new WebSocketHandlerImpl(), "/websocket-example-handler")
+        registry.addHandler(new WebSocketHandlerImpl(), "/welcome-to-the-moon")
                 .setAllowedOrigins("*");
     }
 }

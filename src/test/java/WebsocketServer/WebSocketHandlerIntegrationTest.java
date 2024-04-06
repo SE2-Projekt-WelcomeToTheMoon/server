@@ -25,7 +25,7 @@ class WebSocketHandlerIntegrationTest {
     @LocalServerPort
     private int port;
 
-    private final String WEBSOCKET_URI = "ws://localhost:%d/websocket-example-handler";
+    private final String WEBSOCKET_URI = "ws://localhost:%d/welcome-to-the-moon";
 
     /**
      * Queue of messages from the server.
