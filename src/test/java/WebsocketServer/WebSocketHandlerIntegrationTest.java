@@ -1,6 +1,7 @@
 package WebsocketServer;
 
 import WebsocketServer.websocket.WebSocketHandlerClientImpl;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,6 +42,65 @@ class WebSocketHandlerIntegrationTest {
 
         var expectedResponse = "echo from handler: " + message;
         assertThat(messages.poll(1, TimeUnit.SECONDS)).isEqualTo(expectedResponse);
+    }
+
+    @Test
+    public void testJoinLobby() throws Exception {
+        WebSocketSession session = initStompSession();
+
+        //Simulation: Senden einer Nachricht
+        JSONObject joinLobbyMessage = new JSONObject()
+                .put("action", "joinLobby")
+                .put("username", "testUser1");
+        session.sendMessage(new TextMessage(joinLobbyMessage.toString()));
+
+        // Erwartete Antwort
+        JSONObject expected = new JSONObject("{\"action\":\"joinedLobby\",\"success\":true}");
+        JSONObject actual = new JSONObject(messages.poll(5, TimeUnit.SECONDS));
+        assertThat(actual.similar(expected)).isTrue();
+    }
+    @Test
+    public void testJoinLobbyDefault() throws Exception{
+        WebSocketSession session1 = initStompSession();
+
+        JSONObject joinLobbyDefaultMessage = new JSONObject();
+        joinLobbyDefaultMessage.put("action", "ungültig");
+        joinLobbyDefaultMessage.put("username", "testUser");
+
+        session1.sendMessage(new TextMessage(joinLobbyDefaultMessage.toString()));
+
+        // Erwarte eine Fehlermeldung als Antwort
+        String expectedErrorMessage = "{\"action\":\"ungültig\",\"error\":\"unbekannte Aktion\"}";
+        String actualResponse = messages.poll(5, TimeUnit.SECONDS);
+
+        // Überprüfung, ob die tatsächliche Antwort der erwarteten Fehlermeldung entspricht
+        assertThat(actualResponse).isEqualToIgnoringWhitespace(expectedErrorMessage);
+    }
+
+    @Test
+    public void testJoinLobbyFull()throws Exception{
+
+        WebSocketSession session2 = initStompSession();
+
+        JSONObject resultJSON = new JSONObject();
+                resultJSON.put("action", "joinLobby");
+                resultJSON.put("username", "testUser");
+        session2.sendMessage(new TextMessage(resultJSON.toString()));
+
+        JSONObject expected = new JSONObject("{\"action\":\"joinedLobby\",\"success\":true}");
+        JSONObject actual = new JSONObject(messages.poll(5, TimeUnit.SECONDS));
+        assertThat(actual.similar(expected)).isTrue();
+
+        WebSocketSession session3 = initStompSession();
+
+        JSONObject resultJSON2 = new JSONObject();
+        resultJSON2.put("action", "joinLobby");
+        resultJSON2.put("username", "testUser");
+        session3.sendMessage(new TextMessage(resultJSON2.toString()));
+
+        JSONObject expected2 = new JSONObject("{\"action\":\"joinedLobby\",\"success\":\"false\",\"error\":\"lobby is full or Username already in use.\"}");
+        JSONObject actual2 = new JSONObject(messages.poll(5, TimeUnit.SECONDS));
+        assertThat(actual2.similar(expected2)).isFalse();
     }
 
     /**
