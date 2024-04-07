@@ -10,7 +10,6 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     private LobbyService lobbyService;
     private final UserClientService userClientService;
-    private JSONObject messageJson;
 
     public WebSocketHandlerImpl(){
         this.lobbyService = new LobbyService();
@@ -32,15 +31,13 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
         if(message.getPayload().equals("Test message")){
             session.sendMessage(new TextMessage("echo from handler: " + message.getPayload()));
         }
-        messageJson = new JSONObject(message.getPayload().toString());
+        JSONObject messageJson = new JSONObject(message.getPayload().toString());
 
         String action = (String) messageJson.getString("action");
 
         switch (action) {
             case "registerUser":
-//                System.out.println("Setting Username...");
                 UserClientService.registerUser(session, messageJson);
-//                System.out.println("Username set.");
                 break;
             case "joinLobby":
                 System.out.println("Versuchen zur Lobby hinzufügen : " + session.getId() + " testUser ");
