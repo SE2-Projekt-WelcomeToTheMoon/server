@@ -1,6 +1,6 @@
 package WebsocketServer.websocket.handler;
 
-import WebsocketServer.services.GenerateJSONObjectService;
+
 import WebsocketServer.services.LobbyService;
 import WebsocketServer.services.UserClientService;
 import org.json.JSONObject;
@@ -38,9 +38,9 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
         switch (action) {
             case "registerUser":
-                System.out.println("Setting Username...");
+//                System.out.println("Setting Username...");
                 UserClientService.registerUser(session, messageJson);
-                System.out.println("Username set.");
+//                System.out.println("Username set.");
                 break;
             case "joinLobby":
                 System.out.println("Versuchen zur Lobby hinzufügen : " + session.getId() + " testUser ");
