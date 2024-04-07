@@ -2,6 +2,8 @@ package WebsocketServer.services;
 
 import WebsocketServer.game.lobby.Lobby;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -16,6 +18,9 @@ public class LobbyService {
 
     private Lobby gamelobby;
     private static final String USERNAME_KEY = "username";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LobbyService.class);
+
 
 
     public LobbyService(){
@@ -37,12 +42,16 @@ public class LobbyService {
         if(gamelobby.addPlayerToLobby(username)){
             JSONObject response = GenerateJSONObjectService.generateJSONObject("joinedLobby", username, true, "", "");
             session.sendMessage(new TextMessage(response.toString()));
-            System.out.println("Erfolgreich zur Lobby hinzugefügt :  "+ session.getId() + " Username: " + messageJson.getString(USERNAME_KEY));
+            LOGGER.info("Erfolgreich zur Lobby hinzugefügt :  "+ session.getId() + " Username: " + messageJson.getString(USERNAME_KEY));
+
+
 
         }else{
             JSONObject errorResponse = GenerateJSONObjectService.generateJSONObject("joinLobby", username, false, "", "lobby is full or Username already in use.");
             session.sendMessage(new TextMessage(errorResponse.toString()));
-            System.out.println("Nicht zur Lobby hinzugefügt :  "+ session.getId() + " Username: " + messageJson.getString(USERNAME_KEY));
+            LOGGER.info("Nicht zur Lobby hinzugefügt :  "+ session.getId() + " Username: " + messageJson.getString(USERNAME_KEY));
+
+
 
         }
     }
