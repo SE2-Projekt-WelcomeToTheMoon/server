@@ -1,5 +1,6 @@
 package WebsocketServer;
 
+import WebsocketServer.services.GenerateJSONObjectService;
 import WebsocketServer.websocket.WebSocketHandlerClientImpl;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -44,63 +46,74 @@ class WebSocketHandlerIntegrationTest {
         assertThat(messages.poll(1, TimeUnit.SECONDS)).isEqualTo(expectedResponse);
     }
 
+    /**
+     * Testet die Methode handleJoinLobby aus dem LobbyService
+     */
     @Test
     public void testJoinLobby() throws Exception {
         WebSocketSession session = initStompSession();
 
-        //Simulation: Senden einer Nachricht
-        JSONObject joinLobbyMessage = new JSONObject()
-                .put("action", "joinLobby")
-                .put("username", "testUser1");
-        session.sendMessage(new TextMessage(joinLobbyMessage.toString()));
+        //Senden einer Nachricht an den Server
+        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
+                        "joinLobby", "User1234", true, "", "");
+        session.sendMessage(new TextMessage(jsonMsg.toString()));
 
         // Erwartete Antwort
-        JSONObject expected = new JSONObject("{\"action\":\"joinedLobby\",\"success\":true}");
-        JSONObject actual = new JSONObject(messages.poll(5, TimeUnit.SECONDS));
-        assertThat(actual.similar(expected)).isTrue();
+        JSONObject expected = new JSONObject("{\"action\":\"joinedLobby\",\"success\":true,\"username\":\"User1234\"}");
+        JSONObject actual = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
+
+        assertTrue(actual.similar(expected));
     }
+
+    /**
+     * Testet die Methode handleJoinLobby aus dem LobbyService
+     */
     @Test
     public void testJoinLobbyDefault() throws Exception{
-        WebSocketSession session1 = initStompSession();
+        WebSocketSession session = initStompSession();
 
-        JSONObject joinLobbyDefaultMessage = new JSONObject();
-        joinLobbyDefaultMessage.put("action", "ungültig");
-        joinLobbyDefaultMessage.put("username", "testUser");
+        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
+                        "ungültig", "testUser", null, "", "Unbekannte Aktion"
+        );
+        session.sendMessage(new TextMessage(jsonMsg.toString()));
 
-        session1.sendMessage(new TextMessage(joinLobbyDefaultMessage.toString()));
+        // Erwarte Antwort
+        JSONObject expected = new JSONObject("{\"action\":\"ungültig\",\"error\":\"Unbekannte Aktion\"}");
+        JSONObject actual = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
 
-        // Erwarte eine Fehlermeldung als Antwort
-        String expectedErrorMessage = "{\"action\":\"ungültig\",\"error\":\"Unbekannte Aktion\"}";
-        String actualResponse = messages.poll(5, TimeUnit.SECONDS);
-
-        // Überprüfung, ob die tatsächliche Antwort der erwarteten Fehlermeldung entspricht
-        assertThat(actualResponse).isEqualToIgnoringWhitespace(expectedErrorMessage);
+        assertTrue(actual.similar(expected));
     }
 
+    /**
+     * Testet die Methode handleJoinLobby aus dem LobbyService
+     */
     @Test
-    public void testJoinLobbyFull()throws Exception{
+    public void testJoinLobbyDuplicateUsername()throws Exception{
+
+        WebSocketSession session = initStompSession();
+
+        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
+                        "joinLobby", "testUser", null, "", "");
+
+        session.sendMessage(new TextMessage(jsonMsg.toString()));
+
+        JSONObject expected = new JSONObject("{\"action\":\"joinedLobby\",\"username\":\"testUser\",\"success\":true}");
+        JSONObject actual = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
+
+        assertTrue(actual.similar(expected));
+
 
         WebSocketSession session2 = initStompSession();
 
-        JSONObject resultJSON = new JSONObject();
-        resultJSON.put("action", "joinLobby");
-        resultJSON.put("username", "testUser");
-        session2.sendMessage(new TextMessage(resultJSON.toString()));
+        JSONObject jsonMsg2 = GenerateJSONObjectService.generateJSONObject(
+                        "joinLobby", "testUser", null, "", "lobby is full or Username already in use.");
+        session2.sendMessage(new TextMessage(jsonMsg2.toString()));
 
-        JSONObject expected = new JSONObject("{\"action\":\"joinedLobby\",\"success\":true}");
-        JSONObject actual = new JSONObject(messages.poll(5, TimeUnit.SECONDS));
-        assertThat(actual.similar(expected)).isTrue();
+        JSONObject expected2 = new JSONObject("{\"action\":\"joinLobby\",\"username\":\"testUser\",\"success\":false,\"error\":\"lobby is full or Username already in use.\"}");
 
-        WebSocketSession session3 = initStompSession();
+        JSONObject actual2 = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
 
-        JSONObject resultJSON2 = new JSONObject();
-        resultJSON2.put("action", "joinLobby");
-        resultJSON2.put("username", "testUser");
-        session3.sendMessage(new TextMessage(resultJSON2.toString()));
-
-        JSONObject expected2 = new JSONObject("{\"action\":\"joinedLobby\",\"success\":\"false\",\"error\":\"lobby is full or Username already in use.\"}");
-        JSONObject actual2 = new JSONObject(messages.poll(5, TimeUnit.SECONDS));
-        assertThat(actual2.similar(expected2)).isFalse();
+        assertTrue(actual2.similar(expected2));
     }
 
     /**
