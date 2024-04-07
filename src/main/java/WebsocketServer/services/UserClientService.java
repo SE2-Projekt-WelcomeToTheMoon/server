@@ -14,8 +14,8 @@ public class UserClientService {
     }
     public static void registerUser(WebSocketSession session, JSONObject message) throws IOException {
         JSONObject response = new JSONObject();
-        if (message.getString("Username") != null) {
-            if (UserClientService.setUsername(message.getString("Username"))) {
+        if (message.getString("username") != null) {
+            if (UserClientService.setUsername(message.getString("username"))) {
                 session.sendMessage(new TextMessage("Username set. Please continue."));
             } else session.sendMessage(new TextMessage("Username already in use, please take another one."));
         } else session.sendMessage(new TextMessage("No username passed, please provide an username."));

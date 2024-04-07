@@ -34,7 +34,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
         }
         messageJson = new JSONObject(message.getPayload().toString());
 
-        String action = (String) messageJson.getString("Action");
+        String action = (String) messageJson.getString("action");
 
         switch (action) {
             case "registerUser":
@@ -49,8 +49,8 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                 break;
             default:
                 JSONObject response = GenerateJSONObjectService.generateJSONObject();
-                response.put("Error", "Unbekannte Aktion");
-                response.put("Action", action);
+                response.put("error", "Unbekannte Aktion");
+                response.put("action", action);
                 session.sendMessage(new TextMessage(response.toString()));
                 System.out.println("Unbekannte Aktion erhalten: " + action + " von " + "testUser");
                 break;
