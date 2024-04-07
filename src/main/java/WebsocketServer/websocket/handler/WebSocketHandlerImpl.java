@@ -4,8 +4,6 @@ import WebsocketServer.services.GenerateJSONObjectService;
 import WebsocketServer.services.LobbyService;
 import WebsocketServer.services.UserClientService;
 import org.json.JSONObject;
-import org.springframework.boot.json.GsonJsonParser;
-import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.web.socket.*;
 
 public class WebSocketHandlerImpl implements WebSocketHandler {
@@ -13,6 +11,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     private LobbyService lobbyService;
     private final UserClientService userClientService;
     private JSONObject messageJson;
+    private JSONObject responseMessage;
 
     public WebSocketHandlerImpl(){
         this.lobbyService = new LobbyService();
@@ -34,15 +33,37 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
         if(message.getPayload().equals("Test message")){
             session.sendMessage(new TextMessage("echo from handler: " + message.getPayload()));
         }
+
         messageJson = new JSONObject(message.getPayload().toString());
+        responseMessage = GenerateJSONObjectService.generateJSONObject();
 
         String action = (String) messageJson.getString("Action");
 
         switch (action) {
             case "registerUser":
                 System.out.println("Setting Username...");
-                UserClientService.registerUser(session, messageJson);
-                System.out.println("Username set.");
+                String resp = UserClientService.registerUser(session, messageJson);
+                switch(resp){
+                    case "Username set.":
+                        responseMessage.put("Message", "Username set");
+                        System.out.println("Username set.");
+                        break;
+
+                    case "Username already in use, please take another one.":
+                        responseMessage.put("Message", "Username in use");
+                        System.out.println("Username already in use, please take another one.");
+                        break;
+
+                    case "No username passed, please provide an username.":
+                        responseMessage.put("Message", "No username passed");
+                        System.out.println("No username passed, please provide an username.");
+                        break;
+
+                    default:
+                        responseMessage.put("Error", "An error occurred.");
+                        break;
+                }
+                session.sendMessage(new TextMessage(responseMessage.toString()));
                 break;
             case "joinLobby":
                 System.out.println("Versuchen zur Lobby hinzufügen : " + session.getId() + " testUser ");
@@ -67,7 +88,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-        System.out.println("Verbindung getrennt: "+ session.getId());
+        System.out.println("Verbindung getrennt: "+ session.getId() + " " + closeStatus.toString());
     }
 
     @Override
