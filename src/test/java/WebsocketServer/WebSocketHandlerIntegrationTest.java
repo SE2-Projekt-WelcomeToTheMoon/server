@@ -70,7 +70,7 @@ class WebSocketHandlerIntegrationTest {
         session1.sendMessage(new TextMessage(joinLobbyDefaultMessage.toString()));
 
         // Erwarte eine Fehlermeldung als Antwort
-        String expectedErrorMessage = "{\"action\":\"ungültig\",\"error\":\"unbekannte Aktion\"}";
+        String expectedErrorMessage = "{\"action\":\"ungültig\",\"error\":\"Unbekannte Aktion\"}";
         String actualResponse = messages.poll(5, TimeUnit.SECONDS);
 
         // Überprüfung, ob die tatsächliche Antwort der erwarteten Fehlermeldung entspricht

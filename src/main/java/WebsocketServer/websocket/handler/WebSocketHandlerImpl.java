@@ -48,7 +48,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                 System.out.println("Erfolgreich zur Lobby hinzugefügt :  "+ session.getId() + " testUser ");
                 break;
             default:
-                JSONObject response = GenerateJSONObjectService.generateJSONObject();
+                JSONObject response = new JSONObject();
                 response.put("error", "Unbekannte Aktion");
                 response.put("action", action);
                 session.sendMessage(new TextMessage(response.toString()));
