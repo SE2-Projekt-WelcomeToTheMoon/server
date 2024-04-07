@@ -35,7 +35,7 @@ class WebSocketHandlerIntegrationTest {
     BlockingQueue<String> messages = new LinkedBlockingDeque<>();
 
     @Test
-    public void testWebSocketMessageBroker() throws Exception {
+    void testWebSocketMessageBroker() throws Exception {
         WebSocketSession session = initStompSession();
 
         // send a message to the server
@@ -50,7 +50,7 @@ class WebSocketHandlerIntegrationTest {
      * Testet die Methode handleJoinLobby aus dem LobbyService
      */
     @Test
-    public void testJoinLobby() throws Exception {
+    void testJoinLobby() throws Exception {
         WebSocketSession session = initStompSession();
 
         //Senden einer Nachricht an den Server
@@ -69,7 +69,7 @@ class WebSocketHandlerIntegrationTest {
      * Testet die Methode handleJoinLobby aus dem LobbyService
      */
     @Test
-    public void testJoinLobbyDefault() throws Exception{
+    void testJoinLobbyDefault() throws Exception{
         WebSocketSession session = initStompSession();
 
         JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
@@ -88,7 +88,7 @@ class WebSocketHandlerIntegrationTest {
      * Testet die Methode handleJoinLobby aus dem LobbyService
      */
     @Test
-    public void testJoinLobbyDuplicateUsername()throws Exception{
+    void testJoinLobbyDuplicateUsername()throws Exception{
 
         WebSocketSession session = initStompSession();
 
@@ -119,7 +119,7 @@ class WebSocketHandlerIntegrationTest {
     /**
      * @return The basic session for the WebSocket connection.
      */
-    public WebSocketSession initStompSession() throws Exception {
+     public WebSocketSession initStompSession() throws Exception {
         WebSocketClient client = new StandardWebSocketClient();
 
         // connect client to the websocket server

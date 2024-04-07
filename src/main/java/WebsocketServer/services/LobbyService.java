@@ -14,9 +14,9 @@ import org.springframework.web.socket.WebSocketSession;
  */
 public class LobbyService {
 
-
     private Lobby gamelobby;
-    private GenerateJSONObjectService generateJSONObjectService;
+    private static final String USERNAME_KEY = "username";
+
 
     public LobbyService(){
         this.gamelobby = new Lobby();
@@ -31,31 +31,19 @@ public class LobbyService {
      */
     public void handleJoinLobby(WebSocketSession session, JSONObject messageJson) throws Exception {
 
-        String username = messageJson.getString("username");
+
+        String username = messageJson.getString(USERNAME_KEY);
 
         if(gamelobby.addPlayerToLobby(username)){
             JSONObject response = GenerateJSONObjectService.generateJSONObject("joinedLobby", username, true, "", "");
             session.sendMessage(new TextMessage(response.toString()));
-            System.out.println("Erfolgreich zur Lobby hinzugefügt :  "+ session.getId() + " Username: " + messageJson.getString("username"));
+            System.out.println("Erfolgreich zur Lobby hinzugefügt :  "+ session.getId() + " Username: " + messageJson.getString(USERNAME_KEY));
 
         }else{
             JSONObject errorResponse = GenerateJSONObjectService.generateJSONObject("joinLobby", username, false, "", "lobby is full or Username already in use.");
             session.sendMessage(new TextMessage(errorResponse.toString()));
-            System.out.println("Nicht zur Lobby hinzugefügt :  "+ session.getId() + " Username: " + messageJson.getString("username"));
+            System.out.println("Nicht zur Lobby hinzugefügt :  "+ session.getId() + " Username: " + messageJson.getString(USERNAME_KEY));
 
         }
-
-//            JSONObject response = new JSONObject();
-//            response.put("action", "joinedLobby");
-//            response.put("success", true);
-//
-//            session.sendMessage(new TextMessage(response.toString()));
-//        }else{
-//            JSONObject errorResponse = new JSONObject();
-//            errorResponse.put("action", "joinLobby");
-//            errorResponse.put("success", false);
-//            errorResponse.put("error", "lobby is full or Username already in use.");
-//            session.sendMessage(new TextMessage(errorResponse.toString()));
-//        }
     }
 }
