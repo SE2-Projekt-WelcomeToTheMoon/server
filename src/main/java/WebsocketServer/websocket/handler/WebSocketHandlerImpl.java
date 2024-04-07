@@ -33,7 +33,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
         }
         JSONObject messageJson = new JSONObject(message.getPayload().toString());
 
-        String action = (String) messageJson.getString("action");
+        String action = messageJson.getString("action");
 
         switch (action) {
             case "registerUser":
