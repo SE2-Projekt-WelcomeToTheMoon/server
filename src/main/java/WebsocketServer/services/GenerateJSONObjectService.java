@@ -7,7 +7,7 @@ public class GenerateJSONObjectService {
 
     public static JSONObject generateJSONObject() throws JSONException {
         return new JSONObject(
-                "{\"username\":\"\",\"action\":\"\",\"success\":\"\"\"message\":\"\", \"error\":\"\"}"
+                "{\"username\":\"\",\"action\":\"\",\"message\":\"\", \"error\":\"\"}"
         );
     }
 }

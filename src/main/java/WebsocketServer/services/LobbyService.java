@@ -21,21 +21,20 @@ public class LobbyService {
      */
     public void handleJoinLobby(WebSocketSession session, JSONObject messageJson) throws Exception {
 
-        String username = messageJson.getString("Username");
+        String username = messageJson.getString("username");
 
         if(gamelobby.addPlayerToLobby(username)){
             JSONObject response = new JSONObject();
-            response.put("Action", "joinedLobby");
-            response.put("Success", true);
+            response.put("action", "joinedLobby");
+            response.put("success", true);
 
             session.sendMessage(new TextMessage(response.toString()));
         }else{
             JSONObject errorResponse = new JSONObject();
-            errorResponse.put("Action", "joinLobby");
-            errorResponse.put("Success", false);
-            errorResponse.put("Error", "lobby is full or Username already in use.");
+            errorResponse.put("action", "joinLobby");
+            errorResponse.put("success", false);
+            errorResponse.put("error", "lobby is full or Username already in use.");
             session.sendMessage(new TextMessage(errorResponse.toString()));
         }
     }
 }
-

@@ -83,8 +83,8 @@ class WebSocketHandlerIntegrationTest {
         WebSocketSession session2 = initStompSession();
 
         JSONObject resultJSON = new JSONObject();
-                resultJSON.put("action", "joinLobby");
-                resultJSON.put("username", "testUser");
+        resultJSON.put("action", "joinLobby");
+        resultJSON.put("username", "testUser");
         session2.sendMessage(new TextMessage(resultJSON.toString()));
 
         JSONObject expected = new JSONObject("{\"action\":\"joinedLobby\",\"success\":true}");
