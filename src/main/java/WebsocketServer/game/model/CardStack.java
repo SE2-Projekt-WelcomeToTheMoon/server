@@ -42,7 +42,7 @@ public class CardStack{
         return cardList;
     }
 
-    public ArrayList<PlayingCard> getCards() {
+    public List<PlayingCard> getCards() {
         return cards;
     }
     public void shuffleDeck() {

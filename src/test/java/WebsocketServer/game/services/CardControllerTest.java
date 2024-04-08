@@ -11,12 +11,12 @@ class CardControllerTest {
     private CardController cardController;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         cardController = new CardController();
     }
 
     @Test
-    public void testGetCombinationAtPosition() {
+    void testGetCombinationAtPosition() {
         CardCombination[] combinations = cardController.getCombinationAtPosition(0);
         assertNotNull(combinations);
         assertEquals(3, combinations.length);
@@ -26,19 +26,19 @@ class CardControllerTest {
     }
 
     @Test
-    public void testGetCombinationAtInvalidPosition() {
+    void testGetCombinationAtInvalidPosition() {
         assertThrows(IllegalArgumentException.class, () -> cardController.getCombinationAtPosition(22));
     }
 
     @Test
-    public void testDrawNextCard() {
+    void testDrawNextCard() {
         int initialPosition = cardController.currentPosition;
         cardController.drawNextCard();
         assertEquals(initialPosition + 1, cardController.currentPosition);
     }
 
     @Test
-    public void testDrawNextCardShuffle() {
+    void testDrawNextCardShuffle() {
         // Set current position to 20 to trigger shuffle
         cardController.currentPosition = 19;
         cardController.drawNextCard();
@@ -46,7 +46,7 @@ class CardControllerTest {
     }
 
     @Test
-    public void testGetLastCardCombination() {
+    void testGetLastCardCombination() {
         // Assuming there are past combinations
         cardController.drawNextCard();
         CardCombination[] lastCombination = cardController.getLastCardCombination();
@@ -54,13 +54,13 @@ class CardControllerTest {
     }
 
     @Test
-    public void testGetPastCombinations() {
+    void testGetPastCombinations() {
         // Assuming there are past combinations
         cardController.drawNextCard();
         assertNotNull(cardController.getPastCombinations());
     }
     @Test
-    public void testDrawCorrectly() {
+    void testDrawCorrectly() {
         cardController.drawNextCard();
         CardCombination[] lastCombination = cardController.currentCombinations;
         cardController.drawNextCard();
@@ -69,7 +69,7 @@ class CardControllerTest {
         assertEquals(lastCombination[2].nextSymbol,cardController.currentCombinations[2].currentSymbol);
     }
     @Test
-    public void testShuffleCardsCorrectly() {
+    void testShuffleCardsCorrectly() {
         cardController.currentPosition=18;
         cardController.drawNextCard();
         CardCombination[] lastCombination = new CardCombination[3];

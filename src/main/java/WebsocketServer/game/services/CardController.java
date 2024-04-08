@@ -38,7 +38,7 @@ public class CardController {
             PlayingCard card2Before=currentCombinations[2].card2;
             currentPosition=0;
             cardStack.shuffleDeck();
-            ArrayList<PlayingCard> cards=cardStack.getCards();
+            ArrayList<PlayingCard> cards= (ArrayList<PlayingCard>) cardStack.getCards();
             currentCombinations[0]=new CardCombination(card0Before,cards.get(0));
             currentCombinations[1]=new CardCombination(card1Before,cards.get(21));
             currentCombinations[2]=new CardCombination(card2Before,cards.get(42));

@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CardCombinationTest {
 
     @Test
-    public void testGetCurrentSymbol() {
+     void testGetCurrentSymbol() {
         PlayingCard card1 = new PlayingCard(FieldCategory.ROBOTER, 5);
         PlayingCard card2 = new PlayingCard(FieldCategory.PFLANZE, 8);
         CardCombination combination = new CardCombination(card1, card2);
@@ -16,7 +16,7 @@ class CardCombinationTest {
     }
 
     @Test
-    public void testGetNextSymbol() {
+    void testGetNextSymbol() {
         PlayingCard card1 = new PlayingCard(FieldCategory.ROBOTER, 5);
         PlayingCard card2 = new PlayingCard(FieldCategory.PFLANZE, 8);
         CardCombination combination = new CardCombination(card1, card2);
@@ -24,7 +24,7 @@ class CardCombinationTest {
     }
 
     @Test
-    public void testGetCurrentNumber() {
+    void testGetCurrentNumber() {
         PlayingCard card1 = new PlayingCard(FieldCategory.ROBOTER, 5);
         PlayingCard card2 = new PlayingCard(FieldCategory.PFLANZE, 8);
         CardCombination combination = new CardCombination(card1, card2);
