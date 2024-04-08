@@ -4,6 +4,8 @@ import WebsocketServer.game.enums.FieldCategory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CardStackTest {
@@ -55,10 +57,22 @@ public class CardStackTest {
     }
 
     @Test
-    void shuffleDeck() {
+    void testShuffleDeck() {
         CardStack originalStack = new CardStack();
-        CardStack shuffledStack = new CardStack();
-        shuffledStack.shuffleDeck();
-        assertNotEquals(originalStack.getCards(), shuffledStack.getCards());
+        ArrayList<PlayingCard> cards= new ArrayList<>(originalStack.getCards());
+        originalStack.shuffleDeck();
+        if(originalStack.getCards().get(0)!=cards.get(0)){
+            assertTrue(true);
+            return;
+        }
+        if(originalStack.getCards().get(1)!=cards.get(1)){
+            assertTrue(true);
+            return;
+        }
+        if(originalStack.getCards().get(2)!=cards.get(2)){
+            assertTrue(true);
+            return;
+        }
+        fail();
     }
 }

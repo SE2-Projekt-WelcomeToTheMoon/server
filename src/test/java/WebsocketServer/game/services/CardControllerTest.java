@@ -59,4 +59,27 @@ class CardControllerTest {
         cardController.drawNextCard();
         assertNotNull(cardController.getPastCombinations());
     }
+    @Test
+    public void testDrawCorrectly() {
+        cardController.drawNextCard();
+        CardCombination[] lastCombination = cardController.currentCombinations;
+        cardController.drawNextCard();
+        assertEquals(lastCombination[0].nextSymbol,cardController.currentCombinations[0].currentSymbol);
+        assertEquals(lastCombination[1].nextSymbol,cardController.currentCombinations[1].currentSymbol);
+        assertEquals(lastCombination[2].nextSymbol,cardController.currentCombinations[2].currentSymbol);
+    }
+    @Test
+    public void testShuffleCardsCorrectly() {
+        cardController.currentPosition=18;
+        cardController.drawNextCard();
+        CardCombination[] lastCombination = new CardCombination[3];
+        for (int i = 0; i < 3; i++) {
+            lastCombination[i] = new CardCombination(cardController.currentCombinations[i].card1,cardController.currentCombinations[i].card2);
+        }
+        cardController.drawNextCard();
+        assertEquals(0,cardController.currentPosition);
+        assertEquals(lastCombination[0].nextSymbol,cardController.currentCombinations[0].currentSymbol);
+        assertEquals(lastCombination[1].nextSymbol,cardController.currentCombinations[1].currentSymbol);
+        assertEquals(lastCombination[2].nextSymbol,cardController.currentCombinations[2].currentSymbol);
+    }
 }
