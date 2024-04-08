@@ -8,7 +8,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 /**
- * Klasse um die Lobby zu verwalten
+ * Klasse um User zur Lobby hinzuzufügen
  *  - Spieler hinzufügen
  *  - Spieler entfernen
  *  - Spieleranzahl prüfen

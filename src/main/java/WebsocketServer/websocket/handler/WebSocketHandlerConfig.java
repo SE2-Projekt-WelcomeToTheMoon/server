@@ -15,6 +15,5 @@ public class WebSocketHandlerConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(new WebSocketHandlerImpl(), "/welcome-to-the-moon")
                 .setAllowedOrigins("*");
-        ContainerProvider.getWebSocketContainer().setAsyncSendTimeout(10_000);
     }
 }

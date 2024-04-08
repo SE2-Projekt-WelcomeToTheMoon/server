@@ -1,6 +1,5 @@
 package WebsocketServer.websocket.handler;
 
-
 import WebsocketServer.services.GenerateJSONObjectService;
 import WebsocketServer.services.LobbyService;
 import WebsocketServer.services.UserClientService;
@@ -8,11 +7,10 @@ import org.json.JSONObject;
 import org.springframework.web.socket.*;
 
 
-
 public class WebSocketHandlerImpl implements WebSocketHandler {
 
     private final LobbyService lobbyService;
-    private final UserClientService userClientService;
+    private UserClientService userClientService;
 
     public WebSocketHandlerImpl(){
         this.lobbyService = new LobbyService();
@@ -26,9 +24,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-        // TODO handle the messages here
         System.out.println("Nachricht erhalten: " + message.getPayload());
-//        session.sendMessage(new TextMessage("echo from handler: " + message.getPayload()));
 
         if (message.getPayload().equals("Test message")) {
             session.sendMessage(new TextMessage("echo from handler: " + message.getPayload()));
@@ -37,11 +33,12 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
             String action = messageJson.getString("action");
 
+            //Checks which action was requested by client.
             switch (action) {
                 case "registerUser":
                     System.out.println("Setting Username...");
-                    String resp = UserClientService.registerUser(session, messageJson);
-                    JSONObject responseMessage = GenerateJSONObjectService.generateJSONObject("registerUser", messageJson.getString("username"), true, "", "");
+                    String resp = this.userClientService.registerUser(session, messageJson);
+                    JSONObject responseMessage = GenerateJSONObjectService.generateJSONObject("registeredUser", messageJson.getString("username"), true, "", "");
                     switch(resp){
                         case "Username set.":
                             responseMessage.put("message", "Username set");
