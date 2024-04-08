@@ -1,6 +1,7 @@
 package WebsocketServer.websocket.handler;
 
 
+import WebsocketServer.services.GenerateJSONObjectService;
 import WebsocketServer.services.LobbyService;
 import WebsocketServer.services.UserClientService;
 import org.json.JSONObject;
@@ -38,7 +39,30 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
             switch (action) {
                 case "registerUser":
-                    UserClientService.registerUser(session, messageJson);
+                    System.out.println("Setting Username...");
+                    String resp = UserClientService.registerUser(session, messageJson);
+                    JSONObject responseMessage = GenerateJSONObjectService.generateJSONObject("registerUser", messageJson.getString("username"), true, "", "");
+                    switch(resp){
+                        case "Username set.":
+                            responseMessage.put("message", "Username set");
+                            System.out.println("Username set.");
+                            break;
+
+                        case "Username already in use, please take another one.":
+                            responseMessage.put("message", "Username in use");
+                            System.out.println("Username already in use, please take another one.");
+                            break;
+
+                        case "No username passed, please provide an username.":
+                            responseMessage.put("message", "No username passed");
+                            System.out.println("No username passed, please provide an username.");
+                            break;
+
+                        default:
+                            responseMessage.put("error", "An error occurred.");
+                            break;
+                    }
+                    session.sendMessage(new TextMessage(responseMessage.toString()));
                     break;
                 case "joinLobby":
                     System.out.println("Versuchen zur Lobby hinzufügen : " + session.getId() + " Username: " + messageJson.getString("username"));

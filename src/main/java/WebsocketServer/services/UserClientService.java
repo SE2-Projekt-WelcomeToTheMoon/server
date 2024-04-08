@@ -2,7 +2,9 @@ package WebsocketServer.services;
 
 import org.json.JSONObject;
 import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
+
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -12,20 +14,14 @@ public class UserClientService {
     public UserClientService(){
         this.clientID = 0;
     }
-    public static void registerUser(WebSocketSession session, JSONObject message) throws IOException {
+    public static String registerUser(WebSocketSession session, JSONObject message) throws IOException {
         JSONObject response = new JSONObject();
         if (message.getString("username") != null) {
-            if (UserClientService.setUsername(message.getString("username"))) {
-                session.sendMessage(new TextMessage("Username set. Please continue."));
-            } else session.sendMessage(new TextMessage("Username already in use, please take another one."));
-        } else session.sendMessage(new TextMessage("No username passed, please provide an username."));
-    }
-    public static boolean setUsername(String usrName){
-        if (!userClients.containsValue(usrName)){
-            userClients.put(clientID++, usrName);
-            return true;
-        }
-        else return false;
+            if (!userClients.containsValue(message.getString("username"))) {
+                userClients.put(clientID++, message.getString("username"));
+                return "Username set.";
+            } else return "Username already in use, please take another one.";
+        } else return "No username passed, please provide an username.";
     }
 
     public String getUserClient(short key) {
