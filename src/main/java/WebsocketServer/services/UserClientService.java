@@ -1,16 +1,22 @@
 package WebsocketServer.services;
 
+import lombok.Getter;
 import org.json.JSONObject;
 import org.springframework.web.socket.WebSocketSession;
-import java.io.IOException;
 import java.util.HashMap;
 
 /**
  * Class that adds user to a hashmap. Only adds non duplicated usernames.
  */
 public class UserClientService {
-    private static final HashMap<Short, String> userClients = new HashMap<>();
-    private static short clientID = 0;
+    private final HashMap<Short, String> userClients = new HashMap<>();
+    /**
+     * -- GETTER --
+     *  Returns current amount of registered users.
+     * @return Short of registered users.
+     */
+    @Getter
+    private short clientID = 0;
 
     /**
      * Checks username and adds it to hashmap.
@@ -22,7 +28,7 @@ public class UserClientService {
         String username = message.getString("username");
         if (username != null) {
             if (!userClients.containsValue(username)) {
-                userClients.put(clientID++, username);
+                userClients.put(this.clientID++, username);
                 return "Username set.";
             } else return "Username already in use, please take another one.";
         } else return "No username passed, please provide an username.";
@@ -35,13 +41,5 @@ public class UserClientService {
      */
     public String getUserClient(short key) {
         return userClients.get(key);
-    }
-
-    /**
-     * Returns current ammount of registered users.
-     * @return Short of registered users.
-     */
-    public short getClientID() {
-        return clientID;
     }
 }
