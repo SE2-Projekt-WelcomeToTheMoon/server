@@ -1,7 +1,5 @@
 package WebsocketServer.websocket.handler;
 
-
-import jakarta.websocket.ContainerProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;

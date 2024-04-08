@@ -31,6 +31,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
         } else {
             JSONObject messageJson = new JSONObject(message.getPayload().toString());
 
+            String username = messageJson.getString("username");
             String action = messageJson.getString("action");
 
             //Checks which action was requested by client.
@@ -38,7 +39,8 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                 case "registerUser":
                     System.out.println("Setting Username...");
                     String resp = this.userClientService.registerUser(session, messageJson);
-                    JSONObject responseMessage = GenerateJSONObjectService.generateJSONObject("registeredUser", messageJson.getString("username"), true, "", "");
+
+                    JSONObject responseMessage = GenerateJSONObjectService.generateJSONObject("registeredUser", username, true, "", "");
                     switch(resp){
                         case "Username set.":
                             responseMessage.put("message", "Username set");
@@ -62,7 +64,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     session.sendMessage(new TextMessage(responseMessage.toString()));
                     break;
                 case "joinLobby":
-                    System.out.println("Versuchen zur Lobby hinzufügen : " + session.getId() + " Username: " + messageJson.getString("username"));
+                    System.out.println("Versuchen zur Lobby hinzufügen : " + session.getId() + " Username: " + username);
                     lobbyService.handleJoinLobby(session, messageJson);
                     break;
                 default:
@@ -70,9 +72,8 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     response.put("error", "Unbekannte Aktion");
                     response.put("action", action);
                     session.sendMessage(new TextMessage(response.toString()));
-                    System.out.println("Unbekannte Aktion erhalten: " + action + ", Username: " +messageJson.getString("username"));
+                    System.out.println("Unbekannte Aktion erhalten: " + action + ", Username: " + username);
                     break;
-
             }
         }
     }
