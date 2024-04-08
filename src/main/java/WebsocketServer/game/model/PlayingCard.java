@@ -1,11 +1,13 @@
 package WebsocketServer.game.model;
 
+import WebsocketServer.game.enums.FieldCategory;
+
 public class PlayingCard{
 
-    public CardSymbolEnum symbol;
+    public FieldCategory symbol;
     public int number;
 
-    public PlayingCard(CardSymbolEnum symbol, int number) {
+    public PlayingCard(FieldCategory symbol, int number) {
         this.symbol = symbol;
         this.number = number;
     }
