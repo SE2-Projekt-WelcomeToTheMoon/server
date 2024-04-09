@@ -1,17 +1,16 @@
 package WebsocketServer.websocket.handler;
 
-
+import WebsocketServer.services.GenerateJSONObjectService;
 import WebsocketServer.services.LobbyService;
 import WebsocketServer.services.UserClientService;
 import org.json.JSONObject;
 import org.springframework.web.socket.*;
 
 
-
 public class WebSocketHandlerImpl implements WebSocketHandler {
 
     private final LobbyService lobbyService;
-    private final UserClientService userClientService;
+    private UserClientService userClientService;
 
     public WebSocketHandlerImpl(){
         this.lobbyService = new LobbyService();
@@ -25,23 +24,47 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-        // TODO handle the messages here
         System.out.println("Nachricht erhalten: " + message.getPayload());
-//        session.sendMessage(new TextMessage("echo from handler: " + message.getPayload()));
 
         if (message.getPayload().equals("Test message")) {
             session.sendMessage(new TextMessage("echo from handler: " + message.getPayload()));
         } else {
             JSONObject messageJson = new JSONObject(message.getPayload().toString());
 
+            String username = messageJson.getString("username");
             String action = messageJson.getString("action");
 
+            //Checks which action was requested by client.
             switch (action) {
                 case "registerUser":
-                    UserClientService.registerUser(session, messageJson);
+                    System.out.println("Setting Username...");
+                    String resp = this.userClientService.registerUser(session, messageJson);
+
+                    JSONObject responseMessage = GenerateJSONObjectService.generateJSONObject("registeredUser", username, true, "", "");
+                    switch(resp){
+                        case "Username set.":
+                            responseMessage.put("message", "Username set");
+                            System.out.println("Username set.");
+                            break;
+
+                        case "Username already in use, please take another one.":
+                            responseMessage.put("message", "Username in use");
+                            System.out.println("Username already in use, please take another one.");
+                            break;
+
+                        case "No username passed, please provide an username.":
+                            responseMessage.put("message", "No username passed");
+                            System.out.println("No username passed, please provide an username.");
+                            break;
+
+                        default:
+                            responseMessage.put("error", "An error occurred.");
+                            break;
+                    }
+                    session.sendMessage(new TextMessage(responseMessage.toString()));
                     break;
                 case "joinLobby":
-                    System.out.println("Versuchen zur Lobby hinzufügen : " + session.getId() + " Username: " + messageJson.getString("username"));
+                    System.out.println("Versuchen zur Lobby hinzufügen : " + session.getId() + " Username: " + username);
                     lobbyService.handleJoinLobby(session, messageJson);
                     break;
                 default:
@@ -49,9 +72,8 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     response.put("error", "Unbekannte Aktion");
                     response.put("action", action);
                     session.sendMessage(new TextMessage(response.toString()));
-                    System.out.println("Unbekannte Aktion erhalten: " + action + ", Username: " +messageJson.getString("username"));
+                    System.out.println("Unbekannte Aktion erhalten: " + action + ", Username: " + username);
                     break;
-
             }
         }
     }
