@@ -3,6 +3,8 @@ package WebsocketServer.websocket.handler;
 import WebsocketServer.services.GenerateJSONObjectService;
 import WebsocketServer.services.LobbyService;
 import WebsocketServer.services.UserClientService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.springframework.web.socket.*;
 
@@ -11,6 +13,8 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     private final LobbyService lobbyService;
     private UserClientService userClientService;
+    private static final Logger logger = LogManager.getLogger(WebSocketHandlerImpl.class);
+
 
     public WebSocketHandlerImpl(){
         this.lobbyService = new LobbyService();
@@ -19,12 +23,12 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        System.out.println("Verbindung erfolgreich hergestellt: " + session.getId());
+        logger.info("Verbindung erfolgreich hergestellt: " + session.getId());
     }
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-        System.out.println("Nachricht erhalten: " + message.getPayload());
+        logger.info("Nachricht erhalten: " + message.getPayload());
 
         if (message.getPayload().equals("Test message")) {
             session.sendMessage(new TextMessage("echo from handler: " + message.getPayload()));
@@ -37,24 +41,24 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
             //Checks which action was requested by client.
             switch (action) {
                 case "registerUser":
-                    System.out.println("Setting Username...");
+                    logger.info("Setting Username...");
                     String resp = this.userClientService.registerUser(session, messageJson);
 
                     JSONObject responseMessage = GenerateJSONObjectService.generateJSONObject("registeredUser", username, true, "", "");
                     switch(resp){
                         case "Username set.":
                             responseMessage.put("message", "Username set");
-                            System.out.println("Username set.");
+                            logger.info("Username set.");
                             break;
 
                         case "Username already in use, please take another one.":
                             responseMessage.put("message", "Username in use");
-                            System.out.println("Username already in use, please take another one.");
+                            logger.info("Username already in use, please take another one.");
                             break;
 
                         case "No username passed, please provide an username.":
                             responseMessage.put("message", "No username passed");
-                            System.out.println("No username passed, please provide an username.");
+                            logger.info("No username passed, please provide an username.");
                             break;
 
                         default:
@@ -64,7 +68,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     session.sendMessage(new TextMessage(responseMessage.toString()));
                     break;
                 case "joinLobby":
-                    System.out.println("Versuchen zur Lobby hinzufügen : " + session.getId() + " Username: " + username);
+                    logger.info("Case joinLobby: " + username );
                     lobbyService.handleJoinLobby(session, messageJson);
                     break;
                 default:
@@ -85,7 +89,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-        System.out.println("Verbindung getrennt: "+ session.getId());
+        logger.info("Verbindung getrennt: "+ session.getId());
     }
 
     @Override
