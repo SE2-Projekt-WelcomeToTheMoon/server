@@ -23,12 +23,12 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        logger.info("Verbindung erfolgreich hergestellt: " + session.getId());
+        logger.info("Verbindung erfolgreich hergestellt: {} " ,  session.getId());
     }
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-        logger.info("Nachricht erhalten: " + message.getPayload());
+        logger.info("Nachricht erhalten: {} " , message.getPayload());
 
         if (message.getPayload().equals("Test message")) {
             session.sendMessage(new TextMessage("echo from handler: " + message.getPayload()));
@@ -68,7 +68,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     session.sendMessage(new TextMessage(responseMessage.toString()));
                     break;
                 case "joinLobby":
-                    logger.info("Case joinLobby: " + username );
+                    logger.info("Case joinLobby: {} ",  username );
                     lobbyService.handleJoinLobby(session, messageJson);
                     break;
                 default:
@@ -76,7 +76,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     response.put("error", "Unbekannte Aktion");
                     response.put("action", action);
                     session.sendMessage(new TextMessage(response.toString()));
-                    System.out.println("Unbekannte Aktion erhalten: " + action + ", Username: " + username);
+                    logger.info("Unbekannte Aktion erhalten: {}, {}", action, messageJson.getString(username));
                     break;
             }
         }
@@ -89,7 +89,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-        logger.info("Verbindung getrennt: "+ session.getId());
+        logger.info("Verbindung getrennt: {} ",  session.getId());
     }
 
     @Override
