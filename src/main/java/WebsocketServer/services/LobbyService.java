@@ -18,6 +18,7 @@ public class LobbyService {
 
     private Lobby gamelobby;
     private static final String USERNAME_KEY = "username";
+    private static final String USERNAME = " username: ";
 
     private static final Logger logger = LoggerFactory.getLogger(LobbyService.class);
 
@@ -36,17 +37,17 @@ public class LobbyService {
      */
     public void handleJoinLobby(WebSocketSession session, JSONObject messageJson) throws Exception {
 
-        logger.info("Versuchen zur Lobby hinzuzufügen : " + session.getId() + " Username: " + messageJson.getString(USERNAME_KEY));
+        logger.info("Versuchen zur Lobby hinzuzufügen : " +  session.getId() + ", " + USERNAME + messageJson.getString(USERNAME_KEY));
 
         String username = messageJson.getString(USERNAME_KEY);
         if(gamelobby.addPlayerToLobby(username)){
             JSONObject response = GenerateJSONObjectService.generateJSONObject("joinedLobby", username, true, "", "");
             session.sendMessage(new TextMessage(response.toString()));
-            logger.info("Erfolgreich zur Lobby hinzugefügt :  "+ session.getId() + " Username: " + messageJson.getString(USERNAME_KEY));
+            logger.info("Erfolgreich zur Lobby hinzugefügt :  "+ session.getId() + ", " + USERNAME + messageJson.getString(USERNAME_KEY));
         }else{
             JSONObject errorResponse = GenerateJSONObjectService.generateJSONObject("joinLobby", username, false, "", "lobby is full or Username already in use.");
             session.sendMessage(new TextMessage(errorResponse.toString()));
-            logger.info("Nicht zur Lobby hinzugefügt :  "+ session.getId() + " Username: " + messageJson.getString(USERNAME_KEY));
+            logger.info("Nicht zur Lobby hinzugefügt :  "+ session.getId() + ", " + USERNAME + messageJson.getString(USERNAME_KEY));
         }
     }
 }
