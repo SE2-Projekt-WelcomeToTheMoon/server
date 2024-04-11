@@ -4,9 +4,11 @@ import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.GameStateException;
 import WebsocketServer.game.services.CardController;
 import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 @Getter
 public class Game {
 
@@ -20,7 +22,7 @@ public class Game {
         this.cardController = cardController;
     }
 
-    public void startGame() {
+    protected void startGame() {
         if (gameState != GameState.INITIAL) {
             throw new GameStateException("Game must be in state INITIAL to be started");
         }
@@ -29,7 +31,7 @@ public class Game {
         doRoundOne();
     }
 
-    private void doRoundOne() {
+    protected void doRoundOne() {
         if (gameState != GameState.ROUND_ONE) {
             throw new GameStateException("Game must be in state ROUND_ONE");
         }
@@ -40,7 +42,7 @@ public class Game {
         doRoundTwo();
     }
 
-    private void doRoundTwo() {
+    protected void doRoundTwo() {
         if (gameState != GameState.ROUND_TWO) {
             throw new GameStateException("Game must be in state ROUND_TWO");
         }
@@ -51,7 +53,7 @@ public class Game {
         doRoundThree();
     }
 
-    private void doRoundThree() {
+    protected void doRoundThree() {
         if (gameState != GameState.ROUND_THREE) {
             throw new GameStateException("Game must be in state ROUND_THREE");
         }
@@ -62,7 +64,7 @@ public class Game {
         doRoundFour();
     }
 
-    private void doRoundFour() {
+    protected void doRoundFour() {
         if (gameState != GameState.ROUND_FOUR) {
             throw new GameStateException("Game must be in state ROUND_FOUR");
         }
@@ -73,7 +75,7 @@ public class Game {
         doRoundFive();
     }
 
-    private void doRoundFive() {
+    protected void doRoundFive() {
         if (gameState != GameState.ROUND_FIVE) {
             throw new GameStateException("Game must be in state ROUND_FIVE");
         }
@@ -84,9 +86,9 @@ public class Game {
         doRoundSix();
     }
 
-    private void doRoundSix() {
-        if (gameState != GameState.ROUND_FIVE) {
-            throw new GameStateException("Game must be in state ROUND_FIVE");
+    protected void doRoundSix() {
+        if (gameState != GameState.ROUND_SIX) {
+            throw new GameStateException("Game must be in state ROUND_SIX");
         }
 
         //Logic for round six where missions can be completed, and it will be
@@ -100,7 +102,7 @@ public class Game {
         }
     }
 
-    private boolean checkIfGameIsFinished() {
+    protected boolean checkIfGameIsFinished() {
         //Check if game is finished
 
         return true;
