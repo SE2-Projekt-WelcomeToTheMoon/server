@@ -2,10 +2,15 @@ package WebsocketServer.game.services;
 import WebsocketServer.game.model.CardCombination;
 import WebsocketServer.game.model.CardStack;
 import WebsocketServer.game.model.PlayingCard;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+@Component
+@Scope("prototype")
 public class CardController {
     public CardStack cardStack;
     public int currentPosition;
