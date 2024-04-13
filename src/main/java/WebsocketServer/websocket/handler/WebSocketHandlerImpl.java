@@ -3,7 +3,6 @@ package WebsocketServer.websocket.handler;
 import WebsocketServer.services.userServices.CreateUserService;
 import WebsocketServer.services.GenerateJSONObjectService;
 import WebsocketServer.services.LobbyService;
-import WebsocketServer.services.UserClientService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import WebsocketServer.services.userServices.UserListService;
@@ -15,8 +14,6 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     private final LobbyService lobbyService;
     private static final Logger logger = LogManager.getLogger(WebSocketHandlerImpl.class);
-
-    private LobbyService lobbyService;
     private JSONObject messageJson;
     private JSONObject responseMessage;
 
