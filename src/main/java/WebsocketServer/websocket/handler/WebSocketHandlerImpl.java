@@ -1,10 +1,12 @@
 package WebsocketServer.websocket.handler;
 
+import WebsocketServer.services.userServices.CreateUserService;
 import WebsocketServer.services.GenerateJSONObjectService;
 import WebsocketServer.services.LobbyService;
 import WebsocketServer.services.UserClientService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import WebsocketServer.services.userServices.UserListService;
 import org.json.JSONObject;
 import org.springframework.web.socket.*;
 
@@ -12,13 +14,14 @@ import org.springframework.web.socket.*;
 public class WebSocketHandlerImpl implements WebSocketHandler {
 
     private final LobbyService lobbyService;
-    private UserClientService userClientService;
     private static final Logger logger = LogManager.getLogger(WebSocketHandlerImpl.class);
 
+    private LobbyService lobbyService;
+    private JSONObject messageJson;
+    private JSONObject responseMessage;
 
     public WebSocketHandlerImpl(){
         this.lobbyService = new LobbyService();
-        this.userClientService = new UserClientService();
     }
 
     @Override
@@ -42,29 +45,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
             switch (action) {
                 case "registerUser":
                     logger.info("Setting Username...");
-                    String resp = this.userClientService.registerUser(session, messageJson);
-
-                    JSONObject responseMessage = GenerateJSONObjectService.generateJSONObject("registeredUser", username, true, "", "");
-                    switch(resp){
-                        case "Username set.":
-                            responseMessage.put("message", "Username set");
-                            logger.info("Username set.");
-                            break;
-
-                        case "Username already in use, please take another one.":
-                            responseMessage.put("message", "Username in use");
-                            logger.info("Username already in use, please take another one.");
-                            break;
-
-                        case "No username passed, please provide an username.":
-                            responseMessage.put("message", "No username passed");
-                            logger.info("No username passed, please provide an username.");
-                            break;
-
-                        default:
-                            responseMessage.put("error", "An error occurred.");
-                            break;
-                    }
+                    UserListService.userList.addUser(new CreateUserService(messageJson.getString("username")));
                     session.sendMessage(new TextMessage(responseMessage.toString()));
                     break;
                 case "joinLobby":
