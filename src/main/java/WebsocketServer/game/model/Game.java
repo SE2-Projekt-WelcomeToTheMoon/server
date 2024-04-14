@@ -2,8 +2,10 @@ package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.GameStateException;
+import WebsocketServer.game.lobby.Lobby;
 import WebsocketServer.game.services.CardController;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,18 +16,26 @@ public class Game {
 
     private GameState gameState;
 
+    private Lobby lobby;
+
     List<Player> playerList;
     CardController cardController;
+
+    @Setter
+    boolean isWaitingForUserResponse;
 
     public Game(CardController cardController) {
         this.gameState = GameState.INITIAL;
         this.cardController = cardController;
+        isWaitingForUserResponse = false;
     }
 
-    protected void startGame() {
+    protected void startGame(Lobby lobby) {
         if (gameState != GameState.INITIAL) {
             throw new GameStateException("Game must be in state INITIAL to be started");
         }
+
+        this.lobby = lobby;
 
         gameState = GameState.ROUND_ONE;
         doRoundOne();
@@ -37,6 +47,10 @@ public class Game {
         }
 
         cardController.drawNextCard();
+
+        lobby.sendNewCardCombination(cardController.currentCombinations);
+
+        isWaitingForUserResponse = true;
 
         gameState = GameState.ROUND_TWO;
         doRoundTwo();

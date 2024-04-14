@@ -20,7 +20,7 @@ class GameTest {
     @Test
     @DirtiesContext
     void testStartGameSuccess() {
-        game.startGame();
+        game.startGame(null);
 
         //Currently nothing happens within the rounds therefore it should run straight through akk rounds
         assertEquals(GameState.FINISHED, game.getGameState());
@@ -30,8 +30,8 @@ class GameTest {
     @Test
     @DirtiesContext
     void testWrongStateForRound() {
-        game.startGame();
-        assertThrows(GameStateException.class, () -> game.startGame());
+        game.startGame(null);
+        assertThrows(GameStateException.class, () -> game.startGame(null));
         assertThrows(GameStateException.class, () -> game.doRoundOne());
         assertThrows(GameStateException.class, () -> game.doRoundTwo());
         assertThrows(GameStateException.class, () -> game.doRoundThree());
