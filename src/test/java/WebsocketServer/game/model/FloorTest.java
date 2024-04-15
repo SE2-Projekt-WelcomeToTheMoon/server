@@ -29,6 +29,7 @@ class FloorTest {
         chamberCompatible.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
         chamberCompatible.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
 
+
         secondChamberCompatible.addField(new Field(FieldCategory.ROBOTER, FieldValue.THREE));
         secondChamberCompatible.addField(new Field(FieldCategory.ROBOTER, FieldValue.FOUR));
 
@@ -179,4 +180,22 @@ class FloorTest {
         floor.addChamber(chamber);
         assertThrows(FinalizedException.class, () -> floor.setFieldAtIndex(0, FieldValue.ONE));
     }
+    @Test
+    public void testChamberCompletionWorking() {
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+
+        floor.addChamber(chamber);
+
+        floor.finalizeFloor();
+        floor.setFieldAtIndex(0,FieldValue.ONE);
+        floor.setFieldAtIndex(1,FieldValue.TWO);
+        floor.setFieldAtIndex(2,FieldValue.THREE);
+        floor.setFieldAtIndex(3,FieldValue.FIVE);
+        floor.setFieldAtIndex(4,FieldValue.SIX);
+        assertTrue(floor.checkFloorCompletion());
+    }
+
 }

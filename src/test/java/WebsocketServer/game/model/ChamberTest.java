@@ -90,4 +90,15 @@ class ChamberTest {
         chamber.finalizeChamber();
         assertThrows(FinalizedException.class, chamber::finalizeChamber);
     }
+    @Test
+    public void testChamberCompletionWorking() {
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        chamber.finalizeChamber();
+        assertThrows(FinalizedException.class, chamber::finalizeChamber);
+    }
+
 }

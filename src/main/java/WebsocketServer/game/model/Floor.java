@@ -58,7 +58,7 @@ public class Floor {
             throw new FinalizedException("Floor must be finalized.");
         }
 
-        int currentMax = 0;
+        int currentMax = -1;
         int currentIndex = 0;
         Field fieldToChange = null;
 
@@ -131,9 +131,9 @@ public class Floor {
         }
     }
 
-    public boolean checkFloorCompletion(Floor floor){
+    public boolean checkFloorCompletion(){
         int currentHighest=-1;
-        for (Chamber chamber: floor.chambers) {
+        for (Chamber chamber: chambers) {
             if(!chamber.checkChamberCompletion(currentHighest))return false;
             currentHighest=chamber.getHighestValueInChamber();
         }
