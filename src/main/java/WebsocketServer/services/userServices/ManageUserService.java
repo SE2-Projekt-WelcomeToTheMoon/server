@@ -3,8 +3,10 @@ package WebsocketServer.services.userServices;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import WebsocketServer.services.GenerateJSONObjectService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 
 /**
  * Class that manages all users registered on the server.
@@ -15,27 +17,31 @@ public class ManageUserService {
     private HashMap<String, CreateUserService> userList;
     private final Logger logger = LogManager.getLogger(String.valueOf(ManageUserService.class));
 
-
     public ManageUserService(){
         userList = new HashMap<>();
     }
 
     /**
-     * Adds a user to the list and checks if the user already exists.
+     * Adds a user to the list and checks if the user already exists. Returns a JSONObject message to send back to user
+     * for verbose output.
      * @param user User to add.
+     * return Response as JSON Object
      */
-    public void addUser(CreateUserService user){
+    public JSONObject addUser(CreateUserService user){
         String username = user.getUsername();
         try {
-            if(userList.containsKey(username)){
-                logger.warn("Username {} is already in use", username);
-            }
-            else {
+            if(!(userList.containsKey(username))){
                 userList.put(user.getUsername(), user);
                 logger.info("User {} now managed.", username);
+                return GenerateJSONObjectService.generateJSONObject("registerUser", username, true, ("User " + username + " now managed."), "");
+            }
+            else {
+                logger.warn("Username {} is already in use", username);
+                return GenerateJSONObjectService.generateJSONObject("registerUser", username, false, ("Username " + username + " is already in use"), "");
             }
         }catch(Exception e){
             logger.error("User {} could not be added. Error: {}", username, e.getMessage());
+            return GenerateJSONObjectService.generateJSONObject("registerUser", username, false, ("User " + username + " could not be added"), e.getMessage());
         }
     }
 
@@ -59,10 +65,12 @@ public class ManageUserService {
     /**
      * Returns the user object saved as value behind key username.
      * @param username User to get.
-     * @return value of key username
+     * @return value of key username or null if user does not exist.
      */
     public CreateUserService getUser(String username){
-        return userList.get(username);
+        if(userList.containsKey(username)){
+            return userList.get(username);
+        }else return null;
     }
 
     /**
