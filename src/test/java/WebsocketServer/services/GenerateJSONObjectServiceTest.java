@@ -1,32 +1,48 @@
 package WebsocketServer.services;
 
 import org.json.JSONObject;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GenerateJSONObjectServiceTest {
-    private JSONObject jsonObject;
+class GenerateJSONObjectServiceTest {
 
+    @Test
+    void testGenerateJSONObject(){
+        String action = "testAction";
+        String username = "testUser";
+        Boolean success = true;
+        String message = "testMessage";
+        String error = "testError";
 
-    @AfterEach
-    public void tearDown(){
-        jsonObject = null;
+        JSONObject result = GenerateJSONObjectService.generateJSONObject(action, username, success, message, error);
+
+        assertEquals(action, result.get("action"));
+        assertEquals(username, result.get("username"));
+        assertEquals(success, result.get("success"));
+        assertEquals(message, result.get("message"));
+        assertEquals(error, result.get("error"));
     }
 
     @Test
-    public void testGenerateJSONObject(){
-        assertNull(jsonObject);
-        jsonObject = GenerateJSONObjectService.generateJSONObject("registerUser", "Dummy",
-                false, "test", "test error");
-        assertNotNull(jsonObject);
-        assertEquals("{\"success\":false,\"action\":\"registerUser\",\"message\":\"test\"," +
-                "\"error\":\"test error\",\"username\":\"Dummy\"}", jsonObject.toString());
-        jsonObject = null;
-        jsonObject = GenerateJSONObjectService.generateJSONObject("", "", null, "",
-                "");
-        assertNotNull(jsonObject);
-        assertEquals("{\"action\":\"\",\"username\":\"\"}", jsonObject.toString());
+    void testGenerateJSONObjectWithNullValues() {
+        JSONObject result = GenerateJSONObjectService.generateJSONObject(null, null, null, null, null);
+
+        assertFalse(result.has("action"));
+        assertFalse(result.has("username"));
+        assertFalse(result.has("success"));
+        assertFalse(result.has("message"));
+        assertFalse(result.has("error"));
     }
+
+    @Test
+    void testGenerateJSONObjectWithEmptyStrings() {
+        JSONObject result = GenerateJSONObjectService.generateJSONObject("", "", null, "", "");
+
+        assertFalse(result.has("action"));
+        assertFalse(result.has("username"));
+        assertFalse(result.has("success"));
+        assertFalse(result.has("message"));
+        assertFalse(result.has("error"));
+    }
+
 }
