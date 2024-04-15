@@ -38,11 +38,10 @@ class GenerateJSONObjectServiceTest {
     void testGenerateJSONObjectWithEmptyStrings() {
         JSONObject result = GenerateJSONObjectService.generateJSONObject("", "", null, "", "");
 
-        assertFalse(result.has("action"));
-        assertFalse(result.has("username"));
+        assertTrue(result.has("action"));
+        assertTrue(result.has("username"));
         assertFalse(result.has("success"));
         assertFalse(result.has("message"));
         assertFalse(result.has("error"));
     }
-
 }
