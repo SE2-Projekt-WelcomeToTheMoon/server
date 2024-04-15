@@ -1,7 +1,6 @@
 package WebsocketServer.websocket.handler;
 
 import WebsocketServer.services.userServices.CreateUserService;
-import WebsocketServer.services.GenerateJSONObjectService;
 import WebsocketServer.services.LobbyService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,7 +41,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
             switch (action) {
                 case "registerUser":
                     logger.info("Setting Username...");
-                    UserListService.userList.addUser(new CreateUserService(messageJson.getString("username")));
+                    responseMessage = UserListService.userList.addUser(new CreateUserService(messageJson.getString("username")));
                     session.sendMessage(new TextMessage(responseMessage.toString()));
                     break;
                 case "joinLobby":
