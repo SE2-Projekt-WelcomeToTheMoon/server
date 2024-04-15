@@ -130,4 +130,14 @@ public class Floor {
             }
         }
     }
+
+    public boolean checkFloorCompletion(Floor floor){
+        int currentHighest=-1;
+        for (Chamber chamber: floor.chambers) {
+            if(!chamber.checkChamberCompletion(currentHighest))return false;
+            currentHighest=chamber.getHighestValueInChamber();
+        }
+        return true;
+    }
+
 }

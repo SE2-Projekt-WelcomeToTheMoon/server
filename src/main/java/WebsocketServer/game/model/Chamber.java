@@ -1,7 +1,9 @@
 package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.FieldCategory;
+import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.exceptions.FinalizedException;
+import WebsocketServer.game.exceptions.FloorSequenceException;
 import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,5 +62,22 @@ public class Chamber {
                 throw new FinalizedException("Some Fields already finalized.");
             }
         }
+    }
+    public boolean checkChamberCompletion(int highestBefore){
+        int previousNumber =highestBefore;
+        for (Field field: fields) {
+            if(field.getFieldValue().getValue()<previousNumber||field.getFieldValue()== FieldValue.NONE)return false;
+            previousNumber=field.getFieldValue().getValue();
+        }
+
+        return true;
+    }
+    public int getHighestValueInChamber(){
+        if(fields.isEmpty())throw new FloorSequenceException();
+        int highest=-1;
+        for (Field field: fields) {
+            highest= Math.max(field.getFieldValue().getValue(), highest);
+        }
+        return highest;
     }
 }
