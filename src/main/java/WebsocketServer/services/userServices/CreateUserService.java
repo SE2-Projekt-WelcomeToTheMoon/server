@@ -8,10 +8,11 @@ import org.apache.logging.log4j.Logger;
  * Class creates user object to handle users logged on the server.
  */
 public class CreateUserService {
+
     private final Logger logger = LogManager.getLogger(String.valueOf(CreateUserService.class));
+
     @Getter
     private String username;
-
 
     public CreateUserService(String username){
         registerUser(username);
@@ -31,7 +32,7 @@ public class CreateUserService {
      * @param username Username to be set.
      */
     public void registerUser(String username) {
-        if (username != null && !username.isEmpty()) {
+        if (!username.isEmpty()) {
             if(checkUserExists(username)){
                 this.username = username;
                 logger.info("Username {} set.", username);
