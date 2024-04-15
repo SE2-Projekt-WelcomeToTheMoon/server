@@ -7,22 +7,22 @@ import org.mockito.Mockito;
 
 import java.util.List;
 
-public class ManageUserServiceTest {
+class ManageUserServiceTest {
 
     private ManageUserService manageUserService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         manageUserService = new ManageUserService();
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         manageUserService.cleanUpUserList();
     }
 
     @Test
-    public void testAddUser() {
+    void testAddUser() {
         CreateUserService user = Mockito.mock(CreateUserService.class);
         Mockito.when(user.getUsername()).thenReturn("testUser");
 
@@ -32,7 +32,7 @@ public class ManageUserServiceTest {
     }
 
     @Test
-    public void testAddExistingUser() {
+    void testAddExistingUser() {
         CreateUserService user1 = Mockito.mock(CreateUserService.class);
         Mockito.when(user1.getUsername()).thenReturn("testUser");
 
@@ -46,7 +46,7 @@ public class ManageUserServiceTest {
     }
 
     @Test
-    public void testDeleteUser() {
+    void testDeleteUser() {
         CreateUserService user = Mockito.mock(CreateUserService.class);
         Mockito.when(user.getUsername()).thenReturn("testUser");
 
@@ -57,7 +57,7 @@ public class ManageUserServiceTest {
     }
 
     @Test
-    public void testDeleteNonExistingUser() {
+    void testDeleteNonExistingUser() {
         manageUserService.deleteUser("nonExistingUser");
         assertNull(manageUserService.getUser("nonExistingUser"));
     }
@@ -73,12 +73,12 @@ public class ManageUserServiceTest {
     }
 
     @Test
-    public void testGetNonExistingUser() {
+    void testGetNonExistingUser() {
         assertNull(manageUserService.getUser("nonExistingUser"));
     }
 
     @Test
-    public void testGetAllUsers() {
+    void testGetAllUsers() {
         CreateUserService user1 = Mockito.mock(CreateUserService.class);
         Mockito.when(user1.getUsername()).thenReturn("user1");
 
@@ -96,7 +96,7 @@ public class ManageUserServiceTest {
     }
 
     @Test
-    public void testCleanUpUserList() {
+    void testCleanUpUserList() {
         CreateUserService user = Mockito.mock(CreateUserService.class);
         Mockito.when(user.getUsername()).thenReturn("testUser");
 

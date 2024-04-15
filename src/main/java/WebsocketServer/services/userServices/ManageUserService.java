@@ -16,6 +16,7 @@ public class ManageUserService {
 
     private HashMap<String, CreateUserService> userList;
     private final Logger logger = LogManager.getLogger(String.valueOf(ManageUserService.class));
+    private static final String RESPONSE_ACTION = "registerUser";
 
     public ManageUserService(){
         userList = new HashMap<>();
@@ -33,15 +34,15 @@ public class ManageUserService {
             if(!(userList.containsKey(username))){
                 userList.put(user.getUsername(), user);
                 logger.info("User {} now managed.", username);
-                return GenerateJSONObjectService.generateJSONObject("registerUser", username, true, ("User " + username + " now managed."), "");
+                return GenerateJSONObjectService.generateJSONObject(RESPONSE_ACTION, username, true, ("User " + username + " now managed."), "");
             }
             else {
                 logger.warn("Username {} is already in use", username);
-                return GenerateJSONObjectService.generateJSONObject("registerUser", username, false, ("Username " + username + " is already in use"), "");
+                return GenerateJSONObjectService.generateJSONObject(RESPONSE_ACTION, username, false, ("Username " + username + " is already in use"), "");
             }
         }catch(Exception e){
             logger.error("User {} could not be added. Error: {}", username, e.getMessage());
-            return GenerateJSONObjectService.generateJSONObject("registerUser", username, false, ("User " + username + " could not be added"), e.getMessage());
+            return GenerateJSONObjectService.generateJSONObject(RESPONSE_ACTION, username, false, ("User " + username + " could not be added"), e.getMessage());
         }
     }
 

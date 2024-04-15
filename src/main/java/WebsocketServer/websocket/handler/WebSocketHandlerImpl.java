@@ -8,20 +8,17 @@ import WebsocketServer.services.userServices.UserListService;
 import org.json.JSONObject;
 import org.springframework.web.socket.*;
 
-
 public class WebSocketHandlerImpl implements WebSocketHandler {
 
     private final LobbyService lobbyService;
     private static final Logger logger = LogManager.getLogger(WebSocketHandlerImpl.class);
-    private JSONObject messageJson;
-    private JSONObject responseMessage;
 
     public WebSocketHandlerImpl(){
         this.lobbyService = new LobbyService();
     }
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+    public void afterConnectionEstablished(WebSocketSession session) {
         logger.info("Verbindung erfolgreich hergestellt: {} " ,  session.getId());
     }
 
@@ -41,7 +38,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
             switch (action) {
                 case "registerUser":
                     logger.info("Setting Username...");
-                    responseMessage = UserListService.userList.addUser(new CreateUserService(messageJson.getString("username")));
+                    JSONObject responseMessage = UserListService.userList.addUser(new CreateUserService(messageJson.getString("username")));
                     session.sendMessage(new TextMessage(responseMessage.toString()));
                     break;
                 case "joinLobby":
@@ -60,12 +57,12 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     }
 
     @Override
-    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+    public void handleTransportError(WebSocketSession session, Throwable exception) {
 
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
         logger.info("Verbindung getrennt: {} ",  session.getId());
     }
 
