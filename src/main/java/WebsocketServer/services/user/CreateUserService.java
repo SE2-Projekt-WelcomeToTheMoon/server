@@ -1,4 +1,4 @@
-package WebsocketServer.services.userServices;
+package WebsocketServer.services.user;
 
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;

@@ -1,10 +1,10 @@
 package WebsocketServer.websocket.handler;
 
-import WebsocketServer.services.userServices.CreateUserService;
+import WebsocketServer.services.user.CreateUserService;
 import WebsocketServer.services.LobbyService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import WebsocketServer.services.userServices.UserListService;
+import WebsocketServer.services.user.UserListService;
 import org.json.JSONObject;
 import org.springframework.web.socket.*;
 
@@ -58,7 +58,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) {
-
+        //TODO handle transport error
     }
 
     @Override

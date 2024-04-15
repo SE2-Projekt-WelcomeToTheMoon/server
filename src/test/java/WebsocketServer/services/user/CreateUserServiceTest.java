@@ -1,4 +1,4 @@
-package WebsocketServer.services.userServices;
+package WebsocketServer.services.user;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

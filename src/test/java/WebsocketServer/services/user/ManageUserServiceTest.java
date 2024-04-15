@@ -1,4 +1,4 @@
-package WebsocketServer.services.userServices;
+package WebsocketServer.services.user;
 
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -63,7 +63,7 @@ class ManageUserServiceTest {
     }
 
     @Test
-    public void testGetUser() {
+    void testGetUser() {
         CreateUserService user = Mockito.mock(CreateUserService.class);
         Mockito.when(user.getUsername()).thenReturn("testUser");
 

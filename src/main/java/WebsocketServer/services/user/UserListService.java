@@ -1,4 +1,4 @@
-package WebsocketServer.services.userServices;
+package WebsocketServer.services.user;
 
 /**
  * Provides access to the methods needed to manage the user list.
