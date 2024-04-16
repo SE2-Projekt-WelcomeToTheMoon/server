@@ -97,16 +97,17 @@ public class Chamber {
      */
     public void setFieldAtIndex(int index, FieldValue value, int previousChamberMax){
 
-        int currentMax=0;
+        int currentMax=previousChamberMax;
         int count=0;
-        System.out.println("GOT HERE with Index "+index+" and previousMax "+previousChamberMax);
         for (Field field: fields) {
-            if(field.getFieldValue().getValue()>=value.getValue()||field.getFieldValue()!=FieldValue.NONE)throw new FloorSequenceException("Values within Floor must be in ascending order");
-            currentMax=field.getFieldValue().getValue();
-            count++;
-            if(index==count&&value.getValue()>previousChamberMax&&value.getValue()>currentMax){
+            if(field.getFieldValue().getValue()>=value.getValue())throw new FloorSequenceException("Values within Floor must be in ascending order");
+            currentMax=Math.max(field.getFieldValue().getValue(), currentMax);
+            if(index==count&&value.getValue()>currentMax){
+                if(field.getFieldValue()!=FieldValue.NONE)throw new FloorSequenceException("Values within Floor must be in ascending order");
                 field.setFieldValue(value);
             }
+            count++;
+
         }
     }
 }
