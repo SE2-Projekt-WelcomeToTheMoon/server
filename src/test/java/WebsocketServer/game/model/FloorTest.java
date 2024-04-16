@@ -78,10 +78,11 @@ class FloorTest {
 
     @Test
     void testSetFieldAtIndexValid() {
+        chamberCompatible.addField(new Field(FieldCategory.ROBOTER));
         floor.addChamber(chamberCompatible);
         floor.finalizeFloor();
-        assertDoesNotThrow(() -> floor.setFieldAtIndex(1, FieldValue.THREE));
-        assertEquals(FieldValue.THREE, floor.getFieldAtIndex(1).getFieldValue());
+        assertDoesNotThrow(() -> floor.setFieldAtIndex(2, FieldValue.THREE));
+        assertEquals(FieldValue.THREE, floor.getFieldAtIndex(2).getFieldValue());
     }
 
     @Test
@@ -107,8 +108,6 @@ class FloorTest {
         floor.finalizeFloor();
 
         assertDoesNotThrow(() -> floor.setFieldAtIndex(2, FieldValue.NONE));
-
-
         assertDoesNotThrow(() -> floor.setFieldAtIndex(4, FieldValue.FIVE));
     }
 
@@ -213,5 +212,23 @@ class FloorTest {
         floor.setFieldAtIndex(4,FieldValue.SIX);
         assertFalse(floor.checkFloorCompletion());
     }
+
+    @Test
+    public void testInsertionNotInOrder() {
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+
+        floor.addChamber(chamber);
+
+        floor.finalizeFloor();
+        floor.setFieldAtIndex(0,FieldValue.ONE);
+        floor.setFieldAtIndex(1,FieldValue.TWO);
+        floor.setFieldAtIndex(3,FieldValue.FIVE);
+
+        assertThrows(FloorSequenceException.class, () -> floor.setFieldAtIndex(4,FieldValue.FOUR));
+    }
+
 
 }
