@@ -94,37 +94,19 @@ public class Chamber {
      * Checks if the value can be set at the index, then returns the highest value of the chamber
      * @param index the index
      * @param value the Fieldvalue
-     * @return highest value in chamber
      */
-    public int setFieldAtIndex(int index, FieldValue value){
-        int currentIndex=0;
+    public void setFieldAtIndex(int index, FieldValue value, int previousChamberMax){
+
         int currentMax=0;
-        Field fieldToChange = null;
-        for (int i = 0; i < getSize(); i++) {
-            Field field = getField(i);
-            if (currentIndex == index) {
-                if (value.getValue() > 0 && value.getValue() > currentMax) {
-                    currentMax = value.getValue();
-                    fieldToChange = field;
-                } else if (value.getValue() == 0) {
-                    continue;
-                } else {
-                    throw new FloorSequenceException("Values within Floor must be in ascending order");
-                }
-            } else {
-                if (field.getFieldValue().getValue() > 0 && field.getFieldValue().getValue() > currentMax) {
-                    currentMax = field.getFieldValue().getValue();
-                } else if (field.getFieldValue().getValue() == 0) {
-                    continue;
-                } else {
-                    throw new FloorSequenceException("Values within Floor must be in ascending order");
-                }
+        int count=0;
+        System.out.println("GOT HERE with Index "+index+" and previousMax "+previousChamberMax);
+        for (Field field: fields) {
+            if(field.getFieldValue().getValue()>=value.getValue()||field.getFieldValue()!=FieldValue.NONE)throw new FloorSequenceException("Values within Floor must be in ascending order");
+            currentMax=field.getFieldValue().getValue();
+            count++;
+            if(index==count&&value.getValue()>previousChamberMax&&value.getValue()>currentMax){
+                field.setFieldValue(value);
             }
-            currentIndex++;
         }
-        if (fieldToChange != null) {
-        fieldToChange.setFieldValue(value);
-    }
-        return getHighestValueInChamber();
     }
 }

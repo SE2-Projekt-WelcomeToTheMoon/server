@@ -62,12 +62,13 @@ public class Floor {
         int currentMax=0;
         boolean fieldChanged=false;
         for (Chamber chamber : chambers) {
-            if(count>=index){
-                chamber.setFieldAtIndex(index,value);
-                fieldChanged=true;
-                continue;
-            }
             count+=chamber.getSize();
+            if(count>=index){
+                chamber.setFieldAtIndex(index-count,value,currentMax);
+                fieldChanged=true;
+                break;
+            }
+
             currentMax=chamber.getHighestValueInChamber();
         }
         if(!fieldChanged)throw new FloorSequenceException("Values within Floor must be in ascending order");
