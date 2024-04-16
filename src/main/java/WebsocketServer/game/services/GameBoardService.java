@@ -1,10 +1,7 @@
 package WebsocketServer.game.services;
 
 import WebsocketServer.game.enums.FieldCategory;
-import WebsocketServer.game.model.Chamber;
-import WebsocketServer.game.model.Field;
-import WebsocketServer.game.model.Floor;
-import WebsocketServer.game.model.GameBoard;
+import WebsocketServer.game.model.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,6 +26,7 @@ public class GameBoardService {
         return gameBoard;
     }
 
+    //TODO ADD Rewards
     private Floor createFloor(FieldCategory fieldCategory, List<Integer> chambers) {
         Floor floor = new Floor(fieldCategory);
 
@@ -39,6 +37,7 @@ public class GameBoardService {
         return floor;
     }
 
+    //TODO Add rewards
     private Chamber createChamber(FieldCategory fieldCategory, Integer chamberSize) {
         Chamber chamber = new Chamber(fieldCategory);
 

@@ -197,5 +197,21 @@ class FloorTest {
         floor.setFieldAtIndex(4,FieldValue.SIX);
         assertTrue(floor.checkFloorCompletion());
     }
+    @Test
+    public void testChamberCompletionNotCompleted() {
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+
+        floor.addChamber(chamber);
+
+        floor.finalizeFloor();
+        floor.setFieldAtIndex(0,FieldValue.ONE);
+        floor.setFieldAtIndex(1,FieldValue.TWO);
+        floor.setFieldAtIndex(3,FieldValue.FIVE);
+        floor.setFieldAtIndex(4,FieldValue.SIX);
+        assertFalse(floor.checkFloorCompletion());
+    }
 
 }
