@@ -16,9 +16,18 @@ public class Chamber {
     @Getter
     private boolean isFinalized = false;
 
+    @Getter
+    private Reward rewards;
+
     public Chamber(FieldCategory fieldCategory) {
         this.fieldCategory = fieldCategory;
         fields = new ArrayList<>();
+
+    }
+    public Chamber(FieldCategory fieldCategory, Reward rewards) {
+        this.fieldCategory = fieldCategory;
+        fields = new ArrayList<>();
+        this.rewards=rewards;
     }
 
     public Field getField(int index) {
@@ -74,10 +83,48 @@ public class Chamber {
     }
     public int getHighestValueInChamber(){
         if(fields.isEmpty())throw new FloorSequenceException();
-        int highest=-1;
+        int highest=0;
         for (Field field: fields) {
             highest= Math.max(field.getFieldValue().getValue(), highest);
         }
         return highest;
+    }
+
+    /***
+     * Checks if the value can be set at the index, then returns the highest value of the chamber
+     * @param index the index
+     * @param value the Fieldvalue
+     * @return highest value in chamber
+     */
+    public int setFieldAtIndex(int index, FieldValue value){
+        int currentIndex=0;
+        int currentMax=0;
+        Field fieldToChange = null;
+        for (int i = 0; i < getSize(); i++) {
+            Field field = getField(i);
+            if (currentIndex == index) {
+                if (value.getValue() > 0 && value.getValue() > currentMax) {
+                    currentMax = value.getValue();
+                    fieldToChange = field;
+                } else if (value.getValue() == 0) {
+                    continue;
+                } else {
+                    throw new FloorSequenceException("Values within Floor must be in ascending order");
+                }
+            } else {
+                if (field.getFieldValue().getValue() > 0 && field.getFieldValue().getValue() > currentMax) {
+                    currentMax = field.getFieldValue().getValue();
+                } else if (field.getFieldValue().getValue() == 0) {
+                    continue;
+                } else {
+                    throw new FloorSequenceException("Values within Floor must be in ascending order");
+                }
+            }
+            currentIndex++;
+        }
+        if (fieldToChange != null) {
+        fieldToChange.setFieldValue(value);
+    }
+        return getHighestValueInChamber();
     }
 }
