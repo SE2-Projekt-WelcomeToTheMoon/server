@@ -53,7 +53,7 @@ public class Floor {
         }
     }
 
-    //TODO Delegate to Chamber, add check on fieldcategory via currentcombination
+    //add check on fieldcategory via currentcombination
     public void setFieldAtIndex(int index, FieldValue value) {
         if (!isFinalized) {
             throw new FinalizedException("Floor must be finalized.");

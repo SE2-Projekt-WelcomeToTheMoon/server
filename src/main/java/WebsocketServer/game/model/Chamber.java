@@ -17,17 +17,23 @@ public class Chamber {
     private boolean isFinalized = false;
 
     @Getter
-    private Reward rewards;
+    private List<Reward> rewards;
 
+    /*
     public Chamber(FieldCategory fieldCategory) {
         this.fieldCategory = fieldCategory;
         fields = new ArrayList<>();
 
     }
-    public Chamber(FieldCategory fieldCategory, Reward rewards) {
+    */
+
+    public Chamber(FieldCategory fieldCategory, List<Reward> rewards, int fieldAmount) {
         this.fieldCategory = fieldCategory;
         fields = new ArrayList<>();
         this.rewards=rewards;
+        for (int i=0;i<fieldAmount;i++) {
+            addField(new Field(fieldCategory));
+        }
     }
 
     public Field getField(int index) {

@@ -6,6 +6,7 @@ public class Reward {
     public RewardCategory category;
     public int numberRockets;
     public boolean rocketsFilled;
+    public int unfilledRockets;
 
     public Reward(RewardCategory category) {
         this.category = category;
@@ -14,14 +15,9 @@ public class Reward {
 
     public Reward(RewardCategory category,  int numberRockets) {
         this.category = category;
-        this.numberRockets = numberRockets;
-        this.rocketsFilled=true;
-    }
-
-    public Reward(RewardCategory category,  int numberRockets, boolean rocketsFilled) {
-        this.category = category;
-        this.numberRockets = numberRockets;
-        this.rocketsFilled = rocketsFilled;
+        if(category.equals(RewardCategory.ROCKET))this.numberRockets = numberRockets;
+        if(category.equals(RewardCategory.UNFILLEDROCKET))this.unfilledRockets=numberRockets;
+        this.rocketsFilled=false;
     }
 
 }

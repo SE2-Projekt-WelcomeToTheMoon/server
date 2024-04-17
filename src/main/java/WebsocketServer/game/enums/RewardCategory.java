@@ -4,5 +4,6 @@ public enum RewardCategory {
     ROCKET,
     PLANING,
     SYSTEMERROR,
-    ROCKETFILLING
+    ROCKETFILLING,
+    UNFILLEDROCKET
 }
