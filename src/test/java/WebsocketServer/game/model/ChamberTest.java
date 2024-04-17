@@ -6,7 +6,6 @@ import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class ChamberTest {
@@ -176,5 +175,4 @@ class ChamberTest {
 
         assertEquals(0,chamber.getHighestValueInChamber());
     }
-
 }

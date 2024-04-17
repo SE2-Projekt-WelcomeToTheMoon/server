@@ -19,13 +19,16 @@ public class Chamber {
     @Getter
     private List<Reward> rewards;
 
-    /*
+    /***
+     * This constructor solely exists for test cases and should not be used in Code as it does not have any rewards
+     * @param fieldCategory Category of the chamber
+     */
     public Chamber(FieldCategory fieldCategory) {
         this.fieldCategory = fieldCategory;
         fields = new ArrayList<>();
 
     }
-    */
+
 
     public Chamber(FieldCategory fieldCategory, List<Reward> rewards, int fieldAmount) {
         this.fieldCategory = fieldCategory;

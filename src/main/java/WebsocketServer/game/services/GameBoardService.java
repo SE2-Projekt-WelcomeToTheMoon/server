@@ -81,7 +81,7 @@ public class GameBoardService {
         chambers.add(new Chamber(FieldCategory.ANYTHING,rewards,2));
         rewards=List.of(new Reward(RewardCategory.ROCKETFILLING),new Reward(RewardCategory.PLANING));
         chambers.add(new Chamber(FieldCategory.ANYTHING,rewards,2));
-        gameBoard.addFloor(createFloor(FieldCategory.PFLANZE, chambers));
+        gameBoard.addFloor(createFloor(FieldCategory.ANYTHING, chambers));
 
         gameBoard.finalizeGameBoard();
 
