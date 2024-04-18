@@ -1,5 +1,6 @@
 package WebsocketServer.game.model;
 
+import WebsocketServer.game.enums.ChoosenCardCombination;
 import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.GameStateException;
 import WebsocketServer.game.lobby.Lobby;
@@ -9,7 +10,11 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 
@@ -20,12 +25,17 @@ public class Game {
     @Getter
     List<Player> playerList;
     CardController cardController;
+    HashMap<Player, ChoosenCardCombination> currentPlayerChoices;
+
+    private final AtomicInteger selectionsReceived = new AtomicInteger(0);
+    private CompletableFuture<Void> allSelectionsReceivedFuture = new CompletableFuture<>();
 
 
     public Game(CardController cardController) {
         this.gameState = GameState.INITIAL;
         this.cardController = cardController;
         this.playerList = new ArrayList<>();
+        currentPlayerChoices = new HashMap<>();
     }
 
     public void addPlayer(Player player){
@@ -67,9 +77,21 @@ public class Game {
         }
 
         //Logic for round two where player choose their combination
+        selectionsReceived.set(0);
+        allSelectionsReceivedFuture = new CompletableFuture<>();
 
-        gameState = GameState.ROUND_THREE;
-        doRoundThree();
+        allSelectionsReceivedFuture.thenRunAsync(() -> {
+            gameState = GameState.ROUND_THREE;
+            doRoundThree();
+        });
+    }
+
+    protected void receiveSelectedCombinationOfPlayer(Player player, ChoosenCardCombination choosenCardCombination){
+        currentPlayerChoices.put(player, choosenCardCombination);
+
+        if(selectionsReceived.incrementAndGet() == playerList.size()){
+            allSelectionsReceivedFuture.complete(null);
+        }
     }
 
     protected void doRoundThree() {

@@ -1,5 +1,6 @@
 package WebsocketServer.game.model;
 
+import WebsocketServer.game.enums.ChoosenCardCombination;
 import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.GameStateException;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.util.concurrent.CompletableFuture;
+
+import static java.lang.Thread.sleep;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,11 +23,14 @@ class GameTest {
     Game game;
 
     @Autowired
-    Player player;
+    Player player1;
+    @Autowired
+    Player player2;
 
     @BeforeEach
     public void setUp(){
-        game.addPlayer(player);
+        game.getPlayerList().clear();
+        game.addPlayer(player1);
     }
 
     @Test
@@ -33,8 +40,18 @@ class GameTest {
 
     @Test
     @DirtiesContext
-    void testStartGameSuccess() {
+    void testStartGameSuccess() throws InterruptedException {
+        game.addPlayer(player2);
         game.startGame();
+
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+            game.receiveSelectedCombinationOfPlayer(player1, ChoosenCardCombination.ONE);
+            game.receiveSelectedCombinationOfPlayer(player2, ChoosenCardCombination.TWO);
+        });
+        future.join();
+
+        //Timeout to allow waiting for async
+        sleep(100);
 
         //Currently nothing happens within the rounds therefore it should run straight through akk rounds
         assertEquals(GameState.FINISHED, game.getGameState());
@@ -43,8 +60,15 @@ class GameTest {
 
     @Test
     @DirtiesContext
-    void testWrongStateForRound() {
+    void testWrongStateForRound() throws InterruptedException {
         game.startGame();
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+            game.receiveSelectedCombinationOfPlayer(player1, ChoosenCardCombination.ONE);
+        });
+        future.join();
+        //Timeout to allow waiting for async
+        sleep(100);
+
         assertThrows(GameStateException.class, () -> game.startGame());
         assertThrows(GameStateException.class, () -> game.doRoundOne());
         assertThrows(GameStateException.class, () -> game.doRoundTwo());
