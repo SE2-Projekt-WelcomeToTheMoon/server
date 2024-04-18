@@ -96,7 +96,7 @@ class FloorTest {
     void testSetFieldAtIndexNone(){
         floor.addChamber(chamberAllNull);
         floor.finalizeFloor();
-        assertDoesNotThrow(() -> floor.setFieldAtIndex(1, FieldValue.NONE));
+        assertThrows(FloorSequenceException.class,() -> floor.setFieldAtIndex(1, FieldValue.NONE));
     }
 
     @Test
@@ -107,7 +107,7 @@ class FloorTest {
 
         floor.finalizeFloor();
 
-        assertDoesNotThrow(() -> floor.setFieldAtIndex(2, FieldValue.NONE));
+        assertThrows(FloorSequenceException.class,() -> floor.setFieldAtIndex(2, FieldValue.NONE));
         assertDoesNotThrow(() -> floor.setFieldAtIndex(4, FieldValue.FIVE));
     }
 
