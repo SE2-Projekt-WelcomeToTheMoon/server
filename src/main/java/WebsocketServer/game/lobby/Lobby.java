@@ -32,7 +32,6 @@ public class Lobby {
 
     public void removePlayerFromLobbyByName(String username) {
         userList.remove(username);
-
     }
 
     public List<String> getUserListFromLobby() {

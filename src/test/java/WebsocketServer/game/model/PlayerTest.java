@@ -22,4 +22,8 @@ class PlayerTest {
         assertTrue(player.getGameBoard().isFinalized());
     }
 
+    @Test
+    void getPlayerId(){
+        assertNotNull(player.getPlayerId());
+    }
 }
