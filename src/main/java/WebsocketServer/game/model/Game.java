@@ -39,7 +39,7 @@ public class Game {
         this.gameBoard = gameBoardService.createGameBoard();
     }
 
-    public void addPlayer(Player player){
+    public void addPlayer(Player player) {
         playerList.add(player);
     }
 
@@ -67,7 +67,7 @@ public class Game {
 
     private void sendNewCardCombinationToPlayer() {
         CardCombination[] currentCombination = cardController.getLastCardCombination();
-        for(Player player : playerList){
+        for (Player player : playerList) {
             player.sendCurrentCardCombination(currentCombination);
         }
     }
@@ -87,10 +87,14 @@ public class Game {
         });
     }
 
-    protected void receiveSelectedCombinationOfPlayer(Player player, ChoosenCardCombination choosenCardCombination){
+    protected void receiveSelectedCombinationOfPlayer(Player player, ChoosenCardCombination choosenCardCombination) {
+        if (this.gameState != GameState.ROUND_TWO) {
+            throw new GameStateException("Invalid game state for selecting card combinations");
+        }
+
         currentPlayerChoices.put(player, choosenCardCombination);
 
-        if(clientResponseReceived.incrementAndGet() == playerList.size()){
+        if (clientResponseReceived.incrementAndGet() == playerList.size()) {
             allClientResponseReceivedFuture.complete(null);
         }
     }
@@ -110,10 +114,14 @@ public class Game {
         });
     }
 
-    protected void receiveValueAtPositionOfPlayer(Player player, int floor, int field , FieldValue fieldValue){
+    protected void receiveValueAtPositionOfPlayer(Player player, int floor, int field, FieldValue fieldValue) {
+        if (this.gameState != GameState.ROUND_THREE) {
+            throw new GameStateException("Invalid game state for setting field values");
+        }
+
         gameBoard.setValueWithinFloorAtIndex(floor, field, fieldValue);
 
-        if(clientResponseReceived.incrementAndGet() == playerList.size()){
+        if (clientResponseReceived.incrementAndGet() == playerList.size()) {
             allClientResponseReceivedFuture.complete(null);
         }
     }
@@ -148,9 +156,9 @@ public class Game {
         //Logic for round six where missions can be completed, and it will be
         //checked whether the game is finished or not.
 
-        if(checkIfGameIsFinished()){
+        if (checkIfGameIsFinished()) {
             gameState = GameState.FINISHED;
-        }else {
+        } else {
             gameState = GameState.ROUND_ONE;
             doRoundOne();
         }

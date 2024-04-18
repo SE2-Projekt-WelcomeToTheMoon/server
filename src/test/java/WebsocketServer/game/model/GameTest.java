@@ -95,6 +95,9 @@ class GameTest {
         assertThrows(GameStateException.class, () -> game.doRoundFour());
         assertThrows(GameStateException.class, () -> game.doRoundFive());
         assertThrows(GameStateException.class, () -> game.doRoundSix());
+        assertThrows(GameStateException.class, () -> game.receiveSelectedCombinationOfPlayer(player1, ChoosenCardCombination.ONE));
+        assertThrows(GameStateException.class, () -> game.receiveValueAtPositionOfPlayer(player1, 1, 1, FieldValue.ONE));
+
     }
 
 
