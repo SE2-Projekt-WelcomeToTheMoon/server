@@ -19,7 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Game {
 
-    private final GameBoard gameBoard;
     @Getter
     private GameState gameState;
     @Getter
@@ -31,12 +30,11 @@ public class Game {
     private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
 
 
-    public Game(CardController cardController, GameBoardService gameBoardService) {
+    public Game(CardController cardController) {
         this.gameState = GameState.INITIAL;
         this.cardController = cardController;
         this.playerList = new ArrayList<>();
         currentPlayerChoices = new HashMap<>();
-        this.gameBoard = gameBoardService.createGameBoard();
     }
 
     public void addPlayer(Player player) {
@@ -119,7 +117,11 @@ public class Game {
             throw new GameStateException("Invalid game state for setting field values");
         }
 
-        gameBoard.setValueWithinFloorAtIndex(floor, field, fieldValue);
+        for(Player currentPlayer : playerList){
+            if(currentPlayer.equals(player)){
+                currentPlayer.getGameBoard().setValueWithinFloorAtIndex(floor, field, fieldValue);
+            }
+        }
 
         if (clientResponseReceived.incrementAndGet() == playerList.size()) {
             allClientResponseReceivedFuture.complete(null);

@@ -13,6 +13,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import java.util.concurrent.CompletableFuture;
 
 import static java.lang.Thread.sleep;
+import static java.util.concurrent.CompletableFuture.*;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,7 +46,7 @@ class GameTest {
         game.addPlayer(player2);
         game.startGame();
 
-        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+        CompletableFuture<Void> future = runAsync(() -> {
             game.receiveSelectedCombinationOfPlayer(player1, ChoosenCardCombination.ONE);
             game.receiveSelectedCombinationOfPlayer(player2, ChoosenCardCombination.TWO);
         });
@@ -54,7 +55,7 @@ class GameTest {
         //Timeout to allow waiting for async
         sleep(100);
 
-        future = CompletableFuture.runAsync(() -> {
+        future = runAsync(() -> {
             game.receiveValueAtPositionOfPlayer(player1, 1, 1, FieldValue.ONE);
             game.receiveValueAtPositionOfPlayer(player2, 1, 1, FieldValue.TWO);
         });
@@ -73,7 +74,7 @@ class GameTest {
         game.startGame();
 
         //Skip waiting for client response in doRoundTwo
-        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+        CompletableFuture<Void> future = runAsync(() -> {
             game.receiveSelectedCombinationOfPlayer(player1, ChoosenCardCombination.ONE);
         });
         future.join();
@@ -81,7 +82,7 @@ class GameTest {
         sleep(100);
 
         //Skip waiting for client response in doRoundThree
-        future = CompletableFuture.runAsync(() -> {
+        future = runAsync(() -> {
             game.receiveValueAtPositionOfPlayer(player1, 1, 1, FieldValue.ONE);
         });
         future.join();

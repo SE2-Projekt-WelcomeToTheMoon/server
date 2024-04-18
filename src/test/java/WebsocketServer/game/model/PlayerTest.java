@@ -1,7 +1,6 @@
 package WebsocketServer.game.model;
 
 import WebsocketServer.game.services.GameBoardService;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +16,6 @@ class PlayerTest {
 
     @Test
     void testCreatePlayer(){
-        GameBoard gameBoard = gameBoardService.createGameBoard();
         assertNotNull(player.getGameBoard());
         assertTrue(player.getGameBoard().isFinalized());
     }
