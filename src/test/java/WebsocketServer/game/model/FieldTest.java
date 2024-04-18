@@ -43,7 +43,7 @@ class FieldTest {
         assertNull(field.getFieldValue());
     }
     @Test
-    public void testIsFinalized(){
+    void testIsFinalized(){
         Field field = new Field(FieldCategory.ROBOTER, FieldValue.NONE);
         assertFalse(field.isFinalized());
         field.finalizeField();
@@ -51,20 +51,20 @@ class FieldTest {
     }
 
     @Test
-    public void testSetFieldCategoryAfterFinalizationThrowsException() {
+    void testSetFieldCategoryAfterFinalizationThrowsException() {
         Field field = new Field(FieldCategory.ROBOTER);
         field.finalizeField();
         assertThrows(FinalizedException.class, () -> field.setFieldCategory(FieldCategory.WASSER));
     }
 
     @Test
-    public void testSetFieldValueBeforeFinalizationThrowsException() {
+    void testSetFieldValueBeforeFinalizationThrowsException() {
         Field field = new Field(FieldCategory.ROBOTER);
         assertThrows(FinalizedException.class, () -> field.setFieldValue(FieldValue.ONE));
     }
 
     @Test
-    public void testFinalizeFieldTwiceThrowsException() {
+    void testFinalizeFieldTwiceThrowsException() {
         Field field = new Field(FieldCategory.ROBOTER);
         field.finalizeField();
         assertThrows(FinalizedException.class, field::finalizeField);

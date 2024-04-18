@@ -1,13 +1,19 @@
 package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.RewardCategory;
+import lombok.Getter;
 
 public class Reward {
-    public RewardCategory category;
-    public int numberRockets;
-    public boolean rocketsFilled=false;
-    public int unfilledRockets;
-    public boolean systemErrorClaimed=false;
+    @Getter
+    private RewardCategory category;
+    @Getter
+    private int numberRockets;
+    @Getter
+    private boolean rocketsFilled=false;
+    @Getter
+    private int unfilledRockets;
+    @Getter
+    private boolean systemErrorClaimed=false;
 
     public Reward(RewardCategory category) {
         if(category==null)throw new IllegalArgumentException("Reward Category may not be null");

@@ -132,55 +132,55 @@ class FloorTest {
     }
 
     @Test
-    public void testIsFinalizedInitiallyFalse() {
+    void testIsFinalizedInitiallyFalse() {
         assertFalse(floor.isFinalized());
     }
 
     @Test
-    public void testFinalizeFloorChangesIsFinalizedToTrue() {
+    void testFinalizeFloorChangesIsFinalizedToTrue() {
         floor.finalizeFloor();
         assertTrue(floor.isFinalized());
     }
 
     @Test
-    public void testAddChamberAfterFloorFinalizationThrowsException() {
+    void testAddChamberAfterFloorFinalizationThrowsException() {
         floor.finalizeFloor();
         assertThrows(FinalizedException.class, () -> floor.addChamber(chamber));
     }
 
     @Test
-    public void testGetFieldAtIndexBeforeFloorFinalizationThrowsException() {
+    void testGetFieldAtIndexBeforeFloorFinalizationThrowsException() {
         chamber.addField(new Field(FieldCategory.ROBOTER));
         floor.addChamber(chamber);
         assertThrows(FinalizedException.class, () -> floor.getFieldAtIndex(0));
     }
 
     @Test
-    public void testGetChamberBeforeFloorFinalizationThrowsException() {
+    void testGetChamberBeforeFloorFinalizationThrowsException() {
         floor.addChamber(new Chamber(FieldCategory.ROBOTER));
         assertThrows(FinalizedException.class, () -> floor.getChamber(0));
     }
 
     @Test
-    public void testFinalizeFloorWithAlreadyFinalizedChamberThrowsException() {
+    void testFinalizeFloorWithAlreadyFinalizedChamberThrowsException() {
         chamber.finalizeChamber();
         floor.addChamber(chamber);
         assertThrows(FinalizedException.class, () -> floor.finalizeFloor());
     }
 
     @Test
-    public void testFinalizeFloorTwiceThrowsException() {
+    void testFinalizeFloorTwiceThrowsException() {
         floor.finalizeFloor();
         assertThrows(FinalizedException.class, floor::finalizeFloor);
     }
 
     @Test
-    public void testSetFieldAtIndexBeforeFloorFinalizationThrowsException() {
+    void testSetFieldAtIndexBeforeFloorFinalizationThrowsException() {
         floor.addChamber(chamber);
         assertThrows(FinalizedException.class, () -> floor.setFieldAtIndex(0, FieldValue.ONE));
     }
     @Test
-    public void testChamberCompletionWorking() {
+    void testChamberCompletionWorking() {
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
@@ -197,7 +197,7 @@ class FloorTest {
         assertTrue(floor.checkFloorCompletion());
     }
     @Test
-    public void testChamberCompletionNotCompleted() {
+    void testChamberCompletionNotCompleted() {
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
@@ -214,7 +214,7 @@ class FloorTest {
     }
 
     @Test
-    public void testInsertionNotInOrder() {
+    void testInsertionNotInOrder() {
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));

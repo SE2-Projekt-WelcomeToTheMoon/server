@@ -6,70 +6,70 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RewardTest {
     @Test
-    public void testRewardConstruction() {
+    void testRewardConstruction() {
         Reward reward = new Reward(RewardCategory.ROCKET);
-        assertEquals(RewardCategory.ROCKET, reward.category);
-        assertFalse(reward.rocketsFilled);
-        assertFalse(reward.systemErrorClaimed);
-        assertEquals(0, reward.numberRockets);
-        assertEquals(0, reward.unfilledRockets);
+        assertEquals(RewardCategory.ROCKET, reward.getCategory());
+        assertFalse(reward.isRocketsFilled());
+        assertFalse(reward.isSystemErrorClaimed());
+        assertEquals(0, reward.getNumberRockets());
+        assertEquals(0, reward.getUnfilledRockets());
     }
 
     @Test
-    public void testRewardConstructionWithNumberRockets() {
+    void testRewardConstructionWithNumberRockets() {
         Reward reward = new Reward(RewardCategory.ROCKET, 5);
-        assertEquals(RewardCategory.ROCKET, reward.category);
-        assertFalse(reward.rocketsFilled);
-        assertFalse(reward.systemErrorClaimed);
-        assertEquals(5, reward.numberRockets);
-        assertEquals(0, reward.unfilledRockets);
+        assertEquals(RewardCategory.ROCKET, reward.getCategory());
+        assertFalse(reward.isRocketsFilled());
+        assertFalse(reward.isSystemErrorClaimed());
+        assertEquals(5, reward.getNumberRockets());
+        assertEquals(0, reward.getUnfilledRockets());
     }
 
     @Test
-    public void testRewardConstructionWithUnfilledRockets() {
+    void testRewardConstructionWithUnfilledRockets() {
         Reward reward = new Reward(RewardCategory.UNFILLEDROCKET, 3);
-        assertEquals(RewardCategory.UNFILLEDROCKET, reward.category);
-        assertFalse(reward.rocketsFilled);
-        assertFalse(reward.systemErrorClaimed);
-        assertEquals(0, reward.numberRockets);
-        assertEquals(3, reward.unfilledRockets);
+        assertEquals(RewardCategory.UNFILLEDROCKET, reward.getCategory());
+        assertFalse(reward.isRocketsFilled());
+        assertFalse(reward.isSystemErrorClaimed());
+        assertEquals(0, reward.getNumberRockets());
+        assertEquals(3, reward.getUnfilledRockets());
     }
 
     @Test
-    public void testRewardConstructionWithInvalidCategory() {
+    void testRewardConstructionWithInvalidCategory() {
         assertThrows(IllegalArgumentException.class,() -> new Reward(null));
     }
 
     @Test
-    public void testFillRockets() {
+    void testFillRockets() {
         Reward reward = new Reward(RewardCategory.ROCKET, 3);
-        assertFalse(reward.rocketsFilled);
+        assertFalse(reward.isRocketsFilled());
         reward.fillRockets();
-        assertTrue(reward.rocketsFilled);
+        assertTrue(reward.isRocketsFilled());
     }
 
     @Test
-    public void testClaimSystemError() {
+    void testClaimSystemError() {
         Reward reward = new Reward(RewardCategory.PLANING); // Any valid category
-        assertFalse(reward.systemErrorClaimed);
+        assertFalse(reward.isSystemErrorClaimed());
         reward.claimSystemError();
-        assertTrue(reward.systemErrorClaimed);
+        assertTrue(reward.isSystemErrorClaimed());
     }
 
     @Test
-    public void testRewardCategoryEnumeration() {
+    void testRewardCategoryEnumeration() {
         for (RewardCategory category : RewardCategory.values()) {
             Reward reward = new Reward(category);
-            assertEquals(category, reward.category);
+            assertEquals(category, reward.getCategory());
         }
     }
 
     @Test
-    public void testDefaultFieldValues() {
+    void testDefaultFieldValues() {
         Reward reward = new Reward(RewardCategory.ROCKETFILLING);
-        assertFalse(reward.rocketsFilled);
-        assertFalse(reward.systemErrorClaimed);
-        assertEquals(0, reward.numberRockets);
-        assertEquals(0, reward.unfilledRockets);
+        assertFalse(reward.isRocketsFilled());
+        assertFalse(reward.isSystemErrorClaimed());
+        assertEquals(0, reward.getNumberRockets());
+        assertEquals(0, reward.getUnfilledRockets());
     }
 }

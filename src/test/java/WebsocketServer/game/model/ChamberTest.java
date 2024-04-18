@@ -60,7 +60,7 @@ class ChamberTest {
         chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
         chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
         chamber.finalizeChamber();
-        assertEquals(chamber.getSize(),4);
+        assertEquals(4,chamber.getSize());
     }
 
     @Test
@@ -72,7 +72,7 @@ class ChamberTest {
         chamber.setFieldAtIndex(0,FieldValue.THREE,0);
         chamber.setFieldAtIndex(1,FieldValue.FOUR,0);
         chamber.setFieldAtIndex(2,FieldValue.FIVE,0);
-        assertEquals(chamber.getField(2).getFieldValue().getValue(),5);
+        assertEquals(5,chamber.getField(2).getFieldValue().getValue());
     }
     @Test
     void testInsertatIndexInValid() {
@@ -87,31 +87,31 @@ class ChamberTest {
         assertThrows(FloorSequenceException.class, () -> chamber.setFieldAtIndex(3,FieldValue.TWO,0));
     }
     @Test
-    public void testIsFinalizedInitiallyFalse() {
+    void testIsFinalizedInitiallyFalse() {
         assertFalse(chamber.isFinalized());
     }
 
     @Test
-    public void testFinalizeChamberChangesIsFinalizedToTrue() {
+    void testFinalizeChamberChangesIsFinalizedToTrue() {
         chamber.finalizeChamber();
         assertTrue(chamber.isFinalized());
     }
 
     @Test
-    public void testAddFieldAfterChamberFinalizationThrowsException() {
+    void testAddFieldAfterChamberFinalizationThrowsException() {
         Field field = new Field(FieldCategory.ROBOTER);
         chamber.finalizeChamber();
         assertThrows(FinalizedException.class, () -> chamber.addField(field));
     }
 
     @Test
-    public void testGetFieldBeforeChamberFinalizationThrowsException() {
+    void testGetFieldBeforeChamberFinalizationThrowsException() {
         chamber.addField(new Field(FieldCategory.ROBOTER));
         assertThrows(FinalizedException.class, () -> chamber.getField(0));
     }
 
     @Test
-    public void testSomeFieldsAlreadyFinalized() {
+    void testSomeFieldsAlreadyFinalized() {
         Field field = new Field(FieldCategory.ROBOTER);
         field.finalizeField();
         chamber.addField(field);
@@ -119,12 +119,12 @@ class ChamberTest {
     }
 
     @Test
-    public void testFinalizeChamberTwiceThrowsException() {
+    void testFinalizeChamberTwiceThrowsException() {
         chamber.finalizeChamber();
         assertThrows(FinalizedException.class, chamber::finalizeChamber);
     }
     @Test
-    public void testChamberFinalizationWorking() {
+    void testChamberFinalizationWorking() {
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
@@ -134,7 +134,7 @@ class ChamberTest {
         assertThrows(FinalizedException.class, chamber::finalizeChamber);
     }
     @Test
-    public void testChamberCompletionValid() {
+    void testChamberCompletionValid() {
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
@@ -145,7 +145,7 @@ class ChamberTest {
         assertTrue(chamber.checkChamberCompletion(0));
     }
     @Test
-    public void testChamberCompletionInValid() {
+    void testChamberCompletionInValid() {
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
@@ -156,7 +156,7 @@ class ChamberTest {
         assertFalse(chamber.checkChamberCompletion(4));
     }
     @Test
-    public void testGetHighestValueinChamberFilled() {
+    void testGetHighestValueinChamberFilled() {
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
@@ -167,7 +167,7 @@ class ChamberTest {
         assertEquals(5,chamber.getHighestValueInChamber());
     }
     @Test
-    public void testGetHighestValueinChamberEmpty() {
+    void testGetHighestValueinChamberEmpty() {
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
