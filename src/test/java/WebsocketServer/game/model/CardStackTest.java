@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CardStackTest {
+class CardStackTest {
     private CardStack cardStack=new CardStack();
 
     @BeforeEach

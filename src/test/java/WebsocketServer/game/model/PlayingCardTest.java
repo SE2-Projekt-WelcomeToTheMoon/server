@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PlayingCardTest {
+class PlayingCardTest {
     @Test
     void testToString() {
         PlayingCard card = new PlayingCard(FieldCategory.ROBOTER, 5);

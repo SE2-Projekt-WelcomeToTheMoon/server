@@ -53,42 +53,23 @@ public class Floor {
         }
     }
 
+    //add check on fieldcategory via currentcombination
     public void setFieldAtIndex(int index, FieldValue value) {
         if (!isFinalized) {
             throw new FinalizedException("Floor must be finalized.");
         }
-
-        int currentMax = 0;
-        int currentIndex = 0;
-        Field fieldToChange = null;
-
+        int count=0;
+        int currentMax=0;
+        boolean fieldChanged=false;
         for (Chamber chamber : chambers) {
-            for (int i = 0; i < chamber.getSize(); i++) {
-                Field field = chamber.getField(i);
-                if (currentIndex == index) {
-                    if (value.getValue() > 0 && value.getValue() > currentMax) {
-                        currentMax = value.getValue();
-                        fieldToChange = field;
-                    } else if (value.getValue() == 0) {
-                        continue;
-                    } else {
-                        throw new FloorSequenceException("Values within Floor must be in ascending order");
-                    }
-                } else {
-                    if (field.getFieldValue().getValue() > 0 && field.getFieldValue().getValue() > currentMax) {
-                        currentMax = field.getFieldValue().getValue();
-                    } else if (field.getFieldValue().getValue() == 0) {
-                        continue;
-                    } else {
-                        throw new FloorSequenceException("Values within Floor must be in ascending order");
-                    }
-                }
-                currentIndex++;
+            if (index >= count && index <= count + chamber.getSize()) {
+                chamber.setFieldAtIndex(index - count, value, currentMax);
+                fieldChanged = true;
             }
+            count += chamber.getSize();
+            currentMax = Math.max(chamber.getHighestValueInChamber(), currentMax);
         }
-        if (fieldToChange != null) {
-            fieldToChange.setFieldValue(value);
-        }
+        if(!fieldChanged)throw new FloorSequenceException("Values within Floor must be in ascending order");
     }
 
     public Chamber getChamber(int index) {
@@ -130,4 +111,14 @@ public class Floor {
             }
         }
     }
+
+    public boolean checkFloorCompletion(){
+        int currentHighest=-1;
+        for (Chamber chamber: chambers) {
+            if(!chamber.checkChamberCompletion(currentHighest))return false;
+            currentHighest=chamber.getHighestValueInChamber();
+        }
+        return true;
+    }
+
 }

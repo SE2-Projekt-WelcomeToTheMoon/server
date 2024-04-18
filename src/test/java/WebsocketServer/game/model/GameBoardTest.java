@@ -42,14 +42,16 @@ class GameBoardTest {
     void testSetAndGetFieldValueWithinFloorAtIndex() {
         Chamber chamber = new Chamber(FieldCategory.ROBOTER);
         Field field = new Field(FieldCategory.ROBOTER, FieldValue.ONE);
+        Field field2 = new Field(FieldCategory.ROBOTER);
         chamber.addField(field);
+        chamber.addField(field2);
         floor.addChamber(chamber);
         gameBoard.addFloor(floor);
 
         gameBoard.finalizeGameBoard();
 
-        assertDoesNotThrow(() -> gameBoard.setValueWithinFloorAtIndex(0, 0, FieldValue.TWO));
-        assertEquals(FieldValue.TWO, gameBoard.getFloorAtIndex(0).getFieldAtIndex(0).getFieldValue());
+        assertDoesNotThrow(() -> gameBoard.setValueWithinFloorAtIndex(0, 1, FieldValue.TWO));
+        assertEquals(FieldValue.TWO, gameBoard.getFloorAtIndex(0).getFieldAtIndex(1).getFieldValue());
     }
 
     @Test
