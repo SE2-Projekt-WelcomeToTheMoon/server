@@ -8,34 +8,34 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@Getter
+
 public class Game {
 
+    @Getter
     private GameState gameState;
-
-    private Lobby lobby;
-
+    @Getter
     List<Player> playerList;
     CardController cardController;
 
-    @Setter
-    boolean isWaitingForUserResponse;
 
     public Game(CardController cardController) {
         this.gameState = GameState.INITIAL;
         this.cardController = cardController;
-        isWaitingForUserResponse = false;
+        this.playerList = new ArrayList<>();
     }
 
-    protected void startGame(Lobby lobby) {
+    public void addPlayer(Player player){
+        playerList.add(player);
+    }
+
+    protected void startGame() {
         if (gameState != GameState.INITIAL) {
             throw new GameStateException("Game must be in state INITIAL to be started");
         }
-
-        this.lobby = lobby;
 
         gameState = GameState.ROUND_ONE;
         doRoundOne();
@@ -48,12 +48,17 @@ public class Game {
 
         cardController.drawNextCard();
 
-        lobby.sendNewCardCombination(cardController.currentCombinations);
-
-        isWaitingForUserResponse = true;
+        sendNewCardCombinationToPlayer();
 
         gameState = GameState.ROUND_TWO;
         doRoundTwo();
+    }
+
+    private void sendNewCardCombinationToPlayer() {
+        CardCombination[] currentCombination = cardController.getLastCardCombination();
+        for(Player player : playerList){
+            player.sendCurrentCardCombination(currentCombination);
+        }
     }
 
     protected void doRoundTwo() {

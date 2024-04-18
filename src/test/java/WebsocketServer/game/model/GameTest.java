@@ -2,11 +2,13 @@ package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.GameStateException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -16,11 +18,23 @@ class GameTest {
     @Autowired
     Game game;
 
+    @Autowired
+    Player player;
+
+    @BeforeEach
+    public void setUp(){
+        game.addPlayer(player);
+    }
+
+    @Test
+    void testGetPlayerList() {
+        assertThat(game.getPlayerList()).hasSize(1);
+    }
 
     @Test
     @DirtiesContext
     void testStartGameSuccess() {
-        game.startGame(null);
+        game.startGame();
 
         //Currently nothing happens within the rounds therefore it should run straight through akk rounds
         assertEquals(GameState.FINISHED, game.getGameState());
@@ -30,8 +44,8 @@ class GameTest {
     @Test
     @DirtiesContext
     void testWrongStateForRound() {
-        game.startGame(null);
-        assertThrows(GameStateException.class, () -> game.startGame(null));
+        game.startGame();
+        assertThrows(GameStateException.class, () -> game.startGame());
         assertThrows(GameStateException.class, () -> game.doRoundOne());
         assertThrows(GameStateException.class, () -> game.doRoundTwo());
         assertThrows(GameStateException.class, () -> game.doRoundThree());

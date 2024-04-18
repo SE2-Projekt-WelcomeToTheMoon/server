@@ -1,10 +1,6 @@
 package WebsocketServer.game.lobby;
 
 import WebsocketServer.game.model.CardCombination;
-import WebsocketServer.game.model.Game;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,14 +10,12 @@ import java.util.List;
  * - Spieler entfernen
  * - Spielerliste ausgeben
  */
-@Component
+
 public class Lobby {
 
     private static final int MAX_PLAYERS = 4;
     private final List<String> userList;
 
-    @Autowired
-    Game game;
 
     public Lobby() {
         this.userList = new ArrayList<>();
@@ -43,12 +37,5 @@ public class Lobby {
 
     public List<String> getUserListFromLobby() {
         return new ArrayList<>(userList);
-    }
-
-    public void sendNewCardCombination(CardCombination[] currentCombinations) {
-        //TODO Implement connection to player
-
-        //TODO If all Player have done their decision
-        game.setWaitingForUserResponse(false);
     }
 }
