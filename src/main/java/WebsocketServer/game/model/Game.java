@@ -1,18 +1,17 @@
 package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.ChoosenCardCombination;
+import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.GameStateException;
-import WebsocketServer.game.lobby.Lobby;
 import WebsocketServer.game.services.CardController;
+import WebsocketServer.game.services.GameBoardService;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -20,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Game {
 
+    private final GameBoard gameBoard;
     @Getter
     private GameState gameState;
     @Getter
@@ -27,15 +27,16 @@ public class Game {
     CardController cardController;
     HashMap<Player, ChoosenCardCombination> currentPlayerChoices;
 
-    private final AtomicInteger selectionsReceived = new AtomicInteger(0);
-    private CompletableFuture<Void> allSelectionsReceivedFuture = new CompletableFuture<>();
+    private final AtomicInteger clientResponseReceived = new AtomicInteger(0);
+    private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
 
 
-    public Game(CardController cardController) {
+    public Game(CardController cardController, GameBoardService gameBoardService) {
         this.gameState = GameState.INITIAL;
         this.cardController = cardController;
         this.playerList = new ArrayList<>();
         currentPlayerChoices = new HashMap<>();
+        this.gameBoard = gameBoardService.createGameBoard();
     }
 
     public void addPlayer(Player player){
@@ -77,10 +78,10 @@ public class Game {
         }
 
         //Logic for round two where player choose their combination
-        selectionsReceived.set(0);
-        allSelectionsReceivedFuture = new CompletableFuture<>();
+        clientResponseReceived.set(0);
+        allClientResponseReceivedFuture = new CompletableFuture<>();
 
-        allSelectionsReceivedFuture.thenRunAsync(() -> {
+        allClientResponseReceivedFuture.thenRunAsync(() -> {
             gameState = GameState.ROUND_THREE;
             doRoundThree();
         });
@@ -89,8 +90,8 @@ public class Game {
     protected void receiveSelectedCombinationOfPlayer(Player player, ChoosenCardCombination choosenCardCombination){
         currentPlayerChoices.put(player, choosenCardCombination);
 
-        if(selectionsReceived.incrementAndGet() == playerList.size()){
-            allSelectionsReceivedFuture.complete(null);
+        if(clientResponseReceived.incrementAndGet() == playerList.size()){
+            allClientResponseReceivedFuture.complete(null);
         }
     }
 
@@ -100,9 +101,21 @@ public class Game {
         }
 
         //Logic for round three where player enter their number
+        clientResponseReceived.set(0);
+        allClientResponseReceivedFuture = new CompletableFuture<>();
 
-        gameState = GameState.ROUND_FOUR;
-        doRoundFour();
+        allClientResponseReceivedFuture.thenRunAsync(() -> {
+            gameState = GameState.ROUND_FOUR;
+            doRoundFour();
+        });
+    }
+
+    protected void receiveValueAtPositionOfPlayer(Player player, int floor, int field , FieldValue fieldValue){
+        gameBoard.setValueWithinFloorAtIndex(floor, field, fieldValue);
+
+        if(clientResponseReceived.incrementAndGet() == playerList.size()){
+            allClientResponseReceivedFuture.complete(null);
+        }
     }
 
     protected void doRoundFour() {

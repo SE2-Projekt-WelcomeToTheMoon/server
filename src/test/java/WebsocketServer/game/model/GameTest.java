@@ -1,6 +1,7 @@
 package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.ChoosenCardCombination;
+import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.GameStateException;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +29,7 @@ class GameTest {
     Player player2;
 
     @BeforeEach
-    public void setUp(){
+    public void setUp() {
         game.getPlayerList().clear();
         game.addPlayer(player1);
     }
@@ -53,6 +54,14 @@ class GameTest {
         //Timeout to allow waiting for async
         sleep(100);
 
+        future = CompletableFuture.runAsync(() -> {
+            game.receiveValueAtPositionOfPlayer(player1, 1, 1, FieldValue.ONE);
+            game.receiveValueAtPositionOfPlayer(player2, 1, 1, FieldValue.TWO);
+        });
+        future.join();
+        //Timeout to allow waiting for async
+        sleep(100);
+
         //Currently nothing happens within the rounds therefore it should run straight through akk rounds
         assertEquals(GameState.FINISHED, game.getGameState());
     }
@@ -62,8 +71,18 @@ class GameTest {
     @DirtiesContext
     void testWrongStateForRound() throws InterruptedException {
         game.startGame();
+
+        //Skip waiting for client response in doRoundTwo
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
             game.receiveSelectedCombinationOfPlayer(player1, ChoosenCardCombination.ONE);
+        });
+        future.join();
+        //Timeout to allow waiting for async
+        sleep(100);
+
+        //Skip waiting for client response in doRoundThree
+        future = CompletableFuture.runAsync(() -> {
+            game.receiveValueAtPositionOfPlayer(player1, 1, 1, FieldValue.ONE);
         });
         future.join();
         //Timeout to allow waiting for async
