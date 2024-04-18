@@ -5,7 +5,6 @@ import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.GameStateException;
 import WebsocketServer.game.services.CardController;
-import WebsocketServer.game.services.GameBoardService;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 
