@@ -26,12 +26,12 @@ public class LobbyService {
         this.gamelobby = new Lobby();
     }
 
+
     /**
-     * Methode um einen Spieler zur Lobby hinzuzufügen
-     *
-     * @param session       aktuelle Verbindung
-     * @param messageJson   empfangener String um Zuordnung in der HnadleMessage zu machen
-     * @throws Exception    Fehlerbehandlung
+     * Add Player to Lobby
+     * @param session       current connection
+     * @param messageJson   received string for assignment in HandleMessage
+     * @throws Exception    Exception for handling errors
      */
     public void handleJoinLobby(WebSocketSession session, JSONObject messageJson) throws Exception {
 
@@ -47,6 +47,29 @@ public class LobbyService {
             JSONObject errorResponse = GenerateJSONObjectService.generateJSONObject("joinLobby", username, false, "", "lobby is full or Username already in use.");
             session.sendMessage(new TextMessage(errorResponse.toString()));
             logger.info("Nicht zur Lobby hinzugefügt : {}, {} ", session.getId(), messageJson.getString(USERNAME_KEY));
+        }
+    }
+
+    /**
+     * Remove Player from Lobby
+     * @param session  current connection
+     * @param messageJson   received string for assignment in HandleMessage
+     * @throws Exception    Exception for handling errors
+     */
+    public void handleLeaveLobby(WebSocketSession session, JSONObject messageJson) throws Exception {
+
+        logger.info("Versuchen aus der Lobby zu entfernen: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
+
+        String username = messageJson.getString(USERNAME_KEY);
+
+        if(gamelobby.removePlayerFromLobby(username)) {
+            JSONObject response = GenerateJSONObjectService.generateJSONObject("leftLobby", username, true, "", "");
+            session.sendMessage(new TextMessage(response.toString()));
+            logger.info("Erfolgreich aus der Lobby entfernt: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
+        }else{
+            JSONObject errorResponse = GenerateJSONObjectService.generateJSONObject("leaveLobby", username, false, "", "Username not in Lobby.");
+            session.sendMessage(new TextMessage(errorResponse.toString()));
+            logger.info("Nicht aus der Lobby entfernt: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
         }
     }
 }
