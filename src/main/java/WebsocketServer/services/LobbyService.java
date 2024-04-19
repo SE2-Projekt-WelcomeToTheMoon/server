@@ -39,7 +39,7 @@ public class LobbyService {
 
         String username = messageJson.getString(USERNAME_KEY);
         if(gamelobby.addPlayerToLobby(username)){
-            JSONObject response = GenerateJSONObjectService.generateJSONObject("joinedLobby", username, true, "", "");
+            JSONObject response = GenerateJSONObjectService.generateJSONObject("joinLobby", username, true, "", "");
             session.sendMessage(new TextMessage(response.toString()));
             logger.info("Erfolgreich zur Lobby hinzugefügt: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
 
@@ -63,7 +63,7 @@ public class LobbyService {
         String username = messageJson.getString(USERNAME_KEY);
 
         if(gamelobby.removePlayerFromLobby(username)) {
-            JSONObject response = GenerateJSONObjectService.generateJSONObject("leftLobby", username, true, "", "");
+            JSONObject response = GenerateJSONObjectService.generateJSONObject("leaveLobby", username, true, "", "");
             session.sendMessage(new TextMessage(response.toString()));
             logger.info("Erfolgreich aus der Lobby entfernt: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
         }else{
