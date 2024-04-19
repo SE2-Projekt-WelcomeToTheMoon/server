@@ -50,7 +50,7 @@ class WebSocketHandlerIntegrationTest {
      * Testet die Methode handleJoinLobby aus dem LobbyService
      */
     @Test
-    void testJoinLobby() throws Exception {
+    void testJoinLobbyAndLeave() throws Exception {
         WebSocketSession session = initStompSession();
 
         //Senden einer Nachricht an den Server
@@ -59,11 +59,35 @@ class WebSocketHandlerIntegrationTest {
         session.sendMessage(new TextMessage(jsonMsg.toString()));
 
         // Erwartete Antwort
-        JSONObject expected = new JSONObject("{\"action\":\"joinedLobby\",\"success\":true,\"username\":\"User1234\"}");
+        JSONObject expected = new JSONObject("{\"action\":\"joinLobby\",\"success\":true,\"username\":\"User1234\"}");
         JSONObject actual = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
 
         assertTrue(actual.similar(expected));
+
+        JSONObject jsonMsgLeave = GenerateJSONObjectService.generateJSONObject(
+                        "leaveLobby", "User1234", true, "", "");
+        session.sendMessage(new TextMessage(jsonMsgLeave.toString()));
+
+        JSONObject expectedLeave = new JSONObject("{\"action\":\"leaveLobby\",\"success\":true,\"username\":\"User1234\"}");
+        JSONObject actualLeave = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
+
+        assertTrue(actualLeave.similar(expectedLeave));
+
     }
+    @Test
+    void testLeaveLobbyFail() throws Exception {
+        WebSocketSession session = initStompSession();
+
+        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
+                        "leaveLobby", "User1234", false, null, "Username not in Lobby.");
+    session.sendMessage(new TextMessage(jsonMsg.toString()));
+
+    JSONObject expected = new JSONObject("{\"action\":\"leaveLobby\",\"success\":false,\"username\":\"User1234\",\"error\":\"Username not in Lobby.\"}");
+    JSONObject actual = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
+
+    assertTrue(actual.similar(expected));
+    }
+
 
     /**
      * Testet die Methode handleJoinLobby aus dem LobbyService
@@ -77,7 +101,6 @@ class WebSocketHandlerIntegrationTest {
         );
         session.sendMessage(new TextMessage(jsonMsg.toString()));
 
-        // Erwarte Antwort
         JSONObject expected = new JSONObject("{\"action\":\"ungültig\",\"error\":\"Unbekannte Aktion\"}");
         JSONObject actual = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
 
@@ -93,11 +116,11 @@ class WebSocketHandlerIntegrationTest {
         WebSocketSession session = initStompSession();
 
         JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
-                        "joinLobby", "testUser", null, "", "");
+                        "joinLobby", "testUser", true, null, null);
 
         session.sendMessage(new TextMessage(jsonMsg.toString()));
 
-        JSONObject expected = new JSONObject("{\"action\":\"joinedLobby\",\"username\":\"testUser\",\"success\":true}");
+        JSONObject expected = new JSONObject("{\"action\":\"joinLobby\",\"success\":true,\"username\":\"testUser\"}");
         JSONObject actual = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
 
         assertTrue(actual.similar(expected));
@@ -106,10 +129,10 @@ class WebSocketHandlerIntegrationTest {
         WebSocketSession session2 = initStompSession();
 
         JSONObject jsonMsg2 = GenerateJSONObjectService.generateJSONObject(
-                        "joinLobby", "testUser", null, "", "lobby is full or Username already in use.");
+                        "joinLobby", "testUser", false, null, null);
         session2.sendMessage(new TextMessage(jsonMsg2.toString()));
 
-        JSONObject expected2 = new JSONObject("{\"action\":\"joinLobby\",\"username\":\"testUser\",\"success\":false,\"error\":\"lobby is full or Username already in use.\"}");
+        JSONObject expected2 = new JSONObject("{\"action\":\"joinLobby\",\"success\":false,\"username\":\"testUser\",\"error\":\"lobby is full or Username already in use.\"}");
 
         JSONObject actual2 = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
 
