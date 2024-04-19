@@ -16,11 +16,11 @@ public class SystemErrors {
         return hasLost();
     }
 
-    private boolean hasLost() {
+    protected boolean hasLost() {
         return currentErrors >= MAX_ERRORS;
     }
 
-    private int getRemainingErrors() {
+    protected int getRemainingErrors() {
         return MAX_ERRORS - currentErrors;
     }
 }
