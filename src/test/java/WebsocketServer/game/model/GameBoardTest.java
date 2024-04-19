@@ -39,6 +39,53 @@ class GameBoardTest {
     }
 
     @Test
+    void testAddSystemErrorsNotFinalized() {
+        assertThrows(FinalizedException.class, () -> {
+            gameBoard.addSystemError();
+        });
+    }
+
+    @Test
+    void testAddSystemErrors() {
+        gameBoard.addFloor(floor);
+        gameBoard.finalizeGameBoard();
+
+        assertEquals(8, gameBoard.getRemainingErrors());
+        assertDoesNotThrow(() -> gameBoard.addSystemError());
+        assertEquals(7, gameBoard.getRemainingErrors());
+
+        for(int i = 0; i < 6; i++){
+            assertFalse(gameBoard.addSystemError());
+            assertEquals(6-i, gameBoard.getRemainingErrors());
+        }
+
+        assertTrue(gameBoard.addSystemError());
+        assertEquals(0, gameBoard.getRemainingErrors());
+    }
+
+    @Test
+    void testHasLost(){
+        gameBoard.addFloor(floor);
+        gameBoard.finalizeGameBoard();
+
+        assertFalse(gameBoard.hasLost());
+    }
+
+    @Test
+    void testGetRemainingSystemErrorsNotFinalized() {
+        assertThrows(FinalizedException.class, () -> {
+            gameBoard.getRemainingErrors();
+        });
+    }
+
+    @Test
+    void testHasLostNotFinalized() {
+        assertThrows(FinalizedException.class, () -> {
+            gameBoard.hasLost();
+        });
+    }
+
+    @Test
     void testSetAndGetFieldValueWithinFloorAtIndex() {
         Chamber chamber = new Chamber(FieldCategory.ROBOTER);
         Field field = new Field(FieldCategory.ROBOTER, FieldValue.ONE);
