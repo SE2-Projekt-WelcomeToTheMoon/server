@@ -36,8 +36,10 @@ public class LobbyTest {
     void removerPLayer(){
         lobby.addPlayerToLobby("Spieler1");
         assertEquals(1, lobby.getUserListFromLobby().size());
-        lobby.removePlayerFromLobbyByName("Spieler1");
+        lobby.removePlayerFromLobby("Spieler1");
         assertEquals(0, lobby.getUserListFromLobby().size());
+        lobby.removePlayerFromLobby("Spieler1");
+        assertFalse(lobby.removePlayerFromLobby("Spieler1"));
     }
 
 }
