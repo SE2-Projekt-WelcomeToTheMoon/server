@@ -1,5 +1,6 @@
 package WebsocketServer.websocket.handler;
 
+import WebsocketServer.game.lobby.Lobby;
 import WebsocketServer.services.user.CreateUserService;
 import WebsocketServer.services.LobbyService;
 import org.apache.logging.log4j.LogManager;
@@ -14,7 +15,8 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     private static final Logger logger = LogManager.getLogger(WebSocketHandlerImpl.class);
 
     public WebSocketHandlerImpl(){
-        this.lobbyService = new LobbyService();
+        Lobby gameLobby = new Lobby();
+        this.lobbyService = new LobbyService(gameLobby);
     }
 
     @Override

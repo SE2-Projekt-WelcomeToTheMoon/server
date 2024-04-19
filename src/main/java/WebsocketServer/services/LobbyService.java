@@ -16,14 +16,14 @@ import org.springframework.web.socket.WebSocketSession;
  */
 public class LobbyService {
 
-    private Lobby gamelobby;
+    private final Lobby gamelobby;
     private static final String USERNAME_KEY = "username";
     private static final Logger logger = LoggerFactory.getLogger(LobbyService.class);
 
 
 
-    public LobbyService(){
-        this.gamelobby = new Lobby();
+    public LobbyService(Lobby gameLobby){
+        this.gamelobby = gameLobby;
     }
 
 
