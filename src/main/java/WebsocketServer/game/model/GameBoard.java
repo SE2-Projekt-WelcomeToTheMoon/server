@@ -9,11 +9,14 @@ import java.util.List;
 
 public class GameBoard {
     private final List<Floor> floors;
+
+    private final SystemErrors systemErrors;
     @Getter
     private boolean isFinalized = false;
 
     public GameBoard() {
         floors = new ArrayList<>();
+        systemErrors = new SystemErrors();
     }
 
     public void finalizeGameBoard() {
@@ -62,6 +65,27 @@ public class GameBoard {
         }
 
         floors.add(floor);
+    }
+
+    public boolean addSystemError(){
+        if (!isFinalized) {
+            throw new FinalizedException("GameBoard must be finalized.");
+        }
+        return systemErrors.increaseCurrentErrors();
+    }
+
+    public boolean hasLost() {
+        if (!isFinalized) {
+            throw new FinalizedException("GameBoard must be finalized.");
+        }
+        return systemErrors.hasLost();
+    }
+
+    public int getRemainingErrors() {
+        if (!isFinalized) {
+            throw new FinalizedException("GameBoard must be finalized.");
+        }
+        return systemErrors.getRemainingErrors();
     }
 
     public int getSize() {
