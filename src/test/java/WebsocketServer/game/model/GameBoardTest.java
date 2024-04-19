@@ -40,9 +40,7 @@ class GameBoardTest {
 
     @Test
     void testAddSystemErrorsNotFinalized() {
-        assertThrows(FinalizedException.class, () -> {
-            gameBoard.addSystemError();
-        });
+        assertThrows(FinalizedException.class, () -> gameBoard.addSystemError());
     }
 
     @Test
@@ -73,16 +71,12 @@ class GameBoardTest {
 
     @Test
     void testGetRemainingSystemErrorsNotFinalized() {
-        assertThrows(FinalizedException.class, () -> {
-            gameBoard.getRemainingErrors();
-        });
+        assertThrows(FinalizedException.class, () -> gameBoard.getRemainingErrors());
     }
 
     @Test
     void testHasLostNotFinalized() {
-        assertThrows(FinalizedException.class, () -> {
-            gameBoard.hasLost();
-        });
+        assertThrows(FinalizedException.class, () -> gameBoard.hasLost());
     }
 
     @Test
