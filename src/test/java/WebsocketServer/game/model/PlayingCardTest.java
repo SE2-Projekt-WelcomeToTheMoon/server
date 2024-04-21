@@ -16,12 +16,12 @@ class PlayingCardTest {
     @Test
     void testGetSymbol() {
         PlayingCard card = new PlayingCard(FieldCategory.ENERGIE, 3);
-        assertEquals(FieldCategory.ENERGIE, card.symbol);
+        assertEquals(FieldCategory.ENERGIE, card.getSymbol());
     }
 
     @Test
     void testGetNumber() {
         PlayingCard card = new PlayingCard(FieldCategory.PFLANZE, 8);
-        assertEquals(8, card.number);
+        assertEquals(8, card.getNumber());
     }
 }
