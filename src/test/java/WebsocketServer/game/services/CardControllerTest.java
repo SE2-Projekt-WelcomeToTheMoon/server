@@ -64,9 +64,9 @@ class CardControllerTest {
         cardController.drawNextCard();
         CardCombination[] lastCombination = cardController.currentCombinations;
         cardController.drawNextCard();
-        assertEquals(lastCombination[0].nextSymbol,cardController.currentCombinations[0].currentSymbol);
-        assertEquals(lastCombination[1].nextSymbol,cardController.currentCombinations[1].currentSymbol);
-        assertEquals(lastCombination[2].nextSymbol,cardController.currentCombinations[2].currentSymbol);
+        assertEquals(lastCombination[0].getNextSymbol(), cardController.currentCombinations[0].getCurrentSymbol());
+        assertEquals(lastCombination[1].getNextSymbol(), cardController.currentCombinations[1].getCurrentSymbol());
+        assertEquals(lastCombination[2].getNextSymbol(), cardController.currentCombinations[2].getCurrentSymbol());
     }
     @Test
     void testShuffleCardsCorrectly() {
@@ -74,12 +74,12 @@ class CardControllerTest {
         cardController.drawNextCard();
         CardCombination[] lastCombination = new CardCombination[3];
         for (int i = 0; i < 3; i++) {
-            lastCombination[i] = new CardCombination(cardController.currentCombinations[i].card1,cardController.currentCombinations[i].card2);
+            lastCombination[i] = new CardCombination(cardController.currentCombinations[i].getCard1(), cardController.currentCombinations[i].getCard2());
         }
         cardController.drawNextCard();
         assertEquals(0,cardController.currentPosition);
-        assertEquals(lastCombination[0].nextSymbol,cardController.currentCombinations[0].currentSymbol);
-        assertEquals(lastCombination[1].nextSymbol,cardController.currentCombinations[1].currentSymbol);
-        assertEquals(lastCombination[2].nextSymbol,cardController.currentCombinations[2].currentSymbol);
+        assertEquals(lastCombination[0].getNextSymbol(), cardController.currentCombinations[0].getCurrentSymbol());
+        assertEquals(lastCombination[1].getNextSymbol(), cardController.currentCombinations[1].getCurrentSymbol());
+        assertEquals(lastCombination[2].getNextSymbol(), cardController.currentCombinations[2].getCurrentSymbol());
     }
 }

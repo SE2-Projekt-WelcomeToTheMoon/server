@@ -1,13 +1,19 @@
 package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.FieldCategory;
+import lombok.Getter;
 
 public class CardCombination {
-    public PlayingCard card1;
-    public PlayingCard card2;
-    public FieldCategory currentSymbol;
-    public FieldCategory nextSymbol;
-    public int currentNumber;
+    @Getter
+    private PlayingCard card1;
+    @Getter
+    private PlayingCard card2;
+    @Getter
+    private FieldCategory currentSymbol;
+    @Getter
+    private FieldCategory nextSymbol;
+    @Getter
+    private int currentNumber;
     public CardCombination(PlayingCard card1, PlayingCard card2){
         this.card1=card1;
         this.card2=card2;
@@ -17,16 +23,5 @@ public class CardCombination {
 
     }
 
-    public FieldCategory getCurrentSymbol() {
-        return currentSymbol;
-    }
-
-    public FieldCategory getNextSymbol() {
-        return nextSymbol;
-    }
-
-    public int getCurrentNumber() {
-        return currentNumber;
-    }
 
 }
