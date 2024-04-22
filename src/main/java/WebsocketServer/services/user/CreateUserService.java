@@ -21,7 +21,7 @@ public class CreateUserService {
     }
 
     /**
-     * Checks if a user with the passed username already exists.
+     * Checks if a user with the passed sessionID already exists.
      * @param sessionID SessionID to create user.
      * @return boolean according to if user exists or not.
      */
@@ -30,7 +30,7 @@ public class CreateUserService {
     }
 
     /**
-     * Sets global variables for username and more tbd.
+     * Sets global variables for sessionID, username and more tbd.
      * @param sessionID SessionID to be set.
      * @param username Username to be set.
      */
