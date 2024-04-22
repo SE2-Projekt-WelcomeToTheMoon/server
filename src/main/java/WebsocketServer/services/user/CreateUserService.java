@@ -3,6 +3,7 @@ package WebsocketServer.services.user;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.web.socket.WebSocketSession;
 
 /**
  * Class creates user object to handle users logged on the server.
@@ -15,9 +16,11 @@ public class CreateUserService {
     private String sessionID;
     @Getter
     private String username;
+    @Getter
+    private WebSocketSession session;
 
-    public CreateUserService(String sessionID, String username){
-        registerUser(sessionID, username);
+    public CreateUserService(WebSocketSession session, String username){
+        registerUser(session, username);
     }
 
     /**
@@ -30,15 +33,17 @@ public class CreateUserService {
     }
 
     /**
-     * Sets global variables for sessionID, username and more tbd.
-     * @param sessionID SessionID to be set.
+     * Sets global variables for sessionID, username, session and more tbd.
+     * @param session Session to be set.
      * @param username Username to be set.
      */
-    public void registerUser(String sessionID, String username) {
-        if (!username.isEmpty() && !sessionID.isEmpty()) {
+    public void registerUser(WebSocketSession session, String username) {
+        if (!username.isEmpty() && (session != null)) {
+            String sessionID = session.getId();
             if(checkUserExists(sessionID)){
                 this.sessionID = sessionID;
                 this.username = username;
+                this.session = session;
                 logger.info("SessionID {} and Username {} set. User created.", sessionID, username);
             }
             else logger.warn("Username {} already exists. User not created.", username);

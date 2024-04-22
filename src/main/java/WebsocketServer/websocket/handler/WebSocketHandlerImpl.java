@@ -40,7 +40,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
             switch (action) {
                 case "registerUser":
                     logger.info("Creating user...");
-                    JSONObject responseMessage = UserListService.userList.addUser(new CreateUserService(session.getId(), messageJson.getString("username")));
+                    JSONObject responseMessage = UserListService.userList.addUser(new CreateUserService(session, messageJson.getString("username")));
                     session.sendMessage(new TextMessage(responseMessage.toString()));
                     break;
                 case "joinLobby":
