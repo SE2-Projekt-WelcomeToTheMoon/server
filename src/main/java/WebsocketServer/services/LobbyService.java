@@ -13,6 +13,7 @@ import org.springframework.web.socket.WebSocketSession;
  *  - Spieler entfernen
  *  - Spieleranzahl prüfen
  *  - Spielerliste ausgeben
+ *  - Karten an Spieler schicken
  */
 public class LobbyService {
 
@@ -73,8 +74,16 @@ public class LobbyService {
         }
     }
 
+    /***
+     * Send CardCombination Information to player
+     * @param session  current connection
+     * @param messageJson   received string for assignment in HandleMessage
+     * @throws Exception    Exception for handling errors
+     */
     public void handleCardDraw(WebSocketSession session, JSONObject messageJson) throws Exception {
         logger.info("Versuche Nächste Karte zu schicken: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
-
+        JSONObject response= GenerateJSONObjectService.generateJSONObject("leaveLobby", messageJson.getString(USERNAME_KEY), true, "", "");
+        session.sendMessage(new TextMessage(response.toString()));
+        logger.info("Nächste Karten zu Spieler geschickt: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
     }
 }
