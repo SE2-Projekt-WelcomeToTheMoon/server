@@ -57,4 +57,20 @@ public class CardController {
     public LinkedList<CardCombination[]> getPastCombinations(){
         return this.pastCombinations;
     }
+
+    /***
+     * Creates a message String with the current Combinations. The Combinations are split by ;
+     * the data inside the combinations is split by - and ordered CombinationNumber-CurrentSymbol-CurrentNumber-NextSymbol
+     * @param combinations The Combinations to be split
+     * @return the created Message String
+     */
+    public static String getCurrentCardMessage(CardCombination[] combinations){
+        StringBuilder cardMessage= new StringBuilder();
+        int count=0;
+        for (CardCombination combination:combinations) {
+            cardMessage.append(String.format("%d-%s-%d-%s;", count, combination.getCurrentSymbol().toString(), combination.getCurrentNumber(), combination.getNextSymbol().toString()));
+            count++;
+        }
+        return cardMessage.toString();
+    }
 }
