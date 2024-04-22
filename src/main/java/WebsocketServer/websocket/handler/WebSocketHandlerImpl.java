@@ -51,6 +51,10 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     logger.info("Case leaveLobby: {} ",  username );
                     lobbyService.handleLeaveLobby(session, messageJson);
                     break;
+                case "getNextCard":
+                    logger.info("Case getNextCard: {}",username);
+                    lobbyService.handleCardDraw(session,messageJson);
+                    break;
                 default:
                     JSONObject response = new JSONObject();
                     response.put("error", "Unbekannte Aktion");

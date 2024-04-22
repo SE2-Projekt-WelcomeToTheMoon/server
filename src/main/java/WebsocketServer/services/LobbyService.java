@@ -72,4 +72,9 @@ public class LobbyService {
             logger.info("Nicht aus der Lobby entfernt: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
         }
     }
+
+    public void handleCardDraw(WebSocketSession session, JSONObject messageJson) throws Exception {
+        logger.info("Versuche Nächste Karte zu schicken: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
+
+    }
 }
