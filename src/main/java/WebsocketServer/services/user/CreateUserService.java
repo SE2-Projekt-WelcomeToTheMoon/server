@@ -12,30 +12,34 @@ public class CreateUserService {
     private final Logger logger = LogManager.getLogger(String.valueOf(CreateUserService.class));
 
     @Getter
+    private String sessionID;
+    @Getter
     private String username;
 
-    public CreateUserService(String username){
-        registerUser(username);
+    public CreateUserService(String sessionID, String username){
+        registerUser(sessionID, username);
     }
 
     /**
      * Checks if a user with the passed username already exists.
-     * @param username Username to create user.
+     * @param sessionID SessionID to create user.
      * @return boolean according to if user exists or not.
      */
-    public boolean checkUserExists(String username){
-        return UserListService.userList.getUser(username) == null;
+    public boolean checkUserExists(String sessionID){
+        return UserListService.userList.getUser(sessionID) == null;
     }
 
     /**
      * Sets global variables for username and more tbd.
+     * @param sessionID SessionID to be set.
      * @param username Username to be set.
      */
-    public void registerUser(String username) {
-        if (!username.isEmpty()) {
-            if(checkUserExists(username)){
+    public void registerUser(String sessionID, String username) {
+        if (!username.isEmpty() && !sessionID.isEmpty()) {
+            if(checkUserExists(sessionID)){
+                this.sessionID = sessionID;
                 this.username = username;
-                logger.info("Username {} set.", username);
+                logger.info("SessionID {} and Username {} set.", sessionID, username);
             }
             else logger.warn("Username {} already exists.", username);
         } else logger.warn("No username has been passed.");
