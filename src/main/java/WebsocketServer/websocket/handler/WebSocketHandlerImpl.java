@@ -39,8 +39,8 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
             //Checks which action was requested by client.
             switch (action) {
                 case "registerUser":
-                    logger.info("Setting Username...");
-                    JSONObject responseMessage = UserListService.userList.addUser(new CreateUserService(messageJson.getString("username")));
+                    logger.info("Creating user...");
+                    JSONObject responseMessage = UserListService.userList.addUser(new CreateUserService(session.getId(), messageJson.getString("username")));
                     session.sendMessage(new TextMessage(responseMessage.toString()));
                     break;
                 case "joinLobby":
@@ -69,7 +69,9 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
-        logger.info("Verbindung getrennt: {} ",  session.getId());
+        //Deletes registered user
+        UserListService.userList.deleteUser(session.getId());
+        logger.info("User gelöscht. Verbindung getrennt: {} ",  session.getId());
     }
 
     @Override
