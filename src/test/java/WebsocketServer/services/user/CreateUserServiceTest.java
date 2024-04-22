@@ -9,25 +9,29 @@ class CreateUserServiceTest {
     @Test
     void testCreateUserServiceWithValidUsername() {
         String username = "testUser";
-        CreateUserService userService = new CreateUserService(username);
+        String sessionID = "testSessionID";
+        CreateUserService userService = new CreateUserService(sessionID, username);
 
         assertEquals(username, userService.getUsername());
+        assertEquals(sessionID, userService.getSessionID());
     }
 
     @Test
     void testCreateUserServiceWithEmptyUsername() {
-        CreateUserService userService = new CreateUserService("");
+        CreateUserService userService = new CreateUserService("", "");
         assertNull(userService.getUsername());
+        assertNull(userService.getSessionID());
     }
 
     @Test
     void testCheckUserExistsWhenUserDoesNotExist() {
         String username = "testUser";
+        String sessionID = "testSessionID";
         ManageUserService userList = Mockito.mock(ManageUserService.class);
-        Mockito.when(userList.getUser(username)).thenReturn(null);
+        Mockito.when(userList.getUser(sessionID)).thenReturn(null);
 
-        CreateUserService userService = new CreateUserService(username);
-        boolean result = userService.checkUserExists(username);
+        CreateUserService userService = new CreateUserService(sessionID, username);
+        boolean result = userService.checkUserExists(sessionID);
 
         assertTrue(result);
     }
@@ -35,25 +39,28 @@ class CreateUserServiceTest {
     @Test
     void testCheckUserExistsWhenUserExists() {
         String username = "existingUser";
+        String sessionID = "testSessionID";
         ManageUserService userList = Mockito.mock(ManageUserService.class);
-        Mockito.when(userList.getUser(username)).thenReturn(new CreateUserService(username));
+        Mockito.when(userList.getUser(sessionID)).thenReturn(new CreateUserService(sessionID, username));
 
-        CreateUserService userService = new CreateUserService(username);
-        boolean result = userService.checkUserExists(username);
+        CreateUserService userService = new CreateUserService(sessionID, username);
+        boolean result = userService.checkUserExists(sessionID);
 
         assertTrue(result);
     }
 
     @Test
-    void testRegisterUserWithValidUsername() {
+    void testRegisterUserWithValidUsername() {//
         String username = "testUser";
-        CreateUserService userService = new CreateUserService(username);
+        String sessionID = "testSessionID";
+        CreateUserService userService = new CreateUserService(sessionID, username);
         assertEquals(username, userService.getUsername());
+        assertEquals(sessionID, userService.getSessionID());
     }
 
     @Test
     void testRegisterUserWithEmptyUsername() {
-        CreateUserService userService = new CreateUserService("");
+        CreateUserService userService = new CreateUserService("", "");
         assertNull(userService.getUsername());
     }
 }

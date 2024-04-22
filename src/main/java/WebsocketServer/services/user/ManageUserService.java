@@ -29,11 +29,12 @@ public class ManageUserService {
      * return Response as JSON Object
      */
     public JSONObject addUser(CreateUserService user){
+        String sessionID = user.getSessionID();
         String username = user.getUsername();
         try {
-            if(!(userList.containsKey(username))){
-                userList.put(user.getUsername(), user);
-                logger.info("User {} now managed.", username);
+            if(!(userList.containsKey(sessionID))){
+                userList.put(user.getSessionID(), user);
+                logger.info("User {} now managed.", sessionID);
                 return GenerateJSONObjectService.generateJSONObject(RESPONSE_ACTION, username, true, ("User " + username + " now managed."), "");
             }
             else {
@@ -48,29 +49,29 @@ public class ManageUserService {
 
     /**
      * Removes user from list.
-     * @param username User to be removed.
+     * @param sessionID User to be removed.
      */
-    public void deleteUser(String username){
+    public void deleteUser(String sessionID){
         try {
-            if(userList.containsKey(username)){
-                userList.remove(username);
-                logger.info("User {} removed.", username);
+            if(userList.containsKey(sessionID)){
+                userList.remove(sessionID);
+                logger.info("User {} removed.", sessionID);
             }
-            else logger.warn("User {} could not be removed, key {} does not exist.", username, username);
+            else logger.warn("User {} could not be removed, key {} does not exist.", sessionID, sessionID);
 
         }catch (Exception e){
-            logger.error("User {} could not be deleted. Error: {}", username, e.getMessage());
+            logger.error("User {} could not be deleted. Error: {}", sessionID, e.getMessage());
         }
     }
 
     /**
-     * Returns the user object saved as value behind key username.
-     * @param username User to get.
-     * @return value of key username or null if user does not exist.
+     * Returns the user object saved as value behind key sessionID.
+     * @param sessionID User to get.
+     * @return value of key sessionID or null if user does not exist.
      */
-    public CreateUserService getUser(String username){
-        if(userList.containsKey(username)){
-            return userList.get(username);
+    public CreateUserService getUser(String sessionID){
+        if(userList.containsKey(sessionID)){
+            return userList.get(sessionID);
         }else return null;
     }
 
