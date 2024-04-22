@@ -39,9 +39,9 @@ public class CreateUserService {
             if(checkUserExists(sessionID)){
                 this.sessionID = sessionID;
                 this.username = username;
-                logger.info("SessionID {} and Username {} set.", sessionID, username);
+                logger.info("SessionID {} and Username {} set. User created.", sessionID, username);
             }
-            else logger.warn("Username {} already exists.", username);
-        } else logger.warn("No username has been passed.");
+            else logger.warn("Username {} already exists. User not created.", username);
+        } else logger.warn("No username has been passed. User not created.");
     }
 }
