@@ -24,7 +24,7 @@ class ManageUserServiceTest {
     @Test
     void testAddUser() {
         CreateUserService user = Mockito.mock(CreateUserService.class);
-        Mockito.when(user.getUsername()).thenReturn("testUser");
+        Mockito.when(user.getSessionID()).thenReturn("testUser");
 
         manageUserService.addUser(user);
 
@@ -34,10 +34,10 @@ class ManageUserServiceTest {
     @Test
     void testAddExistingUser() {
         CreateUserService user1 = Mockito.mock(CreateUserService.class);
-        Mockito.when(user1.getUsername()).thenReturn("testUser");
+        Mockito.when(user1.getSessionID()).thenReturn("testUser");
 
         CreateUserService user2 = Mockito.mock(CreateUserService.class);
-        Mockito.when(user2.getUsername()).thenReturn("testUser");
+        Mockito.when(user2.getSessionID()).thenReturn("testUser");
 
         manageUserService.addUser(user1);
         manageUserService.addUser(user2);
@@ -48,7 +48,7 @@ class ManageUserServiceTest {
     @Test
     void testDeleteUser() {
         CreateUserService user = Mockito.mock(CreateUserService.class);
-        Mockito.when(user.getUsername()).thenReturn("testUser");
+        Mockito.when(user.getSessionID()).thenReturn("testUser");
 
         manageUserService.addUser(user);
         manageUserService.deleteUser("testUser");
@@ -65,7 +65,7 @@ class ManageUserServiceTest {
     @Test
     void testGetUser() {
         CreateUserService user = Mockito.mock(CreateUserService.class);
-        Mockito.when(user.getUsername()).thenReturn("testUser");
+        Mockito.when(user.getSessionID()).thenReturn("testUser");
 
         manageUserService.addUser(user);
 
@@ -80,10 +80,10 @@ class ManageUserServiceTest {
     @Test
     void testGetAllUsers() {
         CreateUserService user1 = Mockito.mock(CreateUserService.class);
-        Mockito.when(user1.getUsername()).thenReturn("user1");
+        Mockito.when(user1.getSessionID()).thenReturn("user1");
 
         CreateUserService user2 = Mockito.mock(CreateUserService.class);
-        Mockito.when(user2.getUsername()).thenReturn("user2");
+        Mockito.when(user2.getSessionID()).thenReturn("user2");
 
         manageUserService.addUser(user1);
         manageUserService.addUser(user2);
@@ -98,7 +98,7 @@ class ManageUserServiceTest {
     @Test
     void testCleanUpUserList() {
         CreateUserService user = Mockito.mock(CreateUserService.class);
-        Mockito.when(user.getUsername()).thenReturn("testUser");
+        Mockito.when(user.getSessionID()).thenReturn("testUser");
 
         manageUserService.addUser(user);
         manageUserService.cleanUpUserList();
