@@ -3,22 +3,24 @@ package WebsocketServer.services.user;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.mockito.Mockito;
+import org.springframework.web.socket.WebSocketSession;
 
 class CreateUserServiceTest {
 
     @Test
     void testCreateUserServiceWithValidUsername() {
         String username = "testUser";
-        String sessionID = "testSessionID";
-        CreateUserService userService = new CreateUserService(sessionID, username);
+//        String sessionID = "testSessionID";
+        WebSocketSession session = Mockito.mock(WebSocketSession.class);
+        CreateUserService userService = new CreateUserService(session, username);
 
         assertEquals(username, userService.getUsername());
-        assertEquals(sessionID, userService.getSessionID());
+        assertEquals(session, userService.getSession());
     }
 
     @Test
     void testCreateUserServiceWithEmptyUsername() {
-        CreateUserService userService = new CreateUserService("", "");
+        CreateUserService userService = new CreateUserService(null, "");
         assertNull(userService.getUsername());
         assertNull(userService.getSessionID());
     }
@@ -26,12 +28,12 @@ class CreateUserServiceTest {
     @Test
     void testCheckUserExistsWhenUserDoesNotExist() {
         String username = "testUser";
-        String sessionID = "testSessionID";
+        WebSocketSession session = Mockito.mock(WebSocketSession.class);
         ManageUserService userList = Mockito.mock(ManageUserService.class);
-        Mockito.when(userList.getUser(sessionID)).thenReturn(null);
+        Mockito.when(userList.getUser(session.getId())).thenReturn(null);
 
-        CreateUserService userService = new CreateUserService(sessionID, username);
-        boolean result = userService.checkUserExists(sessionID);
+        CreateUserService userService = new CreateUserService(session, username);
+        boolean result = userService.checkUserExists(session.getId());
 
         assertTrue(result);
     }
@@ -39,12 +41,18 @@ class CreateUserServiceTest {
     @Test
     void testCheckUserExistsWhenUserExists() {
         String username = "existingUser";
-        String sessionID = "testSessionID";
-        ManageUserService userList = Mockito.mock(ManageUserService.class);
-        Mockito.when(userList.getUser(sessionID)).thenReturn(new CreateUserService(sessionID, username));
 
-        CreateUserService userService = new CreateUserService(sessionID, username);
-        boolean result = userService.checkUserExists(sessionID);
+        WebSocketSession session = Mockito.mock(WebSocketSession.class);
+        Mockito.when(session.getId()).thenReturn("existingSession");
+
+        CreateUserService user = new CreateUserService(session, username);
+
+        ManageUserService userList = Mockito.mock(ManageUserService.class);
+        userList.addUser(user);
+        Mockito.when(userList.getUser(session.getId())).thenReturn(user);
+
+        CreateUserService userService = new CreateUserService(session, username);
+        boolean result = userService.checkUserExists(session.getId());
 
         assertTrue(result);
     }
@@ -52,15 +60,15 @@ class CreateUserServiceTest {
     @Test
     void testRegisterUserWithValidUsername() {//
         String username = "testUser";
-        String sessionID = "testSessionID";
-        CreateUserService userService = new CreateUserService(sessionID, username);
+        WebSocketSession session = Mockito.mock(WebSocketSession.class);
+        CreateUserService userService = new CreateUserService(session, username);
         assertEquals(username, userService.getUsername());
-        assertEquals(sessionID, userService.getSessionID());
+        assertEquals(session.getId(), userService.getSessionID());
     }
 
     @Test
     void testRegisterUserWithEmptyUsername() {
-        CreateUserService userService = new CreateUserService("", "");
+        CreateUserService userService = new CreateUserService(null, "");
         assertNull(userService.getUsername());
     }
 }
