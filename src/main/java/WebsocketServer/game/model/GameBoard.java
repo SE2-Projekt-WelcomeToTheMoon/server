@@ -91,4 +91,12 @@ public class GameBoard {
     public int getSize() {
         return floors.size();
     }
+
+    public List<Floor> getFloors(){
+        return this.floors;
+    }
+
+    public List getChambers(){
+        return this.getChambers();
+    }
 }

@@ -121,4 +121,8 @@ public class Floor {
         return true;
     }
 
+    public List<Chamber> getChambers(){
+        return this.chambers;
+    }
+
 }

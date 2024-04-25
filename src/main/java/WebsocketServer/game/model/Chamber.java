@@ -119,4 +119,8 @@ public class Chamber {
 
         }
     }
+
+    public List<Field> getFields(){
+        return this.fields;
+    }
 }
