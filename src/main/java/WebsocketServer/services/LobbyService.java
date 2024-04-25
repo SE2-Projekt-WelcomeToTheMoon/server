@@ -19,6 +19,7 @@ public class LobbyService {
 
     private final Lobby gamelobby;
     private static final String USERNAME_KEY = "username";
+    private static final String MESSAGE_KEY="message";
     private static final Logger logger = LoggerFactory.getLogger(LobbyService.class);
 
 
@@ -82,7 +83,7 @@ public class LobbyService {
      */
     public void handleCardDraw(WebSocketSession session, JSONObject messageJson) throws Exception {
         logger.info("Versuche Nächste Karte zu schicken: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
-        JSONObject response= GenerateJSONObjectService.generateJSONObject("leaveLobby", messageJson.getString(USERNAME_KEY), true, "", "");
+        JSONObject response= GenerateJSONObjectService.generateJSONObject("getNextCard", messageJson.getString(USERNAME_KEY), true, messageJson.getString(MESSAGE_KEY), "");
         session.sendMessage(new TextMessage(response.toString()));
         logger.info("Nächste Karten zu Spieler geschickt: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
     }
