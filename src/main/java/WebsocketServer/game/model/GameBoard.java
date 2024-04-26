@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameBoard {
+    @Getter
     private final List<Floor> floors;
 
     private final SystemErrors systemErrors;
@@ -92,11 +93,4 @@ public class GameBoard {
         return floors.size();
     }
 
-    public List<Floor> getFloors(){
-        return this.floors;
-    }
-
-    public List getChambers(){
-        return this.getChambers();
-    }
 }

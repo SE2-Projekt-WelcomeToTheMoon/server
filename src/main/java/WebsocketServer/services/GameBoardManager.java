@@ -1,10 +1,7 @@
 package WebsocketServer.services;
 
 import WebsocketServer.game.lobby.Lobby;
-import WebsocketServer.game.model.Chamber;
-import WebsocketServer.game.model.Field;
-import WebsocketServer.game.model.Floor;
-import WebsocketServer.game.model.GameBoard;
+import WebsocketServer.game.model.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -56,6 +53,15 @@ public class GameBoardManager {
                 chamberJson.put("chamberIndex", j);
                 chamberJson.put("chamberSize", chamber.getSize());
 
+                JSONArray rewardsJson = new JSONArray();
+                List<Reward> rewards = chamber.getRewards();
+                for (int l = 0; l < rewards.size(); l++){
+                    Reward reward = rewards.get(i);
+                    rewardsJson.put(reward.getCategory().toString());
+                }
+
+                chambersJson.put(rewardsJson);
+
                 JSONArray fieldsJson = new JSONArray();
                 List<Field> fields = chamber.getFields();
                 for (int k = 0; k < chamber.getSize(); k++){
@@ -66,7 +72,9 @@ public class GameBoardManager {
                     fieldJson.put("fieldValue", field.getFieldValue());
                     fieldsJson.put(fieldJson);
                 }
+
                 chambersJson.put(chamberJson);
+
             }
             floorsJson.put(floorJson);
         }
@@ -78,11 +86,11 @@ public class GameBoardManager {
 
     public void handleProvideGameBoardInfo(WebSocketSession session) {
         List<String> userListFromLobby = this.gamelobby.getUserListFromLobby();
-        String gameboardData = getGameBoardAsString();
+        String gameBoardData = getGameBoardAsString();
 
         try {
             for (String user : userListFromLobby) {
-                JSONObject object = GenerateJSONObjectService.generateJSONObject("initGameBoard", user, true, gameboardData , "");
+                JSONObject object = GenerateJSONObjectService.generateJSONObject("initGameBoard", user, true, gameBoardData , "");
 
                 session.sendMessage(new TextMessage(object.toString()));
             }
