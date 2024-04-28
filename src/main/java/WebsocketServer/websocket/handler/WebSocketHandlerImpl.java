@@ -75,13 +75,18 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         //Deletes registered user
         if(UserListService.userList.getUserBySessionID(session.getId()) != null){
             UserListService.userList.deleteUser(session.getId());
             logger.info("User gelöscht.");
         }
+        //Removes user from lobby
+        lobbyService.removeFromLobbyAfterConnectionClosed(session.getId());
+        logger.info("User nicht mehr in der Lobby vorhanden.");
+
         logger.info("Verbindung getrennt: {} ",  session.getId());
+
     }
 
     @Override
