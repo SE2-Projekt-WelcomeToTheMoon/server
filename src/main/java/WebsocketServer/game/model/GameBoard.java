@@ -11,12 +11,15 @@ public class GameBoard {
     private final List<Floor> floors;
 
     private final SystemErrors systemErrors;
+
+    private final RocketBarometer rocketBarometer;
     @Getter
     private boolean isFinalized = false;
 
     public GameBoard() {
         floors = new ArrayList<>();
         systemErrors = new SystemErrors();
+        rocketBarometer = new RocketBarometer();
     }
 
     public void finalizeGameBoard() {
@@ -65,6 +68,36 @@ public class GameBoard {
         }
 
         floors.add(floor);
+    }
+
+    public boolean addRockets(int rockets){
+        if (!isFinalized) {
+            throw new FinalizedException("GameBoard must be finalized.");
+        }
+        return rocketBarometer.addRockets(rockets);
+    }
+
+    public boolean hasWon() {
+        if (!isFinalized) {
+            throw new FinalizedException("GameBoard must be finalized.");
+        }
+        //TODO: RocketCount must be actually greater than ROCKET_TO_COMPLETE + SYSTEM ERRORS
+
+        return rocketBarometer.hasWon();
+    }
+
+    public int getRocketBarometerPoints(){
+        if (!isFinalized) {
+            throw new FinalizedException("GameBoard must be finalized.");
+        }
+        return rocketBarometer.getPointsOfRocketBarometer();
+    }
+
+    public int getRocketCount(){
+        if (!isFinalized) {
+            throw new FinalizedException("GameBoard must be finalized.");
+        }
+        return rocketBarometer.getRocketCount();
     }
 
     public boolean addSystemError(){
