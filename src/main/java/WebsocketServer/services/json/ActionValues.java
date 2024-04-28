@@ -3,8 +3,8 @@ package WebsocketServer.services.json;
 import lombok.Getter;
 
 /**
- * Enums for action key in JSON Objects sent to server to ensure that no
- * errors occur when routing sent message on server.
+ * Enums for action key in JSON Objects sent to client to ensure that no
+ * errors occur when routing sent message on client.
  */
 @Getter
 public enum ActionValues {

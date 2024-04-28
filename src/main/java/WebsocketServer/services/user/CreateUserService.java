@@ -29,8 +29,9 @@ public class CreateUserService {
     }
 
     /**
-     * Checks if a user with passed username already exists.
+     * Checks if a user with passed username or sessionID already exists.
      * @param username Username to check.
+     * @param sessionID SessionID to check.
      * @return boolean according to if user exists or not.
      */
     public boolean checkUserExists(String sessionID, String username){
@@ -45,7 +46,7 @@ public class CreateUserService {
     }
 
     /**
-     * Sets global variables for sessionID, username, session and more tbd.
+     * Sets global variables for sessionID, username, session and more tbd. Defines response for client.
      * @param session Session to be set.
      * @param username Username to be set.
      */
