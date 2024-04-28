@@ -2,18 +2,24 @@ package WebsocketServer.game.model;
 
 public class RocketBarometer {
     private final int MAX_ROCKET = 40;
+    private final int ROCKETS_TO_COMPLETE = 32;
     private int rocketCount;
 
     public RocketBarometer(){
         rocketCount = 0;
     }
 
-    public void addRockets(int rockets){
+    public boolean addRockets(int rockets){
         if(rockets > 0){
             if(rocketCount + rockets <= MAX_ROCKET){
                 rocketCount += rockets;
             }
         }
+        return hasWon();
+    }
+
+    private boolean hasWon() {
+        return rocketCount >= ROCKETS_TO_COMPLETE;
     }
 
     public int getPointsOfRocketBarometer(){
