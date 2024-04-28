@@ -160,7 +160,7 @@ public class LobbyServiceTests {
     void testDrawNextCard() throws Exception{
         JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
                 "drawNextCard", "testUser", true, "", "");
-        assertDoesNotThrow(()->session.sendMessage(new TextMessage(jsonMsg.toString())));
+        assertDoesNotThrow(()->lobbyService.handleCardDraw(session,jsonMsg));
 
 
     }
