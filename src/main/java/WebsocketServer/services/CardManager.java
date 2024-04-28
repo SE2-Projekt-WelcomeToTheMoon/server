@@ -25,9 +25,10 @@ public class CardManager {
         cardController.drawNextCard();
         handleSendCardDraw(session);
     }
+
     private void handleSendCardDraw(WebSocketSession session){
         List<String> userListFromLobby=this.gameLobby.getUserListFromLobby();
-        String cardData=this.cardController.getCurrentCardMessage(this.cardController.currentCombinations);
+        String cardData= CardController.getCurrentCardMessage(this.cardController.currentCombinations);
         try {
             for(String user: userListFromLobby){
                 JSONObject object=GenerateJSONObjectService.generateJSONObject("getNextCard",user,true,cardData,"");
