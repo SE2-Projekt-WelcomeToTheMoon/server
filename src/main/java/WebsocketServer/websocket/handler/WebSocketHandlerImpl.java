@@ -11,12 +11,12 @@ import org.springframework.web.socket.*;
 
 public class WebSocketHandlerImpl implements WebSocketHandler {
 
-    private final LobbyService lobbyService;
+    public static LobbyService lobbyService;
     private static final Logger logger = LogManager.getLogger(WebSocketHandlerImpl.class);
 
     public WebSocketHandlerImpl(){
         Lobby gameLobby = new Lobby();
-        this.lobbyService = new LobbyService(gameLobby);
+        lobbyService = new LobbyService(gameLobby);
     }
 
     @Override
