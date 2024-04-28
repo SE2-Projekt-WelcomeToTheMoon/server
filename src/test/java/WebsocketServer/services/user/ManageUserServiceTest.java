@@ -28,7 +28,7 @@ class ManageUserServiceTest {
 
         manageUserService.addUser(user);
 
-        assertEquals(user, manageUserService.getUser("testUser"));
+        assertEquals(user, manageUserService.getUserBySessionID("testUser"));
     }
 
     @Test
@@ -42,7 +42,7 @@ class ManageUserServiceTest {
         manageUserService.addUser(user1);
         manageUserService.addUser(user2);
 
-        assertNotNull(manageUserService.getUser("testUser"));
+        assertNotNull(manageUserService.getUserBySessionID("testUser"));
     }
 
     @Test
@@ -53,28 +53,28 @@ class ManageUserServiceTest {
         manageUserService.addUser(user);
         manageUserService.deleteUser("testUser");
 
-        assertNull(manageUserService.getUser("testUser"));
+        assertNull(manageUserService.getUserBySessionID("testUser"));
     }
 
     @Test
     void testDeleteNonExistingUser() {
         manageUserService.deleteUser("nonExistingUser");
-        assertNull(manageUserService.getUser("nonExistingUser"));
+        assertNull(manageUserService.getUserBySessionID("nonExistingUser"));
     }
 
     @Test
-    void testGetUser() {
+    void testGetUserBySessionID() {
         CreateUserService user = Mockito.mock(CreateUserService.class);
         Mockito.when(user.getSessionID()).thenReturn("testUser");
 
         manageUserService.addUser(user);
 
-        assertEquals(user, manageUserService.getUser("testUser"));
+        assertEquals(user, manageUserService.getUserBySessionID("testUser"));
     }
 
     @Test
     void testGetNonExistingUser() {
-        assertNull(manageUserService.getUser("nonExistingUser"));
+        assertNull(manageUserService.getUserBySessionID("nonExistingUser"));
     }
 
     @Test
@@ -103,7 +103,7 @@ class ManageUserServiceTest {
         manageUserService.addUser(user);
         manageUserService.cleanUpUserList();
 
-        assertThrows(NullPointerException.class, () -> manageUserService.getUser("testUser"));
+        assertThrows(NullPointerException.class, () -> manageUserService.getUserBySessionID("testUser"));
     }
 
 }
