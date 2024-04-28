@@ -21,7 +21,7 @@ public class CardManager {
         this.gameLobby = gameLobby;
         this.cardController=new CardController();
     }
-    public void drawNextCard(WebSocketSession session){
+    public void drawAndSendNextCard(WebSocketSession session){
         cardController.drawNextCard();
         handleSendCardDraw(session);
     }

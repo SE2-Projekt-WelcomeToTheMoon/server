@@ -18,6 +18,7 @@ import org.springframework.web.socket.WebSocketSession;
 public class LobbyService {
 
     private final Lobby gamelobby;
+    private CardManager cardManager;
     private static final String USERNAME_KEY = "username";
     private static final String MESSAGE_KEY="message";
     private static final Logger logger = LoggerFactory.getLogger(LobbyService.class);
@@ -26,6 +27,7 @@ public class LobbyService {
 
     public LobbyService(Lobby gameLobby){
         this.gamelobby = gameLobby;
+        this.cardManager=new CardManager(gameLobby);
     }
 
 
@@ -76,15 +78,13 @@ public class LobbyService {
     }
 
     /***
-     * Send CardCombination Information to player
+     * Draws the next card and sends that information to the player
      * @param session  current connection
      * @param messageJson   received string for assignment in HandleMessage
-     * @throws Exception    Exception for handling errors
      */
-    public void handleCardDraw(WebSocketSession session, JSONObject messageJson) throws Exception {
+    public void handleCardDraw(WebSocketSession session, JSONObject messageJson) {
         logger.info("Versuche Nächste Karte zu schicken: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
-        JSONObject response= GenerateJSONObjectService.generateJSONObject("getNextCard", messageJson.getString(USERNAME_KEY), true, messageJson.getString(MESSAGE_KEY), "");
-        session.sendMessage(new TextMessage(response.toString()));
-        logger.info("Nächste Karten zu Spieler geschickt: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
+        cardManager.drawAndSendNextCard(session);
+
     }
 }
