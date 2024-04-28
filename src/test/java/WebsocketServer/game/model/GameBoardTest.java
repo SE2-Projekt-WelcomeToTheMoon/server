@@ -38,6 +38,53 @@ class GameBoardTest {
         });
     }
 
+    @Test()
+    public void testHasWonWhenNotFinalized() {
+        assertThrows(FinalizedException.class, () -> gameBoard.hasWon());
+    }
+
+    @Test()
+    public void testGetBarometerPointsWhenNotFinalized() {
+        assertThrows(FinalizedException.class, () -> gameBoard.getRocketBarometerPoints());
+    }
+
+    @Test()
+    public void testAddRocketsWhenNotFinalized() {
+        assertThrows(FinalizedException.class, () -> gameBoard.addRockets(5));
+    }
+
+    @Test()
+    public void testGetRocketCountWhenNotFinalized() {
+        assertThrows(FinalizedException.class, () -> gameBoard.getRocketCount());
+    }
+
+    @Test
+    void testHasWon(){
+        gameBoard.addFloor(floor);
+        gameBoard.finalizeGameBoard();
+
+        assertFalse(gameBoard.hasWon());
+    }
+
+    @Test
+    void testAddRocket(){
+        gameBoard.addFloor(floor);
+        gameBoard.finalizeGameBoard();
+
+        gameBoard.addRockets(5);
+        assertEquals(5, gameBoard.getRocketCount());
+    }
+
+    @Test
+    void testGetBarometerPoints(){
+        gameBoard.addFloor(floor);
+        gameBoard.finalizeGameBoard();
+
+        gameBoard.addRockets(5);
+        assertEquals(15, gameBoard.getRocketBarometerPoints());
+    }
+
+
     @Test
     void testAddSystemErrorsNotFinalized() {
         assertThrows(FinalizedException.class, () -> gameBoard.addSystemError());
