@@ -19,6 +19,12 @@ class RocketBarometerTest {
         assertEquals(0, barometer.getPointsOfRocketBarometer());
     }
 
+    @Test
+    public void testOverflowRocketCount() {
+        barometer.addRockets(41);
+        assertEquals(0, barometer.getPointsOfRocketBarometer());
+    }
+
 
     @Test
     public void testInitialRocketCount() {
