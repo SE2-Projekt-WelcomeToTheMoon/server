@@ -64,7 +64,7 @@ public class CardController {
      * @param combinations The Combinations to be split
      * @return the created Message String
      */
-    public static String getCurrentCardMessage(CardCombination[] combinations){
+    public String getCurrentCardMessage(CardCombination[] combinations){
         if(combinations==null||combinations.length!=3)throw new IllegalArgumentException("Combinations cannot be null or have anything but three entries");
         StringBuilder cardMessage= new StringBuilder();
         int count=0;
