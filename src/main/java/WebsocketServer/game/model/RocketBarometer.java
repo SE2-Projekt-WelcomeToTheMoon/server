@@ -2,6 +2,9 @@ package WebsocketServer.game.model;
 
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RocketBarometer {
     private final int MAX_ROCKET = 40;
     private final int ROCKETS_TO_COMPLETE = 32;
@@ -26,24 +29,16 @@ public class RocketBarometer {
     }
 
     public int getPointsOfRocketBarometer(){
-        int result;
+        int result = 0;
 
-        if( rocketCountSmallerThan(5)) result = 0;
-        else if( rocketCountSmallerThan(9)) result = 15;
-        else if( rocketCountSmallerThan(12)) result = 30;
-        else if( rocketCountSmallerThan(15)) result = 45;
-        else if( rocketCountSmallerThan(18)) result = 60;
-        else if( rocketCountSmallerThan(21)) result = 75;
-        else if( rocketCountSmallerThan(24)) result = 90;
-        else if( rocketCountSmallerThan(27)) result = 105;
-        else if( rocketCountSmallerThan(29)) result = 120;
-        else if( rocketCountSmallerThan(31)) result = 135;
-        else result = 150;
+        List<Integer> borders = new ArrayList<>(List.of(5,9,12,15,18,21,24,27,29,31));
+
+        for(Integer border : borders){
+            if(rocketCount>=border){
+                result += 15;
+            }
+        }
 
         return  result;
-    }
-
-    public boolean rocketCountSmallerThan(int number){
-        return rocketCount < number;
     }
 }
