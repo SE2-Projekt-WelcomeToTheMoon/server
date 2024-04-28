@@ -1,6 +1,7 @@
 package WebsocketServer.services;
 
 import WebsocketServer.services.user.UserListService;
+import WebsocketServer.websocket.handler.WebSocketHandlerImpl;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +25,7 @@ public class SendMessageService {
     @SneakyThrows
     public static void sendMessagesToAllUsers(JSONObject messageToSend){
         if(checkMessage(messageToSend)) {
-            ArrayList<String> usernames = LobbyService.gameLobby.getUserListFromLobby();
+            ArrayList<String> usernames = WebSocketHandlerImpl.lobbyService.getUsersInLobby();
             for(String username : usernames){
                 WebSocketSession session = UserListService.userList.getUserByUsername(username).getSession();
                 session.sendMessage(new TextMessage(messageToSend.toString()));
