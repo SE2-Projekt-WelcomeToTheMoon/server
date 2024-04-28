@@ -156,7 +156,14 @@ public class LobbyServiceTests {
 
         assertEquals(0, lobbyService.getSessionUserMap().size());
     }
+    @Test
+    void testDrawNextCard() throws Exception{
+        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
+                "drawNextCard", "testUser", true, "", "");
+        assertDoesNotThrow(()->session.sendMessage(new TextMessage(jsonMsg.toString())));
 
+
+    }
 
 
     public WebSocketSession initStompSession() throws Exception {
