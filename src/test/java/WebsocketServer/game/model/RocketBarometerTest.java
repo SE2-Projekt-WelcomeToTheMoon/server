@@ -25,6 +25,18 @@ class RocketBarometerTest {
         assertEquals(0, barometer.getPointsOfRocketBarometer());
     }
 
+    @Test
+    public void testHasWonPositive() {
+        barometer.addRockets(34);
+        assertTrue(barometer.hasWon());
+    }
+
+    @Test
+    public void testHasWonNegative() {
+        barometer.addRockets(31);
+        assertFalse(barometer.hasWon());
+    }
+
 
     @Test
     public void testInitialRocketCount() {
