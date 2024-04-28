@@ -11,15 +11,13 @@ public class RocketBarometer {
     @Getter
     private int rocketCount;
 
-    public RocketBarometer(){
+    public RocketBarometer() {
         rocketCount = 0;
     }
 
-    public boolean addRockets(int rockets){
-        if(rockets > 0){
-            if(rocketCount + rockets <= MAX_ROCKET){
-                rocketCount += rockets;
-            }
+    public boolean addRockets(int rockets) {
+        if (rockets > 0 && rocketCount + rockets <= MAX_ROCKET) {
+            rocketCount += rockets;
         }
         return hasWon();
     }
@@ -28,17 +26,17 @@ public class RocketBarometer {
         return rocketCount >= ROCKETS_TO_COMPLETE;
     }
 
-    public int getPointsOfRocketBarometer(){
+    public int getPointsOfRocketBarometer() {
         int result = 0;
 
-        List<Integer> borders = new ArrayList<>(List.of(5,9,12,15,18,21,24,27,29,31));
+        List<Integer> borders = new ArrayList<>(List.of(5, 9, 12, 15, 18, 21, 24, 27, 29, 31));
 
-        for(Integer border : borders){
-            if(rocketCount>=border){
+        for (Integer border : borders) {
+            if (rocketCount >= border) {
                 result += 15;
             }
         }
 
-        return  result;
+        return result;
     }
 }
