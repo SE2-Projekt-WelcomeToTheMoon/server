@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ import java.util.Map;
 @Component
 public class LobbyService {
 
-    private final Lobby gamelobby;
+    public final Lobby gamelobby;
     private static final String USERNAME_KEY = "username";
 
     @Getter
@@ -47,6 +48,7 @@ public class LobbyService {
     public void handleJoinLobby(WebSocketSession session, JSONObject messageJson) throws Exception {
 
         logger.info("Versuchen zur Lobby hinzuzufügen: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
+
 
         String username = messageJson.getString(USERNAME_KEY);
         if(gamelobby.addPlayerToLobby(username)){
@@ -100,5 +102,8 @@ public class LobbyService {
         gamelobby.removeAllPlayersFromLobby();
         sessionUserMap.clear();
         logger.info("Alle User aus der Lobby entfernt");
+    }
+    public ArrayList<String> getUsersInLobby(){
+        return this.gamelobby.getUserListFromLobby();
     }
 }

@@ -5,6 +5,7 @@ import WebsocketServer.services.SendMessageService;
 import WebsocketServer.services.user.CreateUserService;
 import WebsocketServer.services.LobbyService;
 import lombok.Getter;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import WebsocketServer.services.user.UserListService;
@@ -13,7 +14,7 @@ import org.springframework.web.socket.*;
 
 public class WebSocketHandlerImpl implements WebSocketHandler {
 
-    private final LobbyService lobbyService;
+    public static LobbyService lobbyService;
     @Getter
     public static JSONObject responseMessage;
     private static final Logger logger = LogManager.getLogger(WebSocketHandlerImpl.class);
@@ -21,7 +22,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     public WebSocketHandlerImpl(){
         Lobby gameLobby = new Lobby();
-        this.lobbyService = new LobbyService(gameLobby);
+        lobbyService = new LobbyService(gameLobby);
     }
 
     @Override
