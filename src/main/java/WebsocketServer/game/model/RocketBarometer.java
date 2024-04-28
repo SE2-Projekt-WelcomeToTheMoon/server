@@ -1,8 +1,11 @@
 package WebsocketServer.game.model;
 
+import lombok.Getter;
+
 public class RocketBarometer {
     private final int MAX_ROCKET = 40;
     private final int ROCKETS_TO_COMPLETE = 32;
+    @Getter
     private int rocketCount;
 
     public RocketBarometer(){
@@ -18,7 +21,7 @@ public class RocketBarometer {
         return hasWon();
     }
 
-    private boolean hasWon() {
+    public boolean hasWon() {
         return rocketCount >= ROCKETS_TO_COMPLETE;
     }
 
