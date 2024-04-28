@@ -1,6 +1,7 @@
 package WebsocketServer.services;
 
 import WebsocketServer.game.lobby.Lobby;
+import WebsocketServer.services.json.GenerateJSONObjectService;
 import lombok.Getter;
 import org.json.JSONObject;
 import org.slf4j.Logger;

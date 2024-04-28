@@ -1,4 +1,4 @@
-package WebsocketServer.services;
+package WebsocketServer.services.json;
 
 import org.json.JSONObject;
 
