@@ -8,13 +8,11 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class Floor {
 
-    @Getter
     private final List<Chamber> chambers;
-    @Getter
     private FieldCategory fieldCategory;
-    @Getter
     private boolean isFinalized = false;
 
     public Floor(FieldCategory fieldCategory) {

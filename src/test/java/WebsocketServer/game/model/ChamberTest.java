@@ -170,7 +170,7 @@ class ChamberTest {
         assertEquals(5,chamber.getHighestValueInChamber());
     }
     @Test
-    void testGetHighestValueinChamberEmpty() {
+    void testGetHighestValueInChamberEmpty() {
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
@@ -180,12 +180,24 @@ class ChamberTest {
     }
 
     @Test
+    void testGetFieldsList(){
+        List<Field> fields = new ArrayList<>();
+        Field field = new Field(FieldCategory.ENERGIE);
+        fields.add(field);
+
+        Chamber chamber = new Chamber(FieldCategory.ENERGIE);
+        chamber.addField(field);
+
+        assertEquals(fields, chamber.getFields());
+    }
+
+    @Test
     void testGetRewardList(){
         List<Reward> rewards = new ArrayList<>();
         Reward reward = new Reward(RewardCategory.ROCKET);
         rewards.add(reward);
-        Chamber chamber1 = new Chamber(FieldCategory.ENERGIE, rewards, 1);
+        Chamber chamber = new Chamber(FieldCategory.ENERGIE, rewards, 1);
 
-        assertEquals(rewards, chamber1.getRewards());
+        assertEquals(rewards, chamber.getRewards());
     }
 }
