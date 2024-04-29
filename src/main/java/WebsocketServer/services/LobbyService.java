@@ -97,6 +97,15 @@ public class LobbyService {
             logger.info("Kein User gefunden für Session-ID: {}", sessionId);
         }
     }
+    /***
+     * Draws the next card and sends that information to the player
+     * @param session  current connection
+     * @param messageJson   received string for assignment in HandleMessage
+     */
+    public void handleCardDraw(WebSocketSession session, JSONObject messageJson) {
+        logger.info("Versuche Nächste Karte zu schicken: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
+        gamelobby.sendNextCard(session);
+    }
 
     public void removeAllUsersFromLobby() {
         gamelobby.removeAllPlayersFromLobby();

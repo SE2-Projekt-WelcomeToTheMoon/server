@@ -1,6 +1,8 @@
 package WebsocketServer.game.lobby;
 
+import WebsocketServer.services.CardManager;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +19,10 @@ public class Lobby {
     private static final int MAX_PLAYERS = 4;
     private final List<String> userList;
 
+    private final CardManager cardManager;
     public Lobby() {
         this.userList = new ArrayList<>();
+        this.cardManager=new CardManager(this);
     }
 
     /**
@@ -61,5 +65,9 @@ public class Lobby {
      */
     public void removeAllPlayersFromLobby() {
         userList.clear();
+    }
+
+    public void sendNextCard(WebSocketSession session){
+        cardManager.drawAndSendNextCard(session);
     }
 }
