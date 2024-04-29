@@ -34,7 +34,7 @@ public class SendMessageService {
      * Method sends messages to all users registered on the server and registered in a lobby.
      * @param messageToSend Message to send to all users.
      */
-        @SneakyThrows
+    @SneakyThrows
     public static void sendMessagesToAllUsers(JSONObject messageToSend){
         if(checkMessage(messageToSend)) {
             ArrayList<CreateUserService> users = WebSocketHandlerImpl.lobbyService.getUsersInLobby();
