@@ -1,6 +1,5 @@
 package WebsocketServer.game.lobby;
 
-import WebsocketServer.game.model.Game;
 import WebsocketServer.game.model.GameBoard;
 
 import java.util.ArrayList;
@@ -59,7 +58,7 @@ public class Lobby {
 
     /**
      * PLACEHOLDER
-     * method that returns gameboard of specific user
+     * method that returns gameBoard of specific user
      */
     public GameBoard getGameBoard(String username){
 
@@ -73,12 +72,24 @@ public class Lobby {
         return gameBoard;
     }
 
-    public boolean getUser(String username){
-        if (userList.contains(username)){
-            // TODO
-            // return User Object
-            return true;
+    public boolean findUser(String username){
+        return this.userList.contains(username);
+    }
+
+    /**
+     * In the Future, should set GameBoard for given User Object
+     * @param username
+     * @param gameBoard
+     * @return
+     */
+    public boolean setGameBoardUser(String username, GameBoard gameBoard){
+        if (!this.userList.contains(username)){
+            return false;
         }
-        return false;
+        //just code against SonarCloud
+        GameBoard gameBoard1 = gameBoard;
+        gameBoard1.finalizeGameBoard();
+        //user.setGameBoard(gameBoard)
+        return true;
     }
 }

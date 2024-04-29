@@ -3,6 +3,7 @@ package WebsocketServer.game.model;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +11,9 @@ import java.util.List;
 public class GameBoard {
     @Getter
     private final List<Floor> floors;
-
     private final SystemErrors systemErrors;
-    @Getter
+
+    @Getter(onMethod_ = {@JsonIgnore})
     private boolean isFinalized = false;
 
     public GameBoard() {
@@ -82,6 +83,7 @@ public class GameBoard {
         return systemErrors.hasLost();
     }
 
+    @JsonIgnore
     public int getRemainingErrors() {
         if (!isFinalized) {
             throw new FinalizedException("GameBoard must be finalized.");
@@ -89,6 +91,7 @@ public class GameBoard {
         return systemErrors.getRemainingErrors();
     }
 
+    @JsonIgnore
     public int getSize() {
         return floors.size();
     }

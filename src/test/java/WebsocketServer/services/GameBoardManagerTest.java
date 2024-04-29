@@ -2,26 +2,24 @@ package WebsocketServer.services;
 
 import WebsocketServer.game.lobby.Lobby;
 import WebsocketServer.game.model.GameBoard;
-import WebsocketServer.services.user.CreateUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.logging.log4j.LogManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.apache.logging.slf4j.*;
+import java.util.Arrays;
 
-import java.util.logging.Logger;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 class GameBoardManagerTest {
     @Mock
     private Lobby gameLobby;
 
     private GameBoardManager gameBoardManager;
+
 
     @BeforeEach
     void setUp() {
@@ -37,7 +35,7 @@ class GameBoardManagerTest {
         ObjectMapper mapper = new ObjectMapper();
         String gameBoardString = mapper.writeValueAsString(gameBoard);
 
-        when(gameLobby.getUser(username)).thenReturn(true);
+        when(gameLobby.findUser(username)).thenReturn(true);
         when(gameLobby.getGameBoard(username)).thenReturn(gameBoard);
 
         String result = gameBoardManager.getGameBoardUser(username);
@@ -47,25 +45,91 @@ class GameBoardManagerTest {
 
 
     @Test
-    void shouldReturnNullWhenUserDoesNotExist() {
-        String username = "nonExistingUser";
+    void shouldReturnNullWhenExceptionOccurs() {
+        String username = "existingUser";
 
-        when(gameLobby.getUser(username)).thenReturn(true);
-
+        when(gameLobby.findUser(username)).thenReturn(false);
+        when(gameLobby.getGameBoard(username)).thenReturn(null);
         String result = gameBoardManager.getGameBoardUser(username);
 
         assertNull(result);
     }
 
     @Test
-    void shouldReturnNullWhenExceptionOccurs() {
+    void shouldInitializeAllGameBoardsCorrectly() {
+        when(gameLobby.getUserListFromLobby()).thenReturn(Arrays.asList("user1", "user2"));
+
+        assertTrue(gameBoardManager.initGameBoards());
+        verify(gameLobby, times(2)).setGameBoardUser(anyString(), any(GameBoard.class));
+    }
+
+
+    @Test
+    void shouldFailToUpdateUserWhenJsonIsMalformed() {
+        String username = "validUser";
+        String malformedJson = "{state:active}";
+
+        when(gameLobby.findUser(username)).thenReturn(true);
+
+        assertFalse(gameBoardManager.updateUser(username, malformedJson));
+    }
+
+    @Test
+    void shouldReturnFalseWhenUserNotFound() {
+        String username = "nonexistentUser";
+        String message = "{\"state\":\"active\"}";
+
+        when(gameLobby.findUser(username)).thenReturn(false);
+
+        boolean result = gameBoardManager.updateUser(username, message);
+
+        assertFalse(result);
+        verify(gameLobby, never()).setGameBoardUser(anyString(), any(GameBoard.class));
+    }
+
+    @Test
+    void shouldSuccessfullyUpdateGameBoard() throws Exception {
         String username = "existingUser";
+        GameBoard gameBoard = new GameBoard();
+        gameBoard.finalizeGameBoard();
+        ObjectMapper mapper = new ObjectMapper();
+        String message = mapper.writeValueAsString(gameBoard);
 
-        when(gameLobby.getUser(username)).thenReturn(false);
-        // returns a STRING null
-        when(gameLobby.getGameBoard(username)).thenReturn(null);
-        String result = gameBoardManager.getGameBoardUser(username);
+        when(gameLobby.findUser(username)).thenReturn(true);
+        when(gameLobby.setGameBoardUser(eq(username), any(GameBoard.class))).thenReturn(true);
 
-        assertEquals("null", result);
+        boolean result = gameBoardManager.updateUser(username, message);
+
+        assertTrue(result);
+        verify(gameLobby, times(1)).setGameBoardUser(eq(username), any(GameBoard.class));
+    }
+
+    @Test
+    void shouldReturnFalseWhenJsonParsingFails() {
+        String username = "existingUser";
+        String badJsonMessage = "{bad_json}";
+
+        when(gameLobby.findUser(username)).thenReturn(true);
+
+        boolean result = gameBoardManager.updateUser(username, badJsonMessage);
+
+        assertFalse(result);
+        verify(gameLobby, never()).setGameBoardUser(anyString(), any(GameBoard.class));
+    }
+
+    @Test
+    void shouldHandleExceptionDuringUpdate() {
+        String username = "validUser";
+        String json = "{\"state\":\"active\"}";
+
+        when(gameLobby.findUser(username)).thenReturn(true);
+        doThrow(new RuntimeException("JSON parse error")).when(gameLobby).setGameBoardUser(anyString(), any(GameBoard.class));
+
+        assertFalse(gameBoardManager.updateUser(username, json));
+    }
+
+    @Test
+    void shouldReturnNullForNullUsernameInGetGameBoardUser() {
+        assertNull(gameBoardManager.getGameBoardUser(null));
     }
 }

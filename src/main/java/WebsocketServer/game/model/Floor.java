@@ -10,6 +10,7 @@ import java.util.List;
 
 public class Floor {
 
+    @Getter
     private final List<Chamber> chambers;
     @Getter
     private FieldCategory fieldCategory;
@@ -120,9 +121,4 @@ public class Floor {
         }
         return true;
     }
-
-    public List<Chamber> getChambers(){
-        return this.chambers;
-    }
-
 }
