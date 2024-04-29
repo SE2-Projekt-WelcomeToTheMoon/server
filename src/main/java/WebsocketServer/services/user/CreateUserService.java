@@ -1,5 +1,6 @@
 package WebsocketServer.services.user;
 
+import WebsocketServer.game.model.GameBoard;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +19,8 @@ public class CreateUserService {
     private String username;
     @Getter
     private WebSocketSession session;
+    @Getter
+    private GameBoard gameBoard;
 
     public CreateUserService(WebSocketSession session, String username){
         registerUser(session, username);
