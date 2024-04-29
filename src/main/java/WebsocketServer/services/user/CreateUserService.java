@@ -5,6 +5,7 @@ import WebsocketServer.services.json.ActionValues;
 import WebsocketServer.services.json.GenerateJSONObjectService;
 import WebsocketServer.websocket.handler.WebSocketHandlerImpl;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,6 +26,7 @@ public class CreateUserService {
     @Getter
     private WebSocketSession session;
     @Getter
+    @Setter
     private GameBoard gameBoard;
 
     public CreateUserService(WebSocketSession session, String username){
