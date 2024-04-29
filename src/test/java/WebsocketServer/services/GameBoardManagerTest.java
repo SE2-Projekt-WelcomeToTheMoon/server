@@ -7,6 +7,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.socket.WebSocketSession;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,6 +20,8 @@ import static org.mockito.Mockito.*;
 class GameBoardManagerTest {
     @Mock
     private Lobby gameLobby;
+    @Mock
+    private WebSocketSession session;
 
     private GameBoardManager gameBoardManager;
 
@@ -24,7 +29,7 @@ class GameBoardManagerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        gameBoardManager = new GameBoardManager(gameLobby);
+        gameBoardManager = new GameBoardManager(session, gameLobby);
     }
 
     @Test
@@ -57,7 +62,7 @@ class GameBoardManagerTest {
 
     @Test
     void shouldInitializeAllGameBoardsCorrectly() {
-        when(gameLobby.getUserListFromLobby()).thenReturn(Arrays.asList("user1", "user2"));
+        when(gameLobby.getUserListFromLobby()).thenReturn(new ArrayList<>(Arrays.asList("user1", "user2")));
 
         assertTrue(gameBoardManager.initGameBoards());
         verify(gameLobby, times(2)).setGameBoardUser(anyString(), any(GameBoard.class));

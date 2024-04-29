@@ -3,9 +3,12 @@ package WebsocketServer.services;
 import WebsocketServer.game.lobby.Lobby;
 import WebsocketServer.game.model.GameBoard;
 import WebsocketServer.game.services.GameBoardService;
+import WebsocketServer.services.json.GenerateJSONObjectService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
 
@@ -14,13 +17,15 @@ import java.util.List;
  */
 public class GameBoardManager {
 
+    private final WebSocketSession session;
     private final Lobby gamelobby;
     private final String gameBoardRocketJSON;
     private final GameBoard gameBoardRocket;
     private final Logger logger = LogManager.getLogger(GameBoardManager.class);
 
-    public GameBoardManager(Lobby gameLobby) {
+    public GameBoardManager(WebSocketSession session, Lobby gameLobby) {
         this.gamelobby = gameLobby;
+        this.session = session;
         this.gameBoardRocketJSON = initGameBoardRocket();
         GameBoardService gameBoardService = new GameBoardService();
         this.gameBoardRocket = gameBoardService.createGameBoard();
@@ -48,8 +53,8 @@ public class GameBoardManager {
         List<String> userList = gamelobby.getUserListFromLobby();
 
         for (String user : userList) {
-            // actually need to send
-            GenerateJSONObjectService.generateJSONObject("initUser", user, true, this.gameBoardRocketJSON, "");
+            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("initUser", user, true, this.gameBoardRocketJSON, "");
+            SendMessageService.sendSingleMessage(this.session, jsonObject);
             gamelobby.setGameBoardUser(user, gameBoardRocket);
         }
         return true;
@@ -61,7 +66,6 @@ public class GameBoardManager {
      * @param username of the User of which GameBoard one needs
      * @return the Formatted String and null if it fails
      */
-
     public String getGameBoardUser(String username) {
         if (!gamelobby.findUser(username)) {
             return null;
