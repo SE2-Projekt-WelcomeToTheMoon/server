@@ -1,6 +1,7 @@
 package WebsocketServer.services;
 
 
+import WebsocketServer.services.json.GenerateJSONObjectService;
 import WebsocketServer.websocket.WebSocketHandlerClientImpl;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
