@@ -1,6 +1,6 @@
 package WebsocketServer.services;
 
-import WebsocketServer.services.user.UserListService;
+import WebsocketServer.services.user.CreateUserService;
 import WebsocketServer.websocket.handler.WebSocketHandlerImpl;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
@@ -34,12 +34,12 @@ public class SendMessageService {
      * Method sends messages to all users registered on the server and registered in a lobby.
      * @param messageToSend Message to send to all users.
      */
-    @SneakyThrows
+        @SneakyThrows
     public static void sendMessagesToAllUsers(JSONObject messageToSend){
         if(checkMessage(messageToSend)) {
-            ArrayList<String> usernames = WebSocketHandlerImpl.lobbyService.getUsersInLobby();
-            for(String username : usernames){
-                WebSocketSession session = UserListService.userList.getUserByUsername(username).getSession();
+            ArrayList<CreateUserService> users = WebSocketHandlerImpl.lobbyService.getUsersInLobby();
+            for(CreateUserService user : users){
+                WebSocketSession session = user.getSession();
                 session.sendMessage(new TextMessage(messageToSend.toString()));
             }
             logger.info("Message sent to all users.");
