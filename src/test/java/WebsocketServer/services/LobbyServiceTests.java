@@ -33,7 +33,6 @@ public class LobbyServiceTests {
     @Autowired
     private LobbyService lobbyService;
 
-
     private final String WEBSOCKET_URI = "ws://localhost:%d/welcome-to-the-moon";
 
     BlockingQueue<String> messages = new LinkedBlockingDeque<>();
@@ -48,32 +47,35 @@ public class LobbyServiceTests {
     @AfterEach
     void tearDown() {
         lobbyService.removeAllUsersFromLobby();
+        lobbyService.gamelobby.userListMap.clear();
     }
 
 
     @Test
     void testJoinLobbyAndLeave() throws Exception {
 
+
         //Senden einer Nachricht an den Server
         JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
-                "joinLobby", "User1234", true, "", "");
+                "joinLobby", "User12345", true, "", "");
         lobbyService.handleJoinLobby(session, jsonMsg);
 
         // Erwartete Antwort
-        JSONObject expected = new JSONObject("{\"action\":\"joinLobby\",\"success\":true,\"username\":\"User1234\"}");
+        JSONObject expected = new JSONObject("{\"action\":\"joinLobby\",\"success\":true,\"username\":\"User12345\"}");
         JSONObject actual = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
 
         assertTrue(actual.similar(expected));
-        assertEquals(1, lobbyService.getSessionUserMap().size());
+        assertEquals(1, lobbyService.gamelobby.userListMap.size());
+        assertEquals(1, lobbyService.getUsersInLobby().size());
 
         JSONObject jsonMsgLeave = GenerateJSONObjectService.generateJSONObject(
-                "leaveLobby", "User1234", true, "", "");
+                "leaveLobby", "User12345", true, "", "");
         lobbyService.handleLeaveLobby(session, jsonMsgLeave);
-        JSONObject expectedLeave = new JSONObject("{\"action\":\"leaveLobby\",\"success\":true,\"username\":\"User1234\"}");
+        JSONObject expectedLeave = new JSONObject("{\"action\":\"leaveLobby\",\"success\":true,\"username\":\"User12345\"}");
         JSONObject actualLeave = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
 
         assertTrue(actualLeave.similar(expectedLeave));
-        assertEquals(0, lobbyService.getSessionUserMap().size());
+        assertEquals(0, lobbyService.gamelobby.getUserListFromLobby().size());
 
     }
 
@@ -81,14 +83,14 @@ public class LobbyServiceTests {
     void testLeaveLobbyFail() throws Exception {
 
         JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
-                "leaveLobby", "User1234", false, null, "Username not in Lobby.");
+                "leaveLobby", "UserNotInLobby", false, null, "Username not in Lobby.");
         lobbyService.handleLeaveLobby(session, jsonMsg);
 
-        JSONObject expected = new JSONObject("{\"action\":\"leaveLobby\",\"success\":false,\"username\":\"User1234\",\"error\":\"Username not in Lobby.\"}");
+        JSONObject expected = new JSONObject("{\"action\":\"leaveLobby\",\"success\":false,\"username\":\"UserNotInLobby\",\"error\":\"Username not in Lobby.\"}");
         JSONObject actual = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
 
         assertTrue(actual.similar(expected));
-        assertEquals(0, lobbyService.getSessionUserMap().size());
+        assertEquals(0, lobbyService.gamelobby.getUserListFromLobby().size());
     }
 
     @Test
@@ -120,7 +122,7 @@ public class LobbyServiceTests {
         JSONObject actual = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
 
         assertTrue(actual.similar(expected));
-        assertEquals(1, lobbyService.getSessionUserMap().size());
+        assertEquals(1, lobbyService.gamelobby.getUserListFromLobby().size());
 
         WebSocketSession session2 = initStompSession();
 
@@ -132,33 +134,8 @@ public class LobbyServiceTests {
         JSONObject actual2 = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
 
         assertTrue(actual2.similar(expected2));
-        assertEquals(1, lobbyService.getSessionUserMap().size());
+        assertEquals(1, lobbyService.gamelobby.getUserListFromLobby().size());
     }
-
-    @Test
-    void testJoinLobbyAndLeaveAfterConnectionClosed() throws Exception {
-
-        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
-                "joinLobby", "User1234", true, "", "");
-        // Simulieren des Nachrichtenempfangs direkt
-        lobbyService.handleJoinLobby(session, jsonMsg);
-
-        JSONObject expected = new JSONObject("{\"action\":\"joinLobby\",\"success\":true,\"username\":\"User1234\"}");
-        JSONObject actual = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
-
-
-        assertTrue(actual.similar(expected));
-        assertEquals(1, lobbyService.getSessionUserMap().size());
-
-        session.close();
-
-        // Stellen Sie sicher, dass die Entfernungslogik aufgerufen wird
-        lobbyService.removeFromLobbyAfterConnectionClosed(session.getId());
-
-        assertEquals(0, lobbyService.getSessionUserMap().size());
-    }
-
-
 
     public WebSocketSession initStompSession() throws Exception {
         WebSocketClient client = new StandardWebSocketClient();

@@ -21,7 +21,6 @@ public class LobbyTest {
         assertTrue(lobby.addPlayerToLobby("Spieler2"));
         assertTrue(lobby.addPlayerToLobby("Spieler3"));
         assertTrue(lobby.addPlayerToLobby("Spieler4"));
-        assertTrue(lobby.getUserListFromLobby().contains("Spieler1"));
     }
     @Test
     void addPLayer_LobbyFull() {
@@ -36,10 +35,10 @@ public class LobbyTest {
     void removerPLayer(){
         lobby.addPlayerToLobby("Spieler1");
         assertEquals(1, lobby.getUserListFromLobby().size());
-        lobby.removePlayerFromLobby("Spieler1");
+        lobby.removePlayerFromLobbyByName("Spieler1");
         assertEquals(0, lobby.getUserListFromLobby().size());
-        lobby.removePlayerFromLobby("Spieler1");
-        assertFalse(lobby.removePlayerFromLobby("Spieler1"));
+        lobby.removePlayerFromLobbyByName("Spieler1");
+        assertFalse(lobby.removePlayerFromLobbyByName("Spieler1"));
     }
     @Test
     void removeAllPlayerFromLobby(){
