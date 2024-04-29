@@ -1,5 +1,7 @@
 package WebsocketServer.game.lobby;
 
+import org.springframework.stereotype.Component;
+
 import WebsocketServer.game.model.GameBoard;
 
 import java.util.ArrayList;
@@ -11,7 +13,7 @@ import java.util.List;
  * - Spieler entfernen
  * - Spielerliste ausgeben
  */
-
+@Component
 public class Lobby {
 
     private static final int MAX_PLAYERS = 4;
@@ -52,8 +54,15 @@ public class Lobby {
     /**
      * Return new Arraylist with users in lobby
      */
-    public List<String> getUserListFromLobby() {
+    public ArrayList<String> getUserListFromLobby() {
         return new ArrayList<>(userList);
+    }
+
+    /**
+     * Remove all players from lobby
+     */
+    public void removeAllPlayersFromLobby() {
+        userList.clear();
     }
 
     /**

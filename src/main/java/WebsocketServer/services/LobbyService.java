@@ -1,11 +1,18 @@
 package WebsocketServer.services;
 
 import WebsocketServer.game.lobby.Lobby;
+import WebsocketServer.services.json.GenerateJSONObjectService;
+import lombok.Getter;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Klasse um User zur Lobby hinzuzufügen
@@ -14,10 +21,15 @@ import org.springframework.web.socket.WebSocketSession;
  *  - Spieleranzahl prüfen
  *  - Spielerliste ausgeben
  */
+@Component
 public class LobbyService {
 
-    private final Lobby gamelobby;
+    public final Lobby gamelobby;
     private static final String USERNAME_KEY = "username";
+
+    @Getter
+    private final Map<String, String> sessionUserMap = new HashMap<>();
+
     private static final Logger logger = LoggerFactory.getLogger(LobbyService.class);
 
 
@@ -37,10 +49,12 @@ public class LobbyService {
 
         logger.info("Versuchen zur Lobby hinzuzufügen: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
 
+
         String username = messageJson.getString(USERNAME_KEY);
         if(gamelobby.addPlayerToLobby(username)){
             JSONObject response = GenerateJSONObjectService.generateJSONObject("joinLobby", username, true, "", "");
             session.sendMessage(new TextMessage(response.toString()));
+            sessionUserMap.put(session.getId(), username);
             logger.info("Erfolgreich zur Lobby hinzugefügt: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
 
         }else{
@@ -63,6 +77,7 @@ public class LobbyService {
         String username = messageJson.getString(USERNAME_KEY);
 
         if(gamelobby.removePlayerFromLobby(username)) {
+            sessionUserMap.remove(session.getId(), username);
             JSONObject response = GenerateJSONObjectService.generateJSONObject("leaveLobby", username, true, "", "");
             session.sendMessage(new TextMessage(response.toString()));
             logger.info("Erfolgreich aus der Lobby entfernt: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
@@ -71,5 +86,24 @@ public class LobbyService {
             session.sendMessage(new TextMessage(errorResponse.toString()));
             logger.info("Nicht aus der Lobby entfernt: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
         }
+    }
+    public void removeFromLobbyAfterConnectionClosed(String sessionId) {
+        String username = sessionUserMap.get(sessionId);
+        if (username != null) {
+            gamelobby.removePlayerFromLobby(username);
+            sessionUserMap.remove(sessionId, username);
+            logger.info("User aus der Lobby entfernt nach Verbindungsschluss: {}, {}", sessionId, username);
+        } else {
+            logger.info("Kein User gefunden für Session-ID: {}", sessionId);
+        }
+    }
+
+    public void removeAllUsersFromLobby() {
+        gamelobby.removeAllPlayersFromLobby();
+        sessionUserMap.clear();
+        logger.info("Alle User aus der Lobby entfernt");
+    }
+    public ArrayList<String> getUsersInLobby(){
+        return this.gamelobby.getUserListFromLobby();
     }
 }

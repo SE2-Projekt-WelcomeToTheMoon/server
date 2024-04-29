@@ -30,10 +30,10 @@ class CreateUserServiceTest {
         String username = "testUser";
         WebSocketSession session = Mockito.mock(WebSocketSession.class);
         ManageUserService userList = Mockito.mock(ManageUserService.class);
-        Mockito.when(userList.getUser(session.getId())).thenReturn(null);
+        Mockito.when(userList.getUserBySessionID(session.getId())).thenReturn(null);
 
         CreateUserService userService = new CreateUserService(session, username);
-        boolean result = userService.checkUserExists(session.getId());
+        boolean result = userService.checkUserExists(session.getId(), username);
 
         assertTrue(result);
     }
@@ -49,10 +49,10 @@ class CreateUserServiceTest {
 
         ManageUserService userList = Mockito.mock(ManageUserService.class);
         userList.addUser(user);
-        Mockito.when(userList.getUser(session.getId())).thenReturn(user);
+        Mockito.when(userList.getUserBySessionID(session.getId())).thenReturn(user);
 
         CreateUserService userService = new CreateUserService(session, username);
-        boolean result = userService.checkUserExists(session.getId());
+        boolean result = userService.checkUserExists(session.getId(), username);
 
         assertTrue(result);
     }

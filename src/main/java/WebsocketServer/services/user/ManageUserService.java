@@ -2,11 +2,13 @@ package WebsocketServer.services.user;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import WebsocketServer.services.GenerateJSONObjectService;
+
+import WebsocketServer.services.json.ActionValues;
+import WebsocketServer.services.json.GenerateJSONObjectService;
+import WebsocketServer.websocket.handler.WebSocketHandlerImpl;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONObject;
 
 /**
  * Class that manages all users registered on the server.
@@ -16,7 +18,6 @@ public class ManageUserService {
 
     private HashMap<String, CreateUserService> userList;
     private final Logger logger = LogManager.getLogger(String.valueOf(ManageUserService.class));
-    private static final String RESPONSE_ACTION = "registerUser";
 
     public ManageUserService(){
         userList = new HashMap<>();
@@ -28,22 +29,28 @@ public class ManageUserService {
      * @param user User to add.
      * return Response as JSON Object
      */
-    public JSONObject addUser(CreateUserService user){
+    public void addUser(CreateUserService user){
         String sessionID = user.getSessionID();
         String username = user.getUsername();
         try {
             if(!(userList.containsKey(sessionID))){
                 userList.put(user.getSessionID(), user);
                 logger.info("User {} now managed.", sessionID);
-                return GenerateJSONObjectService.generateJSONObject(RESPONSE_ACTION, username, true, ("User " + username + " now managed."), "");
+                WebSocketHandlerImpl.responseMessage = GenerateJSONObjectService.generateJSONObject(
+                        ActionValues.REGISTERUSER.getValue(), username, true,
+                        ("User " + username + " now managed."), "");
             }
             else {
                 logger.warn("Username {} is already in use", username);
-                return GenerateJSONObjectService.generateJSONObject(RESPONSE_ACTION, username, false, ("Username " + username + " is already in use"), "");
+                WebSocketHandlerImpl.responseMessage = GenerateJSONObjectService.generateJSONObject(
+                        ActionValues.REGISTERUSER.getValue(), username, false,
+                        ("Username " + username + " is already in use"), "");
             }
         }catch(Exception e){
             logger.error("User {} could not be added. Error: {}", username, e.getMessage());
-            return GenerateJSONObjectService.generateJSONObject(RESPONSE_ACTION, username, false, ("User " + username + " could not be added"), e.getMessage());
+            WebSocketHandlerImpl.responseMessage = GenerateJSONObjectService.generateJSONObject(
+                    ActionValues.REGISTERUSER.getValue(), username, false,
+                    ("User " + username + " could not be added"), e.getMessage());
         }
     }
 
@@ -69,10 +76,18 @@ public class ManageUserService {
      * @param sessionID User to get.
      * @return value of key sessionID or null if user does not exist.
      */
-    public CreateUserService getUser(String sessionID){
+    public CreateUserService getUserBySessionID(String sessionID){
         if(userList.containsKey(sessionID)){
             return userList.get(sessionID);
         }else return null;
+    }
+
+    public CreateUserService getUserByUsername(String username){
+        for (CreateUserService users : userList.values()){
+            if(users.getUsername().equals(username)){
+                return users;
+            }
+        } return null;
     }
 
     /**
@@ -80,7 +95,7 @@ public class ManageUserService {
      * @return List
      */
 
-    public List<CreateUserService> getAllUsers(){
+    public ArrayList<CreateUserService> getAllUsers(){
         return new ArrayList<>(userList.values());
     }
 

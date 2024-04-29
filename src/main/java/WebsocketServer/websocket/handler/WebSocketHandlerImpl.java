@@ -1,8 +1,11 @@
 package WebsocketServer.websocket.handler;
 
 import WebsocketServer.game.lobby.Lobby;
+import WebsocketServer.services.SendMessageService;
 import WebsocketServer.services.user.CreateUserService;
 import WebsocketServer.services.LobbyService;
+import lombok.Getter;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import WebsocketServer.services.user.UserListService;
@@ -11,12 +14,15 @@ import org.springframework.web.socket.*;
 
 public class WebSocketHandlerImpl implements WebSocketHandler {
 
-    private final LobbyService lobbyService;
+    public static LobbyService lobbyService;
+    @Getter
+    public static JSONObject responseMessage;
     private static final Logger logger = LogManager.getLogger(WebSocketHandlerImpl.class);
+    private CreateUserService user;
 
     public WebSocketHandlerImpl(){
         Lobby gameLobby = new Lobby();
-        this.lobbyService = new LobbyService(gameLobby);
+        lobbyService = new LobbyService(gameLobby);
     }
 
     @Override
@@ -40,8 +46,10 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
             switch (action) {
                 case "registerUser":
                     logger.info("Creating user...");
-                    JSONObject responseMessage = UserListService.userList.addUser(new CreateUserService(session, messageJson.getString("username")));
-                    session.sendMessage(new TextMessage(responseMessage.toString()));
+                    user = new CreateUserService(session, username);
+                    if(responseMessage.getBoolean("success")) UserListService.userList.addUser(user);
+                    SendMessageService.sendSingleMessage(session, responseMessage);
+                    responseMessage = null;
                     break;
                 case "joinLobby":
                     logger.info("Case joinLobby: {} ",  username );
@@ -68,10 +76,18 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         //Deletes registered user
-        UserListService.userList.deleteUser(session.getId());
-        logger.info("User gelöscht. Verbindung getrennt: {} ",  session.getId());
+        if(UserListService.userList.getUserBySessionID(session.getId()) != null){
+            UserListService.userList.deleteUser(session.getId());
+            logger.info("User gelöscht.");
+        }
+        //Removes user from lobby
+        lobbyService.removeFromLobbyAfterConnectionClosed(session.getId());
+        logger.info("User nicht mehr in der Lobby vorhanden.");
+
+        logger.info("Verbindung getrennt: {} ",  session.getId());
+
     }
 
     @Override
