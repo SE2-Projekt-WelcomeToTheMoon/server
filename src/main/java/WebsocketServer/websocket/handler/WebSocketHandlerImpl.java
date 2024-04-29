@@ -1,10 +1,8 @@
 package WebsocketServer.websocket.handler;
 
-import WebsocketServer.game.lobby.Lobby;
 import WebsocketServer.services.SendMessageService;
 import WebsocketServer.services.user.CreateUserService;
 import WebsocketServer.services.LobbyService;
-import lombok.Getter;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,8 +19,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     private CreateUserService user;
 
     public WebSocketHandlerImpl(){
-        Lobby gameLobby = new Lobby();
-        lobbyService = new LobbyService(gameLobby);
+        lobbyService = new LobbyService();
     }
 
     @Override
@@ -77,18 +74,20 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+        //Removes user from lobby
+        lobbyService.gamelobby.removePlayerFromLobbyBySessionID(session.getId());
+        logger.info("User nicht mehr in der Lobby vorhanden.{}", session.getId());
+
         //Deletes registered user
         if(UserListService.userList.getUserBySessionID(session.getId()) != null){
             UserListService.userList.deleteUser(session.getId());
             logger.info("User gelöscht.");
         }
-        //Removes user from lobby
-        lobbyService.removeFromLobbyAfterConnectionClosed(session.getId());
-        logger.info("User nicht mehr in der Lobby vorhanden.");
+        logger.info(" Verbindung getrennt.: {} ",  session.getId());
 
-        logger.info("Verbindung getrennt: {} ",  session.getId());
 
     }
+
 
     @Override
     public boolean supportsPartialMessages() {
