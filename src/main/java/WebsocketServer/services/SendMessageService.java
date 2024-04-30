@@ -19,6 +19,21 @@ public class SendMessageService {
 
     /**
      * Method to send one message to a specific client.
+     * @param username Client to send the message.
+     * @param messageToSend Message to send to client.
+     */
+    @SneakyThrows
+    public static void sendSingleMessage(String username, JSONObject messageToSend){
+        for (CreateUserService user : WebSocketHandlerImpl.lobbyService.getUsersInLobby()){
+            if(user.getUsername().equals(username)){
+                WebSocketSession session = user.getSession();
+                sendSingleMessage(session, messageToSend);
+            }
+        }
+    }
+
+    /**
+     * Method to send one message to a specific client.
      * @param session Client to send the message.
      * @param messageToSend Message to send to client.
      */
