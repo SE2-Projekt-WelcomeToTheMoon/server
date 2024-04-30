@@ -18,7 +18,7 @@ public class SendMessageService {
     private static final Logger logger = LogManager.getLogger(String.valueOf(SendMessageService.class));
 
     /**
-     * Method to send one message to a specific client.
+     * Method to send one message to a specific client via username.
      * @param username Client to send the message.
      * @param messageToSend Message to send to client.
      */
@@ -33,7 +33,7 @@ public class SendMessageService {
     }
 
     /**
-     * Method to send one message to a specific client.
+     * Method to send one message to a specific client via session.
      * @param session Client to send the message.
      * @param messageToSend Message to send to client.
      */
