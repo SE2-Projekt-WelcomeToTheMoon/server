@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class GameBoardTest {
     private GameBoard gameBoard;
     private Floor floor;
+
     @BeforeEach
     void setUp() {
         gameBoard = new GameBoard();
@@ -38,6 +39,53 @@ class GameBoardTest {
         });
     }
 
+    @Test()
+    void testHasWonWhenNotFinalized() {
+        assertThrows(FinalizedException.class, () -> gameBoard.hasWon());
+    }
+
+    @Test()
+    void testGetBarometerPointsWhenNotFinalized() {
+        assertThrows(FinalizedException.class, () -> gameBoard.getRocketBarometerPoints());
+    }
+
+    @Test()
+    void testAddRocketsWhenNotFinalized() {
+        assertThrows(FinalizedException.class, () -> gameBoard.addRockets(5));
+    }
+
+    @Test()
+    void testGetRocketCountWhenNotFinalized() {
+        assertThrows(FinalizedException.class, () -> gameBoard.getRocketCount());
+    }
+
+    @Test
+    void testHasWon() {
+        gameBoard.addFloor(floor);
+        gameBoard.finalizeGameBoard();
+
+        assertFalse(gameBoard.hasWon());
+    }
+
+    @Test
+    void testAddRocket() {
+        gameBoard.addFloor(floor);
+        gameBoard.finalizeGameBoard();
+
+        gameBoard.addRockets(5);
+        assertEquals(5, gameBoard.getRocketCount());
+    }
+
+    @Test
+    void testGetBarometerPoints() {
+        gameBoard.addFloor(floor);
+        gameBoard.finalizeGameBoard();
+
+        gameBoard.addRockets(5);
+        assertEquals(15, gameBoard.getRocketBarometerPoints());
+    }
+
+
     @Test
     void testAddSystemErrorsNotFinalized() {
         assertThrows(FinalizedException.class, () -> gameBoard.addSystemError());
@@ -52,9 +100,9 @@ class GameBoardTest {
         assertDoesNotThrow(() -> gameBoard.addSystemError());
         assertEquals(7, gameBoard.getRemainingErrors());
 
-        for(int i = 0; i < 6; i++){
+        for (int i = 0; i < 6; i++) {
             assertFalse(gameBoard.addSystemError());
-            assertEquals(6-i, gameBoard.getRemainingErrors());
+            assertEquals(6 - i, gameBoard.getRemainingErrors());
         }
 
         assertTrue(gameBoard.addSystemError());
@@ -62,7 +110,7 @@ class GameBoardTest {
     }
 
     @Test
-    void testHasLost(){
+    void testHasLost() {
         gameBoard.addFloor(floor);
         gameBoard.finalizeGameBoard();
 
@@ -113,7 +161,7 @@ class GameBoardTest {
     }
 
     @Test
-    void testGetFloorAtNegativeIndex(){
+    void testGetFloorAtNegativeIndex() {
         assertThrows(IndexOutOfBoundsException.class, () -> {
             gameBoard.finalizeGameBoard();
             gameBoard.getFloorAtIndex(-1);
@@ -121,43 +169,43 @@ class GameBoardTest {
     }
 
     @Test
-    public void testIsFinalizedInitiallyFalse() {
+    void testIsFinalizedInitiallyFalse() {
         assertFalse(gameBoard.isFinalized());
     }
 
     @Test
-    public void testFinalizeGameBoardChangesIsFinalizedToTrue() {
+    void testFinalizeGameBoardChangesIsFinalizedToTrue() {
         gameBoard.finalizeGameBoard();
         assertTrue(gameBoard.isFinalized());
     }
 
     @Test
-    public void testAddFloorAfterGameBoardFinalizationThrowsException() {
+    void testAddFloorAfterGameBoardFinalizationThrowsException() {
         gameBoard.finalizeGameBoard();
         assertThrows(FinalizedException.class, () -> gameBoard.addFloor(floor));
     }
 
     @Test
-    public void testGetFloorAtIndexBeforeGameBoardFinalizationThrowsException() {
+    void testGetFloorAtIndexBeforeGameBoardFinalizationThrowsException() {
         gameBoard.addFloor(floor);
         assertThrows(FinalizedException.class, () -> gameBoard.getFloorAtIndex(0));
     }
 
     @Test
-    public void testFinalizeGameBoardWithAlreadyFinalizedFloorThrowsException() {
+    void testFinalizeGameBoardWithAlreadyFinalizedFloorThrowsException() {
         floor.finalizeFloor();
         gameBoard.addFloor(floor);
         assertThrows(FinalizedException.class, () -> gameBoard.finalizeGameBoard());
     }
 
     @Test
-    public void testFinalizeGameBoardTwiceThrowsException() {
+    void testFinalizeGameBoardTwiceThrowsException() {
         gameBoard.finalizeGameBoard();
         assertThrows(FinalizedException.class, gameBoard::finalizeGameBoard);
     }
 
     @Test
-    public void testSetValueWithinFloorAtIndexBeforeGameBoardFinalizationThrowsException() {
+    void testSetValueWithinFloorAtIndexBeforeGameBoardFinalizationThrowsException() {
         Chamber chamber = new Chamber(FieldCategory.ROBOTER);
         chamber.addField(new Field(FieldCategory.ROBOTER));
         floor.addChamber(chamber);
