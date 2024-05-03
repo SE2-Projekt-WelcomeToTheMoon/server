@@ -8,11 +8,14 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
+
 public class Chamber {
     private final List<Field> fields;
+    @Getter
     private final FieldCategory fieldCategory;
+    @Getter
     private boolean isFinalized = false;
+    @Getter
     private List<Reward> rewards;
 
     /***
@@ -114,5 +117,8 @@ public class Chamber {
             count++;
 
         }
+    }
+    public List<Field> getFields(){
+        return new ArrayList<>(fields);
     }
 }
