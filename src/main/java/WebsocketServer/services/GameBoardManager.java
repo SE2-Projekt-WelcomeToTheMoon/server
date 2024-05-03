@@ -1,10 +1,13 @@
 package WebsocketServer.services;
 
-import WebsocketServer.game.lobby.Lobby;
+import WebsocketServer.game.model.FieldUpdateMessage;
 import WebsocketServer.game.model.GameBoard;
+import WebsocketServer.game.model.Player;
 import WebsocketServer.game.services.GameBoardService;
 import WebsocketServer.services.json.GenerateJSONObjectService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -13,49 +16,48 @@ import org.springframework.web.socket.WebSocketSession;
 import java.util.List;
 
 /**
- * Manages the GameBoard for all Users in a given Lobby
+ * Manages the GameBoard for all Users in a given Game
  */
 public class GameBoardManager {
 
     private final WebSocketSession session;
-    private final Lobby gamelobby;
     private final String gameBoardRocketJSON;
     private final GameBoard gameBoardRocket;
     private final Logger logger = LogManager.getLogger(GameBoardManager.class);
 
-    public GameBoardManager(WebSocketSession session, Lobby gameLobby) {
-        this.gamelobby = gameLobby;
+    public GameBoardManager(WebSocketSession session) {
         this.session = session;
-        this.gameBoardRocketJSON = initGameBoardRocket();
         GameBoardService gameBoardService = new GameBoardService();
         this.gameBoardRocket = gameBoardService.createGameBoard();
+        this.gameBoardRocketJSON = initGameBoardRocket();
     }
 
     /**
-     * This is the Main GameBoard than wil get sent on Startup of the Lobby.
+     * This is the Main GameBoard than wil get sent on Startup of the Game.
      */
     private String initGameBoardRocket() {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.writeValueAsString(gameBoardRocket);
-        } catch (Exception e) {
-            logger.warn("Error serializing game board ", e);
-        }
-        return null;
+        return serializeGameBoard(this.gameBoardRocket);
     }
 
     /**
-     * Tries so send the Blank GameBoard to every user in given Lobby, also sets the Server-Side GameBoard to the "Blank" one
+     * Tries so send the Blank GameBoard to every user in given Game
+     * TODO
+     * replace player.getPlayerId().toString() with player.getUsername when available
      *
      * @return success
      */
-    public boolean initGameBoards() {
-        List<String> userList = gamelobby.getUserListFromLobby();
+    public boolean initGameBoards(List<Player> players) {
+        if (players == null || players.isEmpty()){
+            return false;
+        }
 
-        for (String user : userList) {
-            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("initUser", user, true, this.gameBoardRocketJSON, "");
+        for (Player player : players) {
+            if (player == null){
+                logger.warn("Player is null");
+                return false;
+            }
+            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("initUser", player.getPlayerId().toString(), true, this.gameBoardRocketJSON, "");
             SendMessageService.sendSingleMessage(this.session, jsonObject);
-            gamelobby.setGameBoardUser(user, gameBoardRocket);
         }
         return true;
     }
@@ -63,44 +65,50 @@ public class GameBoardManager {
     /**
      * Gets the GameBoard instance of a given Username and processes into a JSON format
      *
-     * @param username of the User of which GameBoard one needs
      * @return the Formatted String and null if it fails
      */
-    public String getGameBoardUser(String username) {
-        if (!gamelobby.findUser(username)) {
+    public String getGameBoardUser(Player player) {
+        if (player == null) {
+            logger.warn("Attempted to get game board for null player");
             return null;
         }
-        ObjectMapper mapper = new ObjectMapper();
-        GameBoard gameBoard = gamelobby.getGameBoard(username);
-        try {
-            return mapper.writeValueAsString(gameBoard);
-        } catch (Exception e) {
-            logger.warn("Error serializing game board ", e);
-        }
-        return null;
+
+        return serializeGameBoard(player.getGameBoard());
     }
+
 
     /**
-     * Updates a given User with GameBoard Information sent by the Client
-     *
-     * @param username the User that will get the Update
-     * @param message  the JSON formatted String that will be parsed to a GameBoard Class again
-     * @return success
+     * Client sends Message in FieldUpdateMessage Format
+     * Gets Parsed and then passed onto GameBoard
      */
-    public boolean updateUser(String username, String message) {
-        if (!gamelobby.findUser(username)) {
+    public boolean updateUser(Player player, String message) {
+        if (player == null || player.getGameBoard() == null) {
+            logger.error("Player or game board is null");
             return false;
         }
-
         ObjectMapper mapper = new ObjectMapper();
         try {
-            GameBoard updatedGameBoard = mapper.readValue(message, GameBoard.class);
-            gamelobby.setGameBoardUser(username, updatedGameBoard);
-            logger.info("Game board updated successfully for user: {}", username);
+            FieldUpdateMessage fieldUpdateMessage = mapper.readValue(message, FieldUpdateMessage.class);
+            player.getGameBoard().setValueWithinFloorAtIndex(
+                    fieldUpdateMessage.floor(),
+                    fieldUpdateMessage.chamber(),
+                    fieldUpdateMessage.fieldValue());
+            logger.info("Game board updated successfully for user: {}", player.getPlayerId());
             return true;
         } catch (Exception e) {
-            logger.error("Failed to parse JSON or update game board for user: {}", username, e);
+            logger.error("Failed to parse JSON or update game board for user: {}", player.getPlayerId(), e);
             return false;
         }
     }
+
+    String serializeGameBoard(GameBoard gameBoard) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.writeValueAsString(gameBoard);
+        } catch (JsonProcessingException e) {
+            logger.error("JSON serialization error", e);
+            return null;
+        }
+    }
+
 }

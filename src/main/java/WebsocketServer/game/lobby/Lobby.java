@@ -2,8 +2,6 @@ package WebsocketServer.game.lobby;
 
 import org.springframework.stereotype.Component;
 
-import WebsocketServer.game.model.GameBoard;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,42 +61,5 @@ public class Lobby {
      */
     public void removeAllPlayersFromLobby() {
         userList.clear();
-    }
-
-    /**
-     * PLACEHOLDER
-     * method that returns gameBoard of specific user
-     */
-    public GameBoard getGameBoard(String username){
-
-        // PLACEHOLDER
-        GameBoard gameBoard = new GameBoard();
-
-        if (!userList.contains(username)){
-            return null;
-        }
-        // return username.getGameBoard
-        return gameBoard;
-    }
-
-    public boolean findUser(String username){
-        return this.userList.contains(username);
-    }
-
-    /**
-     * In the Future, should set GameBoard for given User Object
-     * @param username
-     * @param gameBoard
-     * @return
-     */
-    public boolean setGameBoardUser(String username, GameBoard gameBoard){
-        if (!this.userList.contains(username)){
-            return false;
-        }
-        //just code against SonarCloud
-        GameBoard gameBoard1 = gameBoard;
-        gameBoard1.finalizeGameBoard();
-        //user.setGameBoard(gameBoard)
-        return true;
     }
 }
