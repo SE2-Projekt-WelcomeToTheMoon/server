@@ -5,6 +5,7 @@ import WebsocketServer.game.model.GameBoard;
 import WebsocketServer.game.model.Player;
 import WebsocketServer.game.services.GameBoardService;
 import WebsocketServer.services.json.GenerateJSONObjectService;
+import WebsocketServer.services.user.CreateUserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -111,4 +112,11 @@ public class GameBoardManager {
         }
     }
 
+    public void informClientsAboutStart(List<CreateUserService> players) {
+        for(CreateUserService player : players){
+            logger.info("Player: {} wird informiert", player.getUsername());
+            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("gameIsStarted", player.getUsername(), true, this.gameBoardRocketJSON, "");
+            SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
+        }
+    }
 }

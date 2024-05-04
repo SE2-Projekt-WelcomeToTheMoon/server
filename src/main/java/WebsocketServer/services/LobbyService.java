@@ -86,12 +86,19 @@ public class LobbyService {
         return gamelobby.getUserListFromLobby();
     }
 
-    public Map<String, CreateUserService> handleStartGame(WebSocketSession session, JSONObject messageJson) {
+    public Map<String, CreateUserService> handleStartGame(WebSocketSession session, JSONObject messageJson) throws Exception{
+        logger.info("Versuchen Game zu starten");
+
+        String username = messageJson.getString(USERNAME_KEY);
+
         if(!gameStarted){
             gameStarted = true;
+            JSONObject response = GenerateJSONObjectService.generateJSONObject("startGame", username, true, "", "");
+            session.sendMessage(new TextMessage(response.toString()));
             logger.info("Lobby returned UserList");
             return gamelobby.getUserListMap();
         }
+        logger.info("Game schon gestartet");
         return null;
     }
 }

@@ -1,15 +1,15 @@
 package WebsocketServer.services;
 
-import WebsocketServer.game.lobby.Lobby;
 import WebsocketServer.game.model.Game;
 import WebsocketServer.game.services.CardController;
-import WebsocketServer.game.services.GameBoardService;
 import WebsocketServer.services.user.CreateUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+@Service
 public class GameService {
 
     public final Game game;
@@ -22,7 +22,7 @@ public class GameService {
 
     public GameService() {
         cardController = new CardController();
-        game = new Game(cardController);
+        game = new Game(cardController, this);
         gameBoardManager = new GameBoardManager(null);
     }
 
@@ -31,9 +31,15 @@ public class GameService {
             logger.info("GameService fügt player hinzu");
             players.values().forEach(CreateUserService::createGameBoard);
             game.addPlayers(players);
+            game.startGame();
+
             gameStarted = true;
         }
     }
 
 
+    public void informClientsAboutStart() {
+        logger.info("Player werden über game start informiert");
+        gameBoardManager.informClientsAboutStart(game.getPlayers());
+    }
 }

@@ -6,6 +6,7 @@ import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.GameStateException;
 import WebsocketServer.game.services.CardController;
 import WebsocketServer.services.GameBoardManager;
+import WebsocketServer.services.GameService;
 import WebsocketServer.services.user.CreateUserService;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
@@ -25,8 +26,9 @@ public class Game {
     private GameState gameState;
     @Getter
     List<Player> playerList;
+    @Getter
     List<CreateUserService> players;
-    GameBoardManager gameBoardManager;
+    GameService gameService;
     CardController cardController;
     HashMap<Player, ChoosenCardCombination> currentPlayerChoices;
 
@@ -34,25 +36,28 @@ public class Game {
     private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
 
 
-    public Game(CardController cardController) {
+    public Game(CardController cardController, GameService gameService) {
         this.gameState = GameState.INITIAL;
         this.cardController = cardController;
         this.playerList = new ArrayList<>();
         this.players = new ArrayList<>();
         currentPlayerChoices = new HashMap<>();
-        gameBoardManager = new GameBoardManager(null);
+        this.gameService = gameService;
     }
 
     public void addPlayer(Player player) {
         playerList.add(player);
     }
 
-    protected void startGame() {
+    public void startGame() {
         if (gameState != GameState.INITIAL) {
             throw new GameStateException("Game must be in state INITIAL to be started");
         }
 
         gameState = GameState.ROUND_ONE;
+
+        gameService.informClientsAboutStart();
+
         doRoundOne();
     }
 
