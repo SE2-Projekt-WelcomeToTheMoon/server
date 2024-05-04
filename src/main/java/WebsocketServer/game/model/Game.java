@@ -5,12 +5,15 @@ import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.GameStateException;
 import WebsocketServer.game.services.CardController;
+import WebsocketServer.services.GameBoardManager;
+import WebsocketServer.services.user.CreateUserService;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,6 +25,8 @@ public class Game {
     private GameState gameState;
     @Getter
     List<Player> playerList;
+    List<CreateUserService> players;
+    GameBoardManager gameBoardManager;
     CardController cardController;
     HashMap<Player, ChoosenCardCombination> currentPlayerChoices;
 
@@ -33,7 +38,9 @@ public class Game {
         this.gameState = GameState.INITIAL;
         this.cardController = cardController;
         this.playerList = new ArrayList<>();
+        this.players = new ArrayList<>();
         currentPlayerChoices = new HashMap<>();
+        gameBoardManager = new GameBoardManager(null);
     }
 
     public void addPlayer(Player player) {
@@ -169,5 +176,9 @@ public class Game {
         //Check if game is finished
 
         return true;
+    }
+
+    public void addPlayers(Map<String, CreateUserService> players) {
+        this.players.addAll(players.values());
     }
 }
