@@ -90,4 +90,11 @@ class CreateUserServiceTest {
 
         assertEquals(gameBoard, createUserService.getGameBoard());
     }
+
+    @Test
+    void testCreateGameboard(){
+        CreateUserService userService = new CreateUserService(null, "");
+        userService.createGameBoard();
+        assertNotNull(userService.getGameBoard());
+    }
 }

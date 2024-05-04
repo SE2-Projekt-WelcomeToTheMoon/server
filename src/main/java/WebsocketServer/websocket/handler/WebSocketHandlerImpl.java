@@ -1,5 +1,6 @@
 package WebsocketServer.websocket.handler;
 
+import WebsocketServer.services.GameService;
 import WebsocketServer.services.SendMessageService;
 import WebsocketServer.services.user.CreateUserService;
 import WebsocketServer.services.LobbyService;
@@ -10,8 +11,11 @@ import WebsocketServer.services.user.UserListService;
 import org.json.JSONObject;
 import org.springframework.web.socket.*;
 
+import java.util.Map;
+
 public class WebSocketHandlerImpl implements WebSocketHandler {
 
+    public static GameService gameService;
     public static LobbyService lobbyService;
     @Getter
     public static JSONObject responseMessage;
@@ -20,6 +24,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     public WebSocketHandlerImpl(){
         lobbyService = new LobbyService();
+        gameService = new GameService();
     }
 
     @Override
@@ -55,6 +60,11 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                 case "leaveLobby":
                     logger.info("Case leaveLobby: {} ",  username );
                     lobbyService.handleLeaveLobby(session, messageJson);
+                    break;
+                case "startGame":
+                    logger.info("Case startGame: {} ",  username );
+                    Map<String, CreateUserService> players =  lobbyService.handleStartGame(session, messageJson);
+                    gameService.handleStartGame(players);
                     break;
                 default:
                     JSONObject response = new JSONObject();

@@ -3,6 +3,7 @@ package WebsocketServer.services;
 import WebsocketServer.game.lobby.Lobby;
 import WebsocketServer.services.json.GenerateJSONObjectService;
 import WebsocketServer.services.user.CreateUserService;
+import lombok.Getter;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Klasse um User zur Lobby hinzuzufügen
@@ -22,6 +24,8 @@ import java.util.ArrayList;
 @Component
 public class LobbyService {
 
+    @Getter
+    private boolean gameStarted = false;
     public final Lobby gamelobby;
     private static final String USERNAME_KEY = "username";
     private static final Logger logger = LoggerFactory.getLogger(LobbyService.class);
@@ -82,6 +86,22 @@ public class LobbyService {
     }
     public ArrayList<CreateUserService> getUsersInLobby(){
         return gamelobby.getUserListFromLobby();
+    }
+
+    public Map<String, CreateUserService> handleStartGame(WebSocketSession session, JSONObject messageJson) throws Exception{
+        logger.info("Versuchen Game zu starten");
+
+        String username = messageJson.getString(USERNAME_KEY);
+
+        if(!gameStarted){
+            gameStarted = true;
+            JSONObject response = GenerateJSONObjectService.generateJSONObject("startGame", username, true, "", "");
+            session.sendMessage(new TextMessage(response.toString()));
+            logger.info("Lobby returned UserList");
+            return gamelobby.getUserListMap();
+        }
+        logger.info("Game schon gestartet");
+        return null;
     }
 }
 
