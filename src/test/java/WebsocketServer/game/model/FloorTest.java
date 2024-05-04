@@ -2,10 +2,14 @@ package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.enums.FieldValue;
+import WebsocketServer.game.enums.RewardCategory;
 import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -230,5 +234,16 @@ class FloorTest {
         assertThrows(FloorSequenceException.class, () -> floor.setFieldAtIndex(4,FieldValue.FOUR));
     }
 
+    @Test
+    void testGetChambersList(){
+        List<Chamber> chambers = new ArrayList<>();
+        Chamber chamber1 = new Chamber(FieldCategory.ENERGIE);
+        chambers.add(chamber1);
+
+        Floor floor1 = new Floor(FieldCategory.ENERGIE);
+        floor1.addChamber(chamber1);
+
+        assertEquals(chambers, floor1.getChambers());
+    }
 
 }

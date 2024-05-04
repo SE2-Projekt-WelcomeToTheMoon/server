@@ -15,7 +15,6 @@ public class Chamber {
     private final FieldCategory fieldCategory;
     @Getter
     private boolean isFinalized = false;
-
     @Getter
     private List<Reward> rewards;
 
@@ -118,5 +117,8 @@ public class Chamber {
             count++;
 
         }
+    }
+    public List<Field> getFields(){
+        return new ArrayList<>(fields);
     }
 }

@@ -1,11 +1,18 @@
 package WebsocketServer.services.user;
 
+import WebsocketServer.game.model.GameBoard;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+
+
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.web.socket.WebSocketSession;
 
 class CreateUserServiceTest {
+    @Mock
+    WebSocketSession sessionMock;
 
     @Test
     void testCreateUserServiceWithValidUsername() {
@@ -70,5 +77,17 @@ class CreateUserServiceTest {
     void testRegisterUserWithEmptyUsername() {
         CreateUserService userService = new CreateUserService(null, "");
         assertNull(userService.getUsername());
+    }
+
+    @Test
+    void testGetGameBoard(){
+        MockitoAnnotations.openMocks(this);
+        GameBoard gameBoard = new GameBoard();
+        String testUser = "testUser";
+
+        CreateUserService createUserService = new CreateUserService(sessionMock, testUser);
+        createUserService.setGameBoard(gameBoard);
+
+        assertEquals(gameBoard, createUserService.getGameBoard());
     }
 }

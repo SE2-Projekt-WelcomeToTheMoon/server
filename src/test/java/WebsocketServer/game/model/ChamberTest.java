@@ -2,10 +2,13 @@ package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.enums.FieldValue;
+import WebsocketServer.game.enums.RewardCategory;
 import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import java.util.ArrayList;
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ChamberTest {
@@ -167,12 +170,34 @@ class ChamberTest {
         assertEquals(5,chamber.getHighestValueInChamber());
     }
     @Test
-    void testGetHighestValueinChamberEmpty() {
+    void testGetHighestValueInChamberEmpty() {
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.finalizeChamber();
 
         assertEquals(0,chamber.getHighestValueInChamber());
+    }
+
+    @Test
+    void testGetFieldsList(){
+        List<Field> fields = new ArrayList<>();
+        Field field = new Field(FieldCategory.ENERGIE);
+        fields.add(field);
+
+        Chamber chamber = new Chamber(FieldCategory.ENERGIE);
+        chamber.addField(field);
+
+        assertEquals(fields, chamber.getFields());
+    }
+
+    @Test
+    void testGetRewardList(){
+        List<Reward> rewards = new ArrayList<>();
+        Reward reward = new Reward(RewardCategory.ROCKET);
+        rewards.add(reward);
+        Chamber chamber = new Chamber(FieldCategory.ENERGIE, rewards, 1);
+
+        assertEquals(rewards, chamber.getRewards());
     }
 }

@@ -8,6 +8,7 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class Floor {
 
     private final List<Chamber> chambers;
@@ -119,6 +120,15 @@ public class Floor {
             currentHighest=chamber.getHighestValueInChamber();
         }
         return true;
+    }
+
+    /**
+     * maybe change later?
+     * return the original reference, which would allow to change the object itself
+     * @return
+     */
+    public List<Chamber> getChambers() {
+        return new ArrayList<>(chambers);
     }
 
 }
