@@ -3,6 +3,7 @@ package WebsocketServer.services;
 import WebsocketServer.game.lobby.Lobby;
 import WebsocketServer.services.json.GenerateJSONObjectService;
 import WebsocketServer.services.user.CreateUserService;
+import lombok.Getter;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ import java.util.Map;
 @Component
 public class LobbyService {
 
+    @Getter
     private boolean gameStarted = false;
     public final Lobby gamelobby;
     private static final String USERNAME_KEY = "username";

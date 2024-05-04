@@ -2,12 +2,14 @@ package WebsocketServer.services;
 
 
 import WebsocketServer.services.json.GenerateJSONObjectService;
+import WebsocketServer.services.user.CreateUserService;
 import WebsocketServer.websocket.WebSocketHandlerClientImpl;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -17,11 +19,18 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import org.springframework.web.socket.TextMessage;
+
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -147,6 +156,29 @@ public class LobbyServiceTests {
                 .get(1, TimeUnit.SECONDS);
 
         return session;
+    }
+
+    @Test
+    void testStartGameSuccessfully() throws Exception {
+        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
+                "startGame", "User123", true, "", "");
+
+
+        lobbyService.handleStartGame(session, jsonMsg);
+
+        assertTrue(lobbyService.isGameStarted());
+    }
+
+    @Test
+    void testStartGameFailAlreadyStarted() throws Exception {
+        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
+                "startGame", "User123", true, "", "");
+
+        lobbyService.handleStartGame(session, jsonMsg);
+
+        Map<String, CreateUserService> result = lobbyService.handleStartGame(session, jsonMsg);
+
+        assertNull(result);
     }
 }
 
