@@ -1,5 +1,6 @@
 package WebsocketServer.services;
 
+import WebsocketServer.game.model.CardCombination;
 import WebsocketServer.game.model.Game;
 import WebsocketServer.game.services.CardController;
 import WebsocketServer.services.user.CreateUserService;
@@ -41,5 +42,8 @@ public class GameService {
     public void informClientsAboutStart() {
         logger.info("Player werden über game start informiert");
         gameBoardManager.informClientsAboutStart(game.getPlayers());
+    }
+
+    public void sendNewCardCombinationToPlayer(CardCombination[] currentCombination) {
     }
 }

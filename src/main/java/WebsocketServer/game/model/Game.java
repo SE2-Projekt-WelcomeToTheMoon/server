@@ -23,13 +23,12 @@ public class Game {
 
     @Getter
     private GameState gameState;
-    @Getter
-    List<Player> playerList;
+
     @Getter
     List<CreateUserService> players;
     GameService gameService;
     CardController cardController;
-    HashMap<Player, ChoosenCardCombination> currentPlayerChoices;
+    HashMap<CreateUserService, ChoosenCardCombination> currentPlayerChoices;
 
     private final AtomicInteger clientResponseReceived = new AtomicInteger(0);
     private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
@@ -38,14 +37,9 @@ public class Game {
     public Game(CardController cardController, GameService gameService) {
         this.gameState = GameState.INITIAL;
         this.cardController = cardController;
-        this.playerList = new ArrayList<>();
         this.players = new ArrayList<>();
         currentPlayerChoices = new HashMap<>();
         this.gameService = gameService;
-    }
-
-    public void addPlayer(Player player) {
-        playerList.add(player);
     }
 
     public void startGame() {
@@ -75,9 +69,7 @@ public class Game {
 
     private void sendNewCardCombinationToPlayer() {
         CardCombination[] currentCombination = cardController.getLastCardCombination();
-        for (Player player : playerList) {
-            player.sendCurrentCardCombination(currentCombination);
-        }
+        gameService.sendNewCardCombinationToPlayer(currentCombination);
     }
 
     protected void doRoundTwo() {
@@ -95,14 +87,14 @@ public class Game {
         });
     }
 
-    protected void receiveSelectedCombinationOfPlayer(Player player, ChoosenCardCombination choosenCardCombination) {
+    protected void receiveSelectedCombinationOfPlayer(CreateUserService player, ChoosenCardCombination choosenCardCombination) {
         if (this.gameState != GameState.ROUND_TWO) {
             throw new GameStateException("Invalid game state for selecting card combinations");
         }
 
         currentPlayerChoices.put(player, choosenCardCombination);
 
-        if (clientResponseReceived.incrementAndGet() == playerList.size()) {
+        if (clientResponseReceived.incrementAndGet() == players.size()) {
             allClientResponseReceivedFuture.complete(null);
         }
     }
@@ -122,18 +114,18 @@ public class Game {
         });
     }
 
-    protected void receiveValueAtPositionOfPlayer(Player player, int floor, int field, FieldValue fieldValue) {
+    protected void receiveValueAtPositionOfPlayer(CreateUserService player, int floor, int field, FieldValue fieldValue) {
         if (this.gameState != GameState.ROUND_THREE) {
             throw new GameStateException("Invalid game state for setting field values");
         }
 
-        for(Player currentPlayer : playerList){
+        for(CreateUserService currentPlayer : players){
             if(currentPlayer.equals(player)){
                 currentPlayer.getGameBoard().setValueWithinFloorAtIndex(floor, field, fieldValue);
             }
         }
 
-        if (clientResponseReceived.incrementAndGet() == playerList.size()) {
+        if (clientResponseReceived.incrementAndGet() == players.size()) {
             allClientResponseReceivedFuture.complete(null);
         }
     }
@@ -184,5 +176,9 @@ public class Game {
 
     public void addPlayers(Map<String, CreateUserService> players) {
         this.players.addAll(players.values());
+    }
+
+    public void addPlayer(CreateUserService player) {
+        players.add(player);
     }
 }
