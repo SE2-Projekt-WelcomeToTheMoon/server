@@ -11,6 +11,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Klasse um User zur Lobby hinzuzufügen
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 @Component
 public class LobbyService {
 
+    private boolean gameStarted = false;
     public final Lobby gamelobby;
     private static final String USERNAME_KEY = "username";
     private static final Logger logger = LoggerFactory.getLogger(LobbyService.class);
@@ -82,6 +84,15 @@ public class LobbyService {
     }
     public ArrayList<CreateUserService> getUsersInLobby(){
         return gamelobby.getUserListFromLobby();
+    }
+
+    public Map<String, CreateUserService> handleStartGame(WebSocketSession session, JSONObject messageJson) {
+        if(!gameStarted){
+            gameStarted = true;
+            logger.info("Lobby returned UserList");
+            return gamelobby.getUserListMap();
+        }
+        return null;
     }
 }
 
