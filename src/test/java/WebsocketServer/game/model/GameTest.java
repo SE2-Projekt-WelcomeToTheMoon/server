@@ -5,7 +5,6 @@ import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.GameStateException;
 import WebsocketServer.game.services.GameBoardService;
-import WebsocketServer.services.GameService;
 import WebsocketServer.services.user.CreateUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,8 +15,6 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.concurrent.CompletableFuture;
 
-import static java.lang.Thread.sleep;
-import static java.util.concurrent.CompletableFuture.*;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doNothing;
