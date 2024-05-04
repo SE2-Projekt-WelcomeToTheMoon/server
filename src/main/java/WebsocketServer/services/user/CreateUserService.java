@@ -1,6 +1,7 @@
 package WebsocketServer.services.user;
 
 import WebsocketServer.game.model.GameBoard;
+import WebsocketServer.game.services.GameBoardService;
 import WebsocketServer.services.json.ActionValues;
 import WebsocketServer.services.json.GenerateJSONObjectService;
 import WebsocketServer.websocket.handler.WebSocketHandlerImpl;
@@ -80,5 +81,10 @@ public class CreateUserService {
                     "No username has been passed. User not created.", "");
             logger.warn("No username has been passed. User not created.");
         }
+    }
+
+    public void createGameBoard() {
+        GameBoardService gameBoardService = new GameBoardService();
+        gameBoard = gameBoardService.createGameBoard();
     }
 }
