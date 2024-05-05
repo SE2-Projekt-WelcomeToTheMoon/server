@@ -41,7 +41,10 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
         } else {
             JSONObject messageJson = new JSONObject(message.getPayload().toString());
 
-            String username = messageJson.getString("username");
+            String username = null;
+            if(messageJson.has("username")){
+                username = messageJson.getString("username");
+            }
             String action = messageJson.getString("action");
 
             //Checks which action was requested by client.
@@ -60,6 +63,10 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                 case "leaveLobby":
                     logger.info("Case leaveLobby: {} ",  username );
                     lobbyService.handleLeaveLobby(session, messageJson);
+                    break;
+                case "requestLobbyUser":
+                    logger.info("Case requestLobbyUser." );
+                    lobbyService.handleRequestLobbyUser(session);
                     break;
                 case "startGame":
                     logger.info("Case startGame: {} ",  username );
@@ -84,20 +91,16 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-        //Removes user from lobby
-        lobbyService.gamelobby.removePlayerFromLobbyBySessionID(session.getId());
-        logger.info("User nicht mehr in der Lobby vorhanden.{}", session.getId());
-
-        //Deletes registered user
         if(UserListService.userList.getUserBySessionID(session.getId()) != null){
+            //Removes user from lobby
+            lobbyService.gamelobby.removePlayerFromLobbyBySessionID(session.getId());
+            logger.info("User nicht mehr in der Lobby vorhanden.{}", session.getId());
+
             UserListService.userList.deleteUser(session.getId());
             logger.info("User gelöscht.");
         }
         logger.info(" Verbindung getrennt.: {} ",  session.getId());
-
-
     }
-
 
     @Override
     public boolean supportsPartialMessages() {
