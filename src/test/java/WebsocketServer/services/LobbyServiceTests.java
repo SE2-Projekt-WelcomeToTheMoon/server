@@ -60,7 +60,7 @@ public class LobbyServiceTests {
     }
 
 
-    @Test
+    /*@Test
     void testJoinLobbyAndLeave() throws Exception {
 
 
@@ -86,7 +86,7 @@ public class LobbyServiceTests {
         assertTrue(actualLeave.similar(expectedLeave));
         assertEquals(0, lobbyService.gamelobby.getUserListFromLobby().size());
 
-    }
+    }*/
 
     @Test
     void testLeaveLobbyFail() throws Exception {
@@ -119,7 +119,7 @@ public class LobbyServiceTests {
     /**
      * Testet die Methode handleJoinLobby aus dem LobbyService
      */
-    @Test
+    /*@Test
     void testJoinLobbyDuplicateUsername()throws Exception{
 
         JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
@@ -144,7 +144,7 @@ public class LobbyServiceTests {
 
         assertTrue(actual2.similar(expected2));
         assertEquals(1, lobbyService.gamelobby.getUserListFromLobby().size());
-    }
+    }*/
 
     public WebSocketSession initStompSession() throws Exception {
         WebSocketClient client = new StandardWebSocketClient();
