@@ -18,12 +18,12 @@ import java.util.Map;
  * - Spieler entfernen
  * - Spielerliste ausgeben
  */
+@Getter
 @Component
 public class Lobby {
 
     private static final int MAX_PLAYERS = 4;
 
-    @Getter
     public Map<String, CreateUserService> userListMap;
     private static final Logger logger = LoggerFactory.getLogger(LobbyService.class);
 
