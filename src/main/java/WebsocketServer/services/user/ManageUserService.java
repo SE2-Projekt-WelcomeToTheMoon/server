@@ -103,7 +103,7 @@ public class ManageUserService {
      * Cleans up the list from all users.
      */
     public void cleanUpUserList(){
-        userList = null;
+        userList.clear();
         logger.info("User list has been cleaned.");
     }
 }

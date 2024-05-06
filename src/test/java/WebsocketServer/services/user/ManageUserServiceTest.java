@@ -102,8 +102,8 @@ class ManageUserServiceTest {
 
         manageUserService.addUser(user);
         manageUserService.cleanUpUserList();
+        assertEquals(0, manageUserService.getAllUsers().size());
 
-        assertThrows(NullPointerException.class, () -> manageUserService.getUserBySessionID("testUser"));
     }
 
 }
