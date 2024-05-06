@@ -61,15 +61,6 @@ public class Lobby {
             return false;
         }
     }
-    public void removePlayerFromLobbyBySessionID(String sessionID){
-        CreateUserService user = UserListService.userList.getUserBySessionID(sessionID);
-        if(userListMap.containsKey(user.getUsername())){
-            userListMap.remove(user.getUsername(), user);
-            logger.info("User {} removed from lobby: {}", user.getUsername(), user.getSessionID());
-        }else{
-            logger.warn("User {} not in lobby: {}", user.getUsername(), user.getSessionID());
-        }
-    }
 
     /**
      * Return new Arraylist with users in lobby
