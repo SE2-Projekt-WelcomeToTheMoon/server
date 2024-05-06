@@ -1,6 +1,6 @@
 package WebsocketServer.game.lobby;
 
-
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +13,10 @@ public class LobbyTest {
     @BeforeEach
     public void setUp(){
         lobby = new Lobby();
+    }
+    @AfterEach
+    public void tearDown(){
+        lobby.removeAllPlayersFromLobby();
     }
 
     @Test
@@ -42,11 +46,13 @@ public class LobbyTest {
     }
     @Test
     void removeAllPlayerFromLobby(){
+        assertTrue(lobby.getUserListMap().isEmpty());
         lobby.addPlayerToLobby("Spieler1");
         lobby.addPlayerToLobby("Spieler2");
         lobby.addPlayerToLobby("Spieler3");
         lobby.addPlayerToLobby("Spieler4");
         assertEquals(4, lobby.getUserListFromLobby().size());
+        assertFalse(lobby.getUserListMap().isEmpty());
         lobby.removeAllPlayersFromLobby();
         assertEquals(0, lobby.getUserListFromLobby().size());
     }

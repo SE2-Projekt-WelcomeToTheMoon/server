@@ -18,12 +18,12 @@ import java.util.Map;
  * - Spieler entfernen
  * - Spielerliste ausgeben
  */
+@Getter
 @Component
 public class Lobby {
 
     private static final int MAX_PLAYERS = 4;
 
-    @Getter
     public Map<String, CreateUserService> userListMap;
     private static final Logger logger = LoggerFactory.getLogger(LobbyService.class);
 
@@ -59,15 +59,6 @@ public class Lobby {
             return true;
         }else{
             return false;
-        }
-    }
-    public void removePlayerFromLobbyBySessionID(String sessionID){
-        CreateUserService user = UserListService.userList.getUserBySessionID(sessionID);
-        if(userListMap.containsKey(user.getUsername())){
-            userListMap.remove(user.getUsername(), user);
-            logger.info("User {} removed from lobby: {}", user.getUsername(), user.getSessionID());
-        }else{
-            logger.warn("User {} not in lobby: {}", user.getUsername(), user.getSessionID());
         }
     }
 
