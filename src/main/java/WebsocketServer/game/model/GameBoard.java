@@ -1,6 +1,7 @@
 package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.FieldValue;
+import WebsocketServer.game.enums.RewardCategory;
 import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -11,6 +12,7 @@ import java.util.List;
 public class GameBoard {
     @Getter
     private final List<Floor> floors;
+    private List<MissionCard> missionCards;
     private final SystemErrors systemErrors;
 
     private final RocketBarometer rocketBarometer;
@@ -19,6 +21,7 @@ public class GameBoard {
 
     public GameBoard() {
         floors = new ArrayList<>();
+        missionCards = initializeMissionCards();
         systemErrors = new SystemErrors();
         rocketBarometer = new RocketBarometer();
     }
@@ -128,4 +131,24 @@ public class GameBoard {
         return floors.size();
     }
 
+    private List<MissionCard> initializeMissionCards() {
+        List<MissionCard> cards = new ArrayList<>();
+        cards.add(new MissionCard("Test 1", new Reward(RewardCategory.ROCKET, 5)));
+        cards.add(new MissionCard("Test 2", new Reward(RewardCategory.ROCKET, 5)));
+        // Other Cards
+        return cards;
+    }
+
+    public void checkAndFlipMissionCards(String missionDescription) {
+        for (MissionCard card : missionCards) {
+            if (!card.isFlipped() && card.getMissionDescription().equals(missionDescription)) {
+                card.flipCard();
+                informAllPlayersAboutFlip(card);
+            }
+        }
+    }
+
+    private void informAllPlayersAboutFlip(MissionCard card) {
+        // TODO: Inform players that mission card was flipped
+    }
 }

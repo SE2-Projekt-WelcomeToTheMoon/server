@@ -1,6 +1,7 @@
 package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.ChoosenCardCombination;
+import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.GameStateException;
@@ -8,6 +9,8 @@ import WebsocketServer.game.services.CardController;
 import WebsocketServer.services.GameService;
 import WebsocketServer.services.user.CreateUserService;
 import lombok.Getter;
+
+import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -32,6 +35,7 @@ public class Game {
 
     private final AtomicInteger clientResponseReceived = new AtomicInteger(0);
     private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
+    private GameBoard gameBoard;
 
 
     public Game(CardController cardController, GameService gameService) {
@@ -180,5 +184,20 @@ public class Game {
 
     public void addPlayer(CreateUserService player) {
         players.add(player);
+    }
+
+    public void checkMissions() {
+        if (checkAllRobotsTasksCompleted()) {
+            gameBoard.checkAndFlipMissionCards("Complete all robot tasks");
+            gameService.notifyAllPlayers("Mission 'Complete all robot tasks' completed and card flipped.");
+        }
+    }
+
+    private boolean checkAllRobotsTasksCompleted() {
+        return gameBoard.getFloors().stream()
+            .filter(floor -> floor.getFieldCategory() == FieldCategory.ROBOTER)
+            .allMatch(floor -> floor.getChambers().stream()
+                .allMatch(chamber -> chamber.getFields().stream()
+                    .allMatch(field -> field.getFieldValue().getValue() >= 1)));
     }
 }
