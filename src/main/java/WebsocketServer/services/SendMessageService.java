@@ -80,6 +80,6 @@ public class SendMessageService {
      * @return Boolean value if message to send has needed keys or not.
      */
     private static boolean checkMessage(JSONObject messageToCheck){
-        return ((messageToCheck.getString("action") != null) & !(messageToCheck.getString("action").isEmpty()));
+        return ((messageToCheck.getString("action") != null) && !(messageToCheck.getString("action").isEmpty()));
     }
 }
