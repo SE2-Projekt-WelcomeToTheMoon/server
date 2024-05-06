@@ -92,9 +92,11 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         if(UserListService.userList.getUserBySessionID(session.getId()) != null){
+
             //Removes user from lobby
-            lobbyService.gamelobby.removePlayerFromLobbyBySessionID(session.getId());
-            logger.info("User nicht mehr in der Lobby vorhanden.{}", session.getId());
+            String username = UserListService.userList.getUserBySessionID(session.getId()).getUsername();
+            lobbyService.gamelobby.removePlayerFromLobbyByName(username);
+            logger.info("User nicht mehr in der Lobby vorhanden(ConnectionCloses).{}", session.getId());
 
             UserListService.userList.deleteUser(session.getId());
             logger.info("User gelöscht.");
