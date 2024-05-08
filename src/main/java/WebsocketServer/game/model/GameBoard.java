@@ -12,6 +12,7 @@ public class GameBoard {
     @Getter
     private final List<Floor> floors;
     private final SystemErrors systemErrors;
+    private final int ROCKETS_TO_COMPLETE = 32;
 
     private final RocketBarometer rocketBarometer;
     @Getter(onMethod_ = {@JsonIgnore})
@@ -75,16 +76,15 @@ public class GameBoard {
         if (!isFinalized) {
             throw new FinalizedException("GameBoard must be finalized.");
         }
-        return rocketBarometer.addRockets(rockets);
+        rocketBarometer.addRockets(rockets);
+        return hasWon();
     }
 
     public boolean hasWon() {
         if (!isFinalized) {
             throw new FinalizedException("GameBoard must be finalized.");
         }
-        //TODO: RocketCount must be actually greater than ROCKET_TO_COMPLETE + SYSTEM ERRORS
-
-        return rocketBarometer.hasWon();
+        return rocketBarometer.getRocketCount() - systemErrors.getCurrentErrors() > ROCKETS_TO_COMPLETE;
     }
 
     public int getRocketBarometerPoints(){

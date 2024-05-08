@@ -164,19 +164,29 @@ public class Game {
 
         //Logic for round six where missions can be completed, and it will be
         //checked whether the game is finished or not.
+        List<CreateUserService> winners = checkIfGameIsFinished();
 
-        if (checkIfGameIsFinished()) {
+
+        if (!winners.isEmpty()) {
             gameState = GameState.FINISHED;
+            gameService.informPlayersAboutEndOfGame(winners);
         } else {
             gameState = GameState.ROUND_ONE;
             doRoundOne();
         }
     }
 
-    protected boolean checkIfGameIsFinished() {
+    protected List<CreateUserService> checkIfGameIsFinished() {
         //Check if game is finished
+        List<CreateUserService> winners = new ArrayList<>();
 
-        return true;
+        for(CreateUserService createUserService : players){
+            if(createUserService.getGameBoard().hasWon()){
+                winners.add(createUserService);
+            }
+        }
+
+        return winners;
     }
 
     public void addPlayers(Map<String, CreateUserService> players) {
