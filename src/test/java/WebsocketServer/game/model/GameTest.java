@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,28 +57,31 @@ class GameTest {
     }
 
     @Test
-    void testStartGameSuccess() throws InterruptedException {
+    void testStartGameSuccess() throws InterruptedException, ExecutionException, ExecutionException {
         game.addPlayer(player2);
         game.startGame();
 
-        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+        player1.getGameBoard().addRockets(35);
+
+        CompletableFuture<Void> future1 = CompletableFuture.runAsync(() -> {
             game.receiveSelectedCombinationOfPlayer(player1, ChoosenCardCombination.ONE);
             game.receiveSelectedCombinationOfPlayer(player2, ChoosenCardCombination.TWO);
         });
-        future.join();
 
-        Thread.sleep(100);
+        future1.get(); // Wait until all players have made their choice
 
-        future = CompletableFuture.runAsync(() -> {
+        CompletableFuture<Void> future2 = CompletableFuture.runAsync(() -> {
             game.receiveValueAtPositionOfPlayer(player1, 1, 1, FieldValue.ONE);
             game.receiveValueAtPositionOfPlayer(player2, 1, 1, FieldValue.TWO);
         });
-        future.join();
+
+        future2.get(); // Wait until all players have set their values
 
         Thread.sleep(100);
 
         assertEquals(GameState.FINISHED, game.getGameState());
     }
+
 
     @Test
     void testWrongStateForRound() throws InterruptedException {
