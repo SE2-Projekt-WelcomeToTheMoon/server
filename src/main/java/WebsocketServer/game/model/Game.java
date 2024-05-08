@@ -3,6 +3,7 @@ package WebsocketServer.game.model;
 import WebsocketServer.game.enums.ChoosenCardCombination;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.enums.GameState;
+import WebsocketServer.game.exceptions.FloorSequenceException;
 import WebsocketServer.game.exceptions.GameStateException;
 import WebsocketServer.game.services.CardController;
 import WebsocketServer.services.GameService;
@@ -121,7 +122,11 @@ public class Game {
 
         for(CreateUserService currentPlayer : players){
             if(currentPlayer.equals(player)){
-                currentPlayer.getGameBoard().setValueWithinFloorAtIndex(floor, field, fieldValue);
+                try{
+                    currentPlayer.getGameBoard().setValueWithinFloorAtIndex(floor, field, fieldValue);
+                }catch (FloorSequenceException e){
+                    gameService.sendInvalidCombination(player);
+                }
             }
         }
 

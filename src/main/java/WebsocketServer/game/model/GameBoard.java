@@ -50,7 +50,7 @@ public class GameBoard {
         }
     }
 
-    public void setValueWithinFloorAtIndex(int floor, int index, FieldValue value) {
+    public void setValueWithinFloorAtIndex(int floor, int index, FieldValue value) throws FloorSequenceException{
         if (!isFinalized) {
             throw new FinalizedException("GameBoard must be finalized.");
         }

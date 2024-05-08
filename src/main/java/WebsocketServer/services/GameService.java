@@ -46,4 +46,8 @@ public class GameService {
 
     public void sendNewCardCombinationToPlayer(CardCombination[] currentCombination) {
     }
+
+    public void sendInvalidCombination(CreateUserService player) {
+        //TODO: If Player sends invalid selection use this method, to return failure.
+    }
 }
