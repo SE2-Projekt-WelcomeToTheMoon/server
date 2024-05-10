@@ -10,6 +10,7 @@ import WebsocketServer.game.services.CardController;
 import WebsocketServer.services.GameService;
 import WebsocketServer.services.user.CreateUserService;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -217,4 +218,5 @@ public class Game {
     public void addPlayer(CreateUserService player) {
         players.add(player);
     }
+
 }
