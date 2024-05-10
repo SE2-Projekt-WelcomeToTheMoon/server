@@ -128,4 +128,17 @@ public class GameBoard {
         return floors.size();
     }
 
+    public boolean checkSystemerrors(CardCombination[] combinations) {
+        //TODO: Check whether the new card combination allows player to find a spot or leads to a system error
+        for(CardCombination currentCombination : combinations){
+            for(Floor floor : floors){
+                if(floor.getFieldCategory().equals(currentCombination.getCurrentSymbol()) &&
+                        floor.canInsertValue(FieldValue.fromWeight(currentCombination.getCurrentNumber()))){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
