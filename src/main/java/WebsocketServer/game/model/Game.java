@@ -69,13 +69,11 @@ public class Game {
         cardController.drawNextCard();
 
         for(CreateUserService createUserService : players){
-            if(createUserService.getGameBoard().checkSystemerrors(cardController.getLastCardCombination())) {
-                gameService.sendNewCardCombinationToSinglePlayer(createUserService, cardController.getLastCardCombination());
-            }else {
+            if(!createUserService.getGameBoard().checkCardCombination(cardController.getLastCardCombination())) {
                 if(createUserService.getGameBoard().addSystemError()){
                     gameService.informPlayersAboutEndOfGame(null, EndType.SYSTEM_ERROR_EXCEEDED);
                 }else{
-                    gameService.sendNewCardCombinationToSinglePlayer(createUserService, null);
+                    gameService.informPlayerAboutSystemerror(createUserService);
                 }
             }
         }
@@ -111,7 +109,12 @@ public class Game {
             throw new GameStateException("Invalid game state for selecting card combinations");
         }
 
-        currentPlayerChoices.put(player, choosenCardCombination);
+        //TODO: Insert check if combination is valid
+        if(player.getGameBoard().checkCardCombination(new CardCombination[]{cardController.getLastCardCombination()[choosenCardCombination.ordinal()]})){
+            currentPlayerChoices.put(player, choosenCardCombination);
+        }else {
+            //TODO: Return failure to client as there is no spot for the chosen combination
+        }
 
         if (clientResponseReceived.incrementAndGet() == players.size()) {
             allClientResponseReceivedFuture.complete(null);

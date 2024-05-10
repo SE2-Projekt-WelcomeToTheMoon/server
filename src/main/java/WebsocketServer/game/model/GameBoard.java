@@ -1,5 +1,6 @@
 package WebsocketServer.game.model;
 
+import WebsocketServer.game.enums.ChoosenCardCombination;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
@@ -128,7 +129,7 @@ public class GameBoard {
         return floors.size();
     }
 
-    public boolean checkSystemerrors(CardCombination[] combinations) {
+    public boolean checkCardCombination(CardCombination[] combinations) {
         //TODO: Check whether the new card combination allows player to find a spot or leads to a system error
         for(CardCombination currentCombination : combinations){
             for(Floor floor : floors){
@@ -141,4 +142,5 @@ public class GameBoard {
 
         return false;
     }
+
 }

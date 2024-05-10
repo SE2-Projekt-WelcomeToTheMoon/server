@@ -58,12 +58,8 @@ public class GameService {
         //TODO: If Player has won, game will call this Method to send information to players.
     }
 
-    public void sendNewCardCombinationToSinglePlayer(CreateUserService createUserService, CardCombination[] lastCardCombination) {
-        //TODO: If new cardcombination and player can't find a spot
-        if(lastCardCombination == null){
+    public void informPlayerAboutSystemerror(CreateUserService createUserService) {
+        //TODO: If new card combination and player can't find a spot
 
-        }else {
-
-        }
     }
 }
