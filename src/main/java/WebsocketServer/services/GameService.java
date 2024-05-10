@@ -1,5 +1,6 @@
 package WebsocketServer.services;
 
+import WebsocketServer.game.enums.EndType;
 import WebsocketServer.game.model.CardCombination;
 import WebsocketServer.game.model.Game;
 import WebsocketServer.game.services.CardController;
@@ -46,13 +47,23 @@ public class GameService {
     }
 
     public void sendNewCardCombinationToPlayer(CardCombination[] currentCombination) {
+
     }
 
     public void sendInvalidCombination(CreateUserService player) {
         //TODO: If Player sends invalid selection use this method, to return failure.
     }
 
-    public void informPlayersAboutEndOfGame(List<CreateUserService> winners) {
+    public void informPlayersAboutEndOfGame(List<CreateUserService> winners, EndType endType) {
         //TODO: If Player has won, game will call this Method to send information to players.
+    }
+
+    public void sendNewCardCombinationToSinglePlayer(CreateUserService createUserService, CardCombination[] lastCardCombination) {
+        //TODO: If new cardcombination and player can't find a spot
+        if(lastCardCombination == null){
+
+        }else {
+
+        }
     }
 }

@@ -1,6 +1,7 @@
 package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.ChoosenCardCombination;
+import WebsocketServer.game.enums.EndType;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.FloorSequenceException;
@@ -55,12 +56,29 @@ public class Game {
         doRoundOne();
     }
 
+
+    /**
+     * Draw new card and check if players can find place for new value. If not add System error and check whether the
+     * game is lost.
+     */
     protected void doRoundOne() {
         if (gameState != GameState.ROUND_ONE) {
             throw new GameStateException("Game must be in state ROUND_ONE");
         }
 
         cardController.drawNextCard();
+
+        for(CreateUserService createUserService : players){
+            if(createUserService.getGameBoard().checkSystemerrors(cardController.getLastCardCombination())) {
+                gameService.sendNewCardCombinationToSinglePlayer(createUserService, cardController.getLastCardCombination());
+            }else {
+                if(createUserService.getGameBoard().addSystemError()){
+                    gameService.informPlayersAboutEndOfGame(null, EndType.SYSTEM_ERROR_EXCEEDED);
+                }else{
+                    gameService.sendNewCardCombinationToSinglePlayer(createUserService, null);
+                }
+            }
+        }
 
         sendNewCardCombinationToPlayer();
 
@@ -169,7 +187,7 @@ public class Game {
 
         if (!winners.isEmpty()) {
             gameState = GameState.FINISHED;
-            gameService.informPlayersAboutEndOfGame(winners);
+            gameService.informPlayersAboutEndOfGame(winners, EndType.ROCKETS_COMPLETED);
         } else {
             gameState = GameState.ROUND_ONE;
             doRoundOne();
