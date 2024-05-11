@@ -166,14 +166,6 @@ public class Game {
 
         //Logic for round four where player optional do their action
 
-        for (CreateUserService player : players) {
-            for (CreateUserService otherPlayer : players) {
-                if (!player.equals(otherPlayer)) {
-                    gameService.updateClientGameBoard(player, otherPlayer.getGameBoard());
-                }
-            }
-        }
-
         gameState = GameState.ROUND_FIVE;
         doRoundFive();
     }
@@ -239,6 +231,19 @@ public class Game {
 
     public void updateUser(String username, String message) {
         gameBoardManager.updateUser(getUserByUsername(username), message);
+    }
+
+    /**
+     * TODO: put this somewhere where it doesnt break anything
+     */
+    public void updateAllUsers(){
+        for (CreateUserService player : players) {
+            for (CreateUserService otherPlayer : players) {
+                if (!player.equals(otherPlayer)) {
+                    gameService.updateClientGameBoard(player, otherPlayer.getGameBoard());
+                }
+            }
+        }
     }
 
 }

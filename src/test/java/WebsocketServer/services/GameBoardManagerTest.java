@@ -6,7 +6,6 @@ import static org.mockito.Mockito.*;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.model.FieldUpdateMessage;
 import WebsocketServer.game.model.GameBoard;
-import WebsocketServer.game.model.Player;
 import WebsocketServer.game.services.GameBoardService;
 import WebsocketServer.services.user.CreateUserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,7 +18,6 @@ import org.springframework.web.socket.WebSocketSession;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
