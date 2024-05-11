@@ -107,6 +107,7 @@ public class GameBoardManager {
     public void informClientsAboutStart(List<CreateUserService> players) {
         for (CreateUserService player : players) {
             logger.info("Player: {} wird informiert", player.getUsername());
+            System.out.println(emptyGameBoardJSON);
             JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("gameIsStarted", player.getUsername(), true, this.emptyGameBoardJSON, "");
             SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         }

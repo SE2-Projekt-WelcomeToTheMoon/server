@@ -4,17 +4,20 @@ import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class Floor {
-
     private final List<Chamber> chambers;
     @Getter
+    @JsonProperty("fieldCategory")
     private FieldCategory fieldCategory;
     @Getter
+    @JsonIgnore
     private boolean isFinalized = false;
 
     public Floor(FieldCategory fieldCategory) {
@@ -105,6 +108,7 @@ public class Floor {
         return false;
     }
 
+    @JsonIgnore
     private FieldValue getNextValueInNextChamber(int startChamberIndex) {
         for (int i = startChamberIndex; i < chambers.size(); i++) {
             for (Field field : chambers.get(i).getFields()) {
@@ -116,10 +120,12 @@ public class Floor {
         return null;
     }
 
+    @JsonIgnore
     public int getFloorSize() {
         return chambers.stream().mapToInt(Chamber::getSize).sum();
     }
 
+    @JsonIgnore
     public Chamber getChamber(int index) {
         if (!isFinalized) {
             throw new FinalizedException("Floor must be finalized.");
@@ -132,10 +138,12 @@ public class Floor {
         }
     }
 
+    @JsonIgnore
     public int getNumberOfChambers() {
         return chambers.size();
     }
 
+    @JsonProperty("floorSize")
     public int getSize() {
         int sum = 0;
         for (Chamber chamber : chambers) {
