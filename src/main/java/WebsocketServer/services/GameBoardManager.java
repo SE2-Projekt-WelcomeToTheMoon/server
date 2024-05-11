@@ -1,8 +1,6 @@
 package WebsocketServer.services;
 
-import WebsocketServer.game.model.FieldUpdateMessage;
-import WebsocketServer.game.model.GameBoard;
-import WebsocketServer.game.model.Player;
+import WebsocketServer.game.model.*;
 import WebsocketServer.game.services.GameBoardService;
 import WebsocketServer.services.json.GenerateJSONObjectService;
 import WebsocketServer.services.user.CreateUserService;
@@ -22,84 +20,72 @@ import java.util.List;
 public class GameBoardManager {
 
     private final WebSocketSession session;
-    private final String gameBoardRocketJSON;
-    private final GameBoard gameBoardRocket;
+    private GameBoard gameBoardRocket;
+    private String emptyGameBoardJSON;
     private final Logger logger = LogManager.getLogger(GameBoardManager.class);
 
     public GameBoardManager(WebSocketSession session) {
         this.session = session;
         GameBoardService gameBoardService = new GameBoardService();
         this.gameBoardRocket = gameBoardService.createGameBoard();
-        this.gameBoardRocketJSON = initGameBoardRocket();
+        initGameBoardJSON();
     }
 
-    /**
-     * This is the Main GameBoard than wil get sent on Startup of the Game.
-     */
-    private String initGameBoardRocket() {
-        return serializeGameBoard(this.gameBoardRocket);
+    public void initGameBoardJSON() {
+        GameBoardService gameBoardService = new GameBoardService();
+        gameBoardRocket = gameBoardService.createGameBoard();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            this.emptyGameBoardJSON = mapper.writeValueAsString(gameBoardRocket);
+        } catch (JsonProcessingException e) {
+            logger.error("JSON serialization error", e);
+        }
     }
 
-    /**
-     * Tries so send the Blank GameBoard to every user in given Game
-     * TODO
-     * replace player.getPlayerId().toString() with player.getUsername when available
-     *
-     * @return success
-     */
-    public boolean initGameBoards(List<Player> players) {
-        if (players == null || players.isEmpty()){
+    public boolean updateFromUser(CreateUserService player, String message) {
+        ObjectMapper mapper = new ObjectMapper();
+        FieldUpdateMessage fieldUpdateMessage;
+        try {
+            fieldUpdateMessage = mapper.readValue(message, FieldUpdateMessage.class);
+        } catch (JsonProcessingException e) {
+            logger.error("JSON deserialization error", e);
+            return false;
+        }
+        // just for readbilities sake
+        try {
+            GameBoard gameBoard = player.getGameBoard();
+            Floor floor = gameBoard.getFloorAtIndex(fieldUpdateMessage.floor());
+            Chamber chamber = floor.getChamber(fieldUpdateMessage.chamber());
+            Field field = chamber.getField(fieldUpdateMessage.field());
+
+            field.setFieldValue(fieldUpdateMessage.fieldValue());
+        } catch (NullPointerException e) {
+            logger.error("Failed to update field value due to null object reference", e);
             return false;
         }
 
-        for (Player player : players) {
-            if (player == null){
-                logger.warn("Player is null");
-                return false;
-            }
-            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("initUser", player.getPlayerId().toString(), true, this.gameBoardRocketJSON, "");
-            SendMessageService.sendSingleMessage(this.session, jsonObject);
-        }
         return true;
     }
 
-    /**
-     * Gets the GameBoard instance of a given Username and processes into a JSON format
-     *
-     * @return the Formatted String and null if it fails
-     */
-    public String getGameBoardUser(Player player) {
+    public boolean updateClientGameBoard(CreateUserService player, GameBoard gameBoard) {
+        if (player == null) {
+            logger.warn("Attempted to update game board for null player");
+            return false;
+        }
+        String payload = serializeGameBoard(gameBoard);
+        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("updateGameBoard", player.getUsername(), true, payload, "");
+        SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
+
+        return true;
+    }
+
+    public String getGameBoardUser(CreateUserService player) {
         if (player == null) {
             logger.warn("Attempted to get game board for null player");
             return null;
         }
 
         return serializeGameBoard(player.getGameBoard());
-    }
-
-
-    /**
-     * Client sends Message in FieldUpdateMessage Format
-     * Gets Parsed and then passed onto GameBoard
-     */
-    public boolean updateUser(Player player, String message) {
-        if (player == null || player.getGameBoard() == null) {
-            logger.error("Player or game board is null");
-            return false;
-        }
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            FieldUpdateMessage fieldUpdateMessage = mapper.readValue(message, FieldUpdateMessage.class);
-            player.getGameBoard().setValueWithinFloorAtIndex(
-                    fieldUpdateMessage.floor(),
-                    fieldUpdateMessage.chamber(),
-                    fieldUpdateMessage.fieldValue());
-            logger.info("Game board updated successfully for user: {}", player.getPlayerId());
-            return true;
-        } catch (Exception e) {
-            logger.error("Failed to parse JSON or update game board for user: {}", player.getPlayerId(), e);
-            return false;
-        }
     }
 
     String serializeGameBoard(GameBoard gameBoard) {
@@ -113,9 +99,9 @@ public class GameBoardManager {
     }
 
     public void informClientsAboutStart(List<CreateUserService> players) {
-        for(CreateUserService player : players){
+        for (CreateUserService player : players) {
             logger.info("Player: {} wird informiert", player.getUsername());
-            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("gameIsStarted", player.getUsername(), true, this.gameBoardRocketJSON, "");
+            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("gameIsStarted", player.getUsername(), true, this.emptyGameBoardJSON, "");
             SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         }
     }

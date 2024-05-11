@@ -3,6 +3,7 @@ package WebsocketServer.services;
 import WebsocketServer.game.enums.EndType;
 import WebsocketServer.game.model.CardCombination;
 import WebsocketServer.game.model.Game;
+import WebsocketServer.game.model.GameBoard;
 import WebsocketServer.game.services.CardController;
 import WebsocketServer.services.user.CreateUserService;
 import org.slf4j.Logger;
@@ -61,5 +62,9 @@ public class GameService {
     public void informPlayerAboutSystemerror(CreateUserService createUserService) {
         //TODO: If new card combination and player can't find a spot
 
+    }
+
+    public void updateClientGameBoard(CreateUserService player, GameBoard gameBoard) {
+        gameBoardManager.updateClientGameBoard(player, gameBoard);
     }
 }

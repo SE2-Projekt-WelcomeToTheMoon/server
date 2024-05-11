@@ -7,6 +7,7 @@ import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.FloorSequenceException;
 import WebsocketServer.game.exceptions.GameStateException;
 import WebsocketServer.game.services.CardController;
+import WebsocketServer.services.GameBoardManager;
 import WebsocketServer.services.GameService;
 import WebsocketServer.services.user.CreateUserService;
 import lombok.Getter;
@@ -30,6 +31,7 @@ public class Game {
     @Getter
     List<CreateUserService> players;
     GameService gameService;
+    GameBoardManager gameBoardManager;
     CardController cardController;
     HashMap<CreateUserService, ChoosenCardCombination> currentPlayerChoices;
 
@@ -163,6 +165,14 @@ public class Game {
         }
 
         //Logic for round four where player optional do their action
+
+        for (CreateUserService player : players) {
+            for (CreateUserService otherPlayer : players) {
+                if (!player.equals(otherPlayer)) {
+                    gameService.updateClientGameBoard(player, otherPlayer.getGameBoard());
+                }
+            }
+        }
 
         gameState = GameState.ROUND_FIVE;
         doRoundFive();
