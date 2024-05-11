@@ -73,6 +73,53 @@ public class Floor {
         if(!fieldChanged)throw new FloorSequenceException("Values within Floor must be in ascending order");
     }
 
+    public boolean canInsertValue(FieldValue value) {
+        if (!isFinalized) {
+            throw new FinalizedException("Floor must be finalized.");
+        }
+
+        int currentMax = 0;
+        FieldValue nextValue = null;
+
+        for (int i = 0; i < chambers.size(); i++) {
+            Chamber chamber = chambers.get(i);
+            List<Field> fields = chamber.getFields();
+
+            if (i < chambers.size() - 1) {
+                nextValue = getNextValueInNextChamber(i + 1);
+            } else {
+                nextValue = null;
+            }
+
+            for (Field field : fields) {
+                if (field.getFieldValue() == FieldValue.NONE) {
+                    if (value.getValue() > currentMax && (nextValue == null || value.getValue() < nextValue.getValue())) {
+                        return true;
+                    }
+                } else {
+                    currentMax = Math.max(currentMax, field.getFieldValue().getValue());
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private FieldValue getNextValueInNextChamber(int startChamberIndex) {
+        for (int i = startChamberIndex; i < chambers.size(); i++) {
+            for (Field field : chambers.get(i).getFields()) {
+                if (field.getFieldValue() != FieldValue.NONE) {
+                    return field.getFieldValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    public int getFloorSize() {
+        return chambers.stream().mapToInt(Chamber::getSize).sum();
+    }
+
     public Chamber getChamber(int index) {
         if (!isFinalized) {
             throw new FinalizedException("Floor must be finalized.");

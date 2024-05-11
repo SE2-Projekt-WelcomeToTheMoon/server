@@ -1,13 +1,16 @@
 package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.ChoosenCardCombination;
+import WebsocketServer.game.enums.EndType;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.enums.GameState;
+import WebsocketServer.game.exceptions.FloorSequenceException;
 import WebsocketServer.game.exceptions.GameStateException;
 import WebsocketServer.game.services.CardController;
 import WebsocketServer.services.GameService;
 import WebsocketServer.services.user.CreateUserService;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -54,12 +57,27 @@ public class Game {
         doRoundOne();
     }
 
+
+    /**
+     * Draw new card and check if players can find place for new value. If not add System error and check whether the
+     * game is lost.
+     */
     protected void doRoundOne() {
         if (gameState != GameState.ROUND_ONE) {
             throw new GameStateException("Game must be in state ROUND_ONE");
         }
 
         cardController.drawNextCard();
+
+        for(CreateUserService createUserService : players){
+            if(!createUserService.getGameBoard().checkCardCombination(cardController.getLastCardCombination())) {
+                if(createUserService.getGameBoard().addSystemError()){
+                    gameService.informPlayersAboutEndOfGame(null, EndType.SYSTEM_ERROR_EXCEEDED);
+                }else{
+                    gameService.informPlayerAboutSystemerror(createUserService);
+                }
+            }
+        }
 
         sendNewCardCombinationToPlayer();
 
@@ -92,7 +110,12 @@ public class Game {
             throw new GameStateException("Invalid game state for selecting card combinations");
         }
 
-        currentPlayerChoices.put(player, choosenCardCombination);
+        //TODO: Insert check if combination is valid
+        if(player.getGameBoard().checkCardCombination(new CardCombination[]{cardController.getLastCardCombination()[choosenCardCombination.ordinal()]})){
+            currentPlayerChoices.put(player, choosenCardCombination);
+        }else {
+            //TODO: Return failure to client as there is no spot for the chosen combination
+        }
 
         if (clientResponseReceived.incrementAndGet() == players.size()) {
             allClientResponseReceivedFuture.complete(null);
@@ -121,7 +144,11 @@ public class Game {
 
         for(CreateUserService currentPlayer : players){
             if(currentPlayer.equals(player)){
-                currentPlayer.getGameBoard().setValueWithinFloorAtIndex(floor, field, fieldValue);
+                try{
+                    currentPlayer.getGameBoard().setValueWithinFloorAtIndex(floor, field, fieldValue);
+                }catch (FloorSequenceException e){
+                    gameService.sendInvalidCombination(player);
+                }
             }
         }
 
@@ -159,19 +186,29 @@ public class Game {
 
         //Logic for round six where missions can be completed, and it will be
         //checked whether the game is finished or not.
+        List<CreateUserService> winners = checkIfGameIsFinished();
 
-        if (checkIfGameIsFinished()) {
+
+        if (!winners.isEmpty()) {
             gameState = GameState.FINISHED;
+            gameService.informPlayersAboutEndOfGame(winners, EndType.ROCKETS_COMPLETED);
         } else {
             gameState = GameState.ROUND_ONE;
             doRoundOne();
         }
     }
 
-    protected boolean checkIfGameIsFinished() {
+    protected List<CreateUserService> checkIfGameIsFinished() {
         //Check if game is finished
+        List<CreateUserService> winners = new ArrayList<>();
 
-        return true;
+        for(CreateUserService createUserService : players){
+            if(createUserService.getGameBoard().hasWon()){
+                winners.add(createUserService);
+            }
+        }
+
+        return winners;
     }
 
     public void addPlayers(Map<String, CreateUserService> players) {
@@ -181,4 +218,5 @@ public class Game {
     public void addPlayer(CreateUserService player) {
         players.add(player);
     }
+
 }

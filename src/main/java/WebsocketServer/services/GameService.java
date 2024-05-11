@@ -1,5 +1,6 @@
 package WebsocketServer.services;
 
+import WebsocketServer.game.enums.EndType;
 import WebsocketServer.game.model.CardCombination;
 import WebsocketServer.game.model.Game;
 import WebsocketServer.game.services.CardController;
@@ -8,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -45,5 +47,19 @@ public class GameService {
     }
 
     public void sendNewCardCombinationToPlayer(CardCombination[] currentCombination) {
+
+    }
+
+    public void sendInvalidCombination(CreateUserService player) {
+        //TODO: If Player sends invalid selection use this method, to return failure.
+    }
+
+    public void informPlayersAboutEndOfGame(List<CreateUserService> winners, EndType endType) {
+        //TODO: If Player has won, game will call this Method to send information to players.
+    }
+
+    public void informPlayerAboutSystemerror(CreateUserService createUserService) {
+        //TODO: If new card combination and player can't find a spot
+
     }
 }
