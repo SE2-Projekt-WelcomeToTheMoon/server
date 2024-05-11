@@ -7,10 +7,10 @@ import WebsocketServer.services.user.CreateUserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
-import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
 
@@ -21,9 +21,16 @@ public class GameBoardManager {
 
     private GameBoard gameBoardRocket;
     private String emptyGameBoardJSON;
-    private final Logger logger = LogManager.getLogger(GameBoardManager.class);
+    /**
+     * -- SETTER --
+     *  For Testing purposes
+     *
+     * @param logger
+     */
+    @Setter
+    private Logger logger = LogManager.getLogger(GameBoardManager.class);
 
-    public GameBoardManager(WebSocketSession session) {
+    public GameBoardManager() {
         GameBoardService gameBoardService = new GameBoardService();
         this.gameBoardRocket = gameBoardService.createGameBoard();
         initGameBoardJSON();
@@ -38,6 +45,14 @@ public class GameBoardManager {
         } catch (JsonProcessingException e) {
             logger.error("JSON serialization error", e);
         }
+    }
+
+    /**
+     * Just for testing purposes
+     * @return
+     */
+    public String getEmptyGameBoardJSON(){
+        return this.emptyGameBoardJSON;
     }
 
     /**
@@ -66,7 +81,6 @@ public class GameBoardManager {
         } catch (NullPointerException e) {
             logger.error("Failed to update field value due to null object reference", e);
         }
-
     }
 
     public void updateClientGameBoard(CreateUserService player, GameBoard gameBoard) {
@@ -77,16 +91,7 @@ public class GameBoardManager {
         String payload = serializeGameBoard(gameBoard);
         JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("updateGameBoard", player.getUsername(), true, payload, "");
         SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
-
-    }
-
-    public String getGameBoardUser(CreateUserService player) {
-        if (player == null) {
-            logger.warn("Attempted to get game board for null player");
-            return null;
-        }
-
-        return serializeGameBoard(player.getGameBoard());
+        logger.info("GameBoard Update sent for {}", player.getUsername());
     }
 
     String serializeGameBoard(GameBoard gameBoard) {

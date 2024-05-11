@@ -27,7 +27,7 @@ public class GameService {
     public GameService() {
         cardController = new CardController();
         game = new Game(cardController, this);
-        gameBoardManager = new GameBoardManager(null);
+        gameBoardManager = new GameBoardManager();
     }
 
     public void handleStartGame(Map<String, CreateUserService> players) {
@@ -48,7 +48,7 @@ public class GameService {
     }
 
     public void sendNewCardCombinationToPlayer(CardCombination[] currentCombination) {
-
+        //TODO: If new card combination is available, send it to player
     }
 
     public void sendInvalidCombination(CreateUserService player) {
