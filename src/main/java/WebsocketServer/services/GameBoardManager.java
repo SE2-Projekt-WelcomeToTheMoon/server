@@ -19,13 +19,11 @@ import java.util.List;
  */
 public class GameBoardManager {
 
-    private final WebSocketSession session;
     private GameBoard gameBoardRocket;
     private String emptyGameBoardJSON;
     private final Logger logger = LogManager.getLogger(GameBoardManager.class);
 
     public GameBoardManager(WebSocketSession session) {
-        this.session = session;
         GameBoardService gameBoardService = new GameBoardService();
         this.gameBoardRocket = gameBoardService.createGameBoard();
         initGameBoardJSON();
@@ -42,16 +40,22 @@ public class GameBoardManager {
         }
     }
 
-    public boolean updateFromUser(CreateUserService player, String message) {
+    /**
+     * gets FieldUpdateMessage from Client
+     *
+     * @param player
+     * @param message
+     */
+    public void updateUser(CreateUserService player, String message) {
         ObjectMapper mapper = new ObjectMapper();
         FieldUpdateMessage fieldUpdateMessage;
         try {
             fieldUpdateMessage = mapper.readValue(message, FieldUpdateMessage.class);
         } catch (JsonProcessingException e) {
             logger.error("JSON deserialization error", e);
-            return false;
+            return;
         }
-        // just for readbilities sake
+        // just for readabilities sake
         try {
             GameBoard gameBoard = player.getGameBoard();
             Floor floor = gameBoard.getFloorAtIndex(fieldUpdateMessage.floor());
@@ -61,22 +65,19 @@ public class GameBoardManager {
             field.setFieldValue(fieldUpdateMessage.fieldValue());
         } catch (NullPointerException e) {
             logger.error("Failed to update field value due to null object reference", e);
-            return false;
         }
 
-        return true;
     }
 
-    public boolean updateClientGameBoard(CreateUserService player, GameBoard gameBoard) {
+    public void updateClientGameBoard(CreateUserService player, GameBoard gameBoard) {
         if (player == null) {
             logger.warn("Attempted to update game board for null player");
-            return false;
+            return;
         }
         String payload = serializeGameBoard(gameBoard);
         JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("updateGameBoard", player.getUsername(), true, payload, "");
         SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
 
-        return true;
     }
 
     public String getGameBoardUser(CreateUserService player) {

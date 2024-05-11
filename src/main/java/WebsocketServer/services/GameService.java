@@ -31,7 +31,7 @@ public class GameService {
     }
 
     public void handleStartGame(Map<String, CreateUserService> players) {
-        if(!gameStarted){
+        if (!gameStarted) {
             logger.info("GameService fügt player hinzu");
             players.values().forEach(CreateUserService::createGameBoard);
             game.addPlayers(players);
@@ -62,6 +62,10 @@ public class GameService {
     public void informPlayerAboutSystemerror(CreateUserService createUserService) {
         //TODO: If new card combination and player can't find a spot
 
+    }
+
+    public void updateUser(String username, String message) {
+        game.updateUser(username, message);
     }
 
     public void updateClientGameBoard(CreateUserService player, GameBoard gameBoard) {

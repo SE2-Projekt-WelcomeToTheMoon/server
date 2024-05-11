@@ -22,19 +22,19 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     private static final Logger logger = LogManager.getLogger(WebSocketHandlerImpl.class);
     private CreateUserService user;
 
-    public WebSocketHandlerImpl(){
+    public WebSocketHandlerImpl() {
         lobbyService = new LobbyService();
         gameService = new GameService();
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        logger.info("Verbindung erfolgreich hergestellt: {} " ,  session.getId());
+        logger.info("Verbindung erfolgreich hergestellt: {} ", session.getId());
     }
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-        logger.info("Nachricht erhalten: {} " , message.getPayload());
+        logger.info("Nachricht erhalten: {} ", message.getPayload());
 
         if (message.getPayload().equals("Test message")) {
             session.sendMessage(new TextMessage("echo from handler: " + message.getPayload()));
@@ -42,7 +42,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
             JSONObject messageJson = new JSONObject(message.getPayload().toString());
 
             String username = null;
-            if(messageJson.has("username")){
+            if (messageJson.has("username")) {
                 username = messageJson.getString("username");
             }
             String action = messageJson.getString("action");
@@ -52,26 +52,31 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                 case "registerUser":
                     logger.info("Creating user...");
                     user = new CreateUserService(session, username);
-                    if(responseMessage.getBoolean("success")) UserListService.userList.addUser(user);
+                    if (responseMessage.getBoolean("success")) UserListService.userList.addUser(user);
                     SendMessageService.sendSingleMessage(session, responseMessage);
                     responseMessage = null;
                     break;
                 case "joinLobby":
-                    logger.info("Case joinLobby: {} ",  username );
+                    logger.info("Case joinLobby: {} ", username);
                     lobbyService.handleJoinLobby(session, messageJson);
                     break;
                 case "leaveLobby":
-                    logger.info("Case leaveLobby: {} ",  username );
+                    logger.info("Case leaveLobby: {} ", username);
                     lobbyService.handleLeaveLobby(session, messageJson);
                     break;
                 case "requestLobbyUser":
-                    logger.info("Case requestLobbyUser." );
+                    logger.info("Case requestLobbyUser.");
                     lobbyService.handleRequestLobbyUser(session);
                     break;
                 case "startGame":
-                    logger.info("Case startGame: {} ",  username );
-                    Map<String, CreateUserService> players =  lobbyService.handleStartGame(session, messageJson);
+                    logger.info("Case startGame: {} ", username);
+                    Map<String, CreateUserService> players = lobbyService.handleStartGame(session, messageJson);
                     gameService.handleStartGame(players);
+                    break;
+                case "updateUser":
+                    logger.info("Case updateGameBoard: {} ", username);
+                    // could be fatal if .toString() fucks the object up
+                    gameService.updateUser(username, messageJson.toString());
                     break;
                 default:
                     JSONObject response = new JSONObject();
@@ -91,7 +96,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-        if(UserListService.userList.getUserBySessionID(session.getId()) != null){
+        if (UserListService.userList.getUserBySessionID(session.getId()) != null) {
 
             //Removes user from lobby
             String username = UserListService.userList.getUserBySessionID(session.getId()).getUsername();
@@ -101,7 +106,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
             UserListService.userList.deleteUser(session.getId());
             logger.info("User gelöscht.");
         }
-        logger.info(" Verbindung getrennt.: {} ",  session.getId());
+        logger.info(" Verbindung getrennt.: {} ", session.getId());
     }
 
     @Override

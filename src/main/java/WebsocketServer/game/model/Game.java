@@ -228,5 +228,17 @@ public class Game {
     public void addPlayer(CreateUserService player) {
         players.add(player);
     }
+    private CreateUserService getUserByUsername(String username) {
+        for (CreateUserService player : players) {
+            if (player.getUsername().equals(username)) {
+                return player;
+            }
+        }
+        return null;
+    }
+
+    public void updateUser(String username, String message) {
+        gameBoardManager.updateUser(getUserByUsername(username), message);
+    }
 
 }
