@@ -30,11 +30,6 @@ public class CardManagerTest {
     @Mock
     private CardController cardController;
 
-    @Mock
-    private GenerateJSONObjectService generateJSONObjectService;
-    @Mock
-    private Logger logger;
-
     @BeforeEach
     public void setUp() throws IllegalAccessException, NoSuchFieldException {
         MockitoAnnotations.openMocks(this);
