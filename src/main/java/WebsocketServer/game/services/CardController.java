@@ -2,19 +2,21 @@ package WebsocketServer.game.services;
 import WebsocketServer.game.model.CardCombination;
 import WebsocketServer.game.model.CardStack;
 import WebsocketServer.game.model.PlayingCard;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import lombok.Getter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-@Component
-@Scope("prototype")
+/***
+ * Internal class to manage Cards, please use CardManager for game implementation
+ */
 public class CardController {
-    public CardStack cardStack;
-    public int currentPosition;
+    private final CardStack cardStack;
+    @Getter
+    private int currentPosition;
 
-    public CardCombination[] currentCombinations;
-    private LinkedList<CardCombination[]> pastCombinations;
+    @Getter
+    private CardCombination[] currentCombinations;
+    private final LinkedList<CardCombination[]> pastCombinations;
 
     public CardController() {
 
@@ -36,9 +38,9 @@ public class CardController {
         currentPosition++;
         pastCombinations.add(currentCombinations);
         if(currentPosition==20){
-            PlayingCard card0Before=currentCombinations[0].card2;
-            PlayingCard card1Before=currentCombinations[1].card2;
-            PlayingCard card2Before=currentCombinations[2].card2;
+            PlayingCard card0Before= currentCombinations[0].getCard2();
+            PlayingCard card1Before= currentCombinations[1].getCard2();
+            PlayingCard card2Before= currentCombinations[2].getCard2();
             currentPosition=0;
             cardStack.shuffleDeck();
             ArrayList<PlayingCard> cards= (ArrayList<PlayingCard>) cardStack.getCards();
@@ -56,5 +58,22 @@ public class CardController {
 
     public LinkedList<CardCombination[]> getPastCombinations(){
         return this.pastCombinations;
+    }
+
+    /***
+     * Creates a message String with the current Combinations. The Combinations are split by ;
+     * the data inside the combinations is split by - and ordered CombinationNumber-CurrentSymbol-CurrentNumber-NextSymbol
+     * @param combinations The Combinations to be split
+     * @return the created Message String
+     */
+    public static String getCurrentCardMessage(CardCombination[] combinations){
+        if(combinations==null||combinations.length!=3)throw new IllegalArgumentException("Combinations cannot be null or have anything but three entries");
+        StringBuilder cardMessage= new StringBuilder();
+        int count=0;
+        for (CardCombination combination:combinations) {
+            cardMessage.append(String.format("%d-%s-%d-%s;", count, combination.getCurrentSymbol().toString(), combination.getCurrentNumber(), combination.getNextSymbol().toString()));
+            count++;
+        }
+        return cardMessage.toString();
     }
 }

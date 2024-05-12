@@ -1,9 +1,7 @@
 package WebsocketServer.services;
 
 import WebsocketServer.game.enums.EndType;
-import WebsocketServer.game.model.CardCombination;
 import WebsocketServer.game.model.Game;
-import WebsocketServer.game.services.CardController;
 import WebsocketServer.services.user.CreateUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,15 +15,15 @@ public class GameService {
 
     public final Game game;
     public final GameBoardManager gameBoardManager;
-    CardController cardController;
+    private final CardManager cardManager;
     boolean gameStarted = false;
 
     private static final String USERNAME_KEY = "username";
     private static final Logger logger = LoggerFactory.getLogger(GameService.class);
 
     public GameService() {
-        cardController = new CardController();
-        game = new Game(cardController, this);
+        cardManager = new CardManager();
+        game = new Game(cardManager, this);
         gameBoardManager = new GameBoardManager(null);
     }
 
@@ -46,8 +44,9 @@ public class GameService {
         gameBoardManager.informClientsAboutStart(game.getPlayers());
     }
 
-    public void sendNewCardCombinationToPlayer(CardCombination[] currentCombination) {
-
+    public void sendNewCardCombinationToPlayer() {
+        cardManager.drawNextCard();
+        if(!cardManager.sendCurrentCardsToPlayers(game.getPlayers()))logger.error("Error sending cards to players");
     }
 
     public void sendInvalidCombination(CreateUserService player) {

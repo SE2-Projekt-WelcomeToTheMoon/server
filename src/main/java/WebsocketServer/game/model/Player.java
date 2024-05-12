@@ -19,7 +19,10 @@ public class Player {
         playerId = UUID.randomUUID();
     }
 
+    //TODO Add sending to Server
     public void sendCurrentCardCombination(CardCombination[] currentCombination) {
         //TODO: Implement Network Interface to access client and connect it.
+        //String messageString= CardController.getCurrentCardMessage(currentCombination);
+
     }
 }
