@@ -7,6 +7,7 @@ import WebsocketServer.services.user.CreateUserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,12 +21,15 @@ import java.util.List;
 public class GameBoardManager {
 
     private GameBoard gameBoardRocket;
+    /**
+     * -- GETTER --
+     *  Just for testing purposes
+     */
+    @Getter
     private String emptyGameBoardJSON;
     /**
      * -- SETTER --
      *  For Testing purposes
-     *
-     * @param logger
      */
     @Setter
     private Logger logger = LogManager.getLogger(GameBoardManager.class);
@@ -48,18 +52,7 @@ public class GameBoardManager {
     }
 
     /**
-     * Just for testing purposes
-     * @return
-     */
-    public String getEmptyGameBoardJSON(){
-        return this.emptyGameBoardJSON;
-    }
-
-    /**
      * gets FieldUpdateMessage from Client
-     *
-     * @param player
-     * @param message
      */
     public void updateUser(CreateUserService player, String message) {
         ObjectMapper mapper = new ObjectMapper();
@@ -112,7 +105,6 @@ public class GameBoardManager {
     public void informClientsAboutStart(List<CreateUserService> players) {
         for (CreateUserService player : players) {
             logger.info("Player: {} wird informiert", player.getUsername());
-            System.out.println(emptyGameBoardJSON);
             JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("gameIsStarted", player.getUsername(), true, this.emptyGameBoardJSON, "");
             SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         }

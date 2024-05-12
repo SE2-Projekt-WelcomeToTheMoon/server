@@ -69,4 +69,18 @@ class FieldTest {
         field.finalizeField();
         assertThrows(FinalizedException.class, field::finalizeField);
     }
+
+    @Test
+    void testSetFieldValueClient(){
+        Field field = new Field(FieldCategory.ROBOTER);
+        field.finalizeField();
+        field.setFieldValueClient(FieldValue.ONE);
+        assertTrue(field.isChanged());
+    }
+
+    @Test
+    void testSetFieldValueClientBeforeFinalizationThrowsException(){
+        Field field = new Field(FieldCategory.ROBOTER);
+        assertThrows(FinalizedException.class, () -> field.setFieldValueClient(FieldValue.ONE));
+    }
 }
