@@ -27,4 +27,12 @@ public enum FieldValue {
         this.value = weight;
     }
 
+    public static FieldValue fromWeight(int weight) {
+        for (FieldValue fieldValue : FieldValue.values()) {
+            if (fieldValue.getValue() == weight) {
+                return fieldValue;
+            }
+        }
+        return null;
+    }
 }
