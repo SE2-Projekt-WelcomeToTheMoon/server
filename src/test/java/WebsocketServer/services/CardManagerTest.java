@@ -19,7 +19,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class CardManagerTest {
+class CardManagerTest {
     private CardManager cardManager;
     @Mock
     private CreateUserService createUserService;
