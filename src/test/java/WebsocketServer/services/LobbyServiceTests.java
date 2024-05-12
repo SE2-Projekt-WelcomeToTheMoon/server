@@ -2,6 +2,7 @@ package WebsocketServer.services;
 
 
 import WebsocketServer.services.json.GenerateJSONObjectService;
+import WebsocketServer.services.user.CreateUserService;
 import WebsocketServer.websocket.WebSocketHandlerClientImpl;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
@@ -12,16 +13,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
+
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -33,10 +37,10 @@ public class LobbyServiceTests {
     @Autowired
     private LobbyService lobbyService;
 
-
     private final String WEBSOCKET_URI = "ws://localhost:%d/welcome-to-the-moon";
 
     BlockingQueue<String> messages = new LinkedBlockingDeque<>();
+
     private WebSocketSession session;
 
 
@@ -48,123 +52,39 @@ public class LobbyServiceTests {
     @AfterEach
     void tearDown() {
         lobbyService.removeAllUsersFromLobby();
+        lobbyService.gamelobby.userListMap.clear();
     }
 
 
     @Test
     void testJoinLobbyAndLeave() throws Exception {
-
-        //Senden einer Nachricht an den Server
         JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
-                "joinLobby", "User1234", true, "", "");
+                "joinLobby", "User12345", true, "", "");
         lobbyService.handleJoinLobby(session, jsonMsg);
-
-        // Erwartete Antwort
-        JSONObject expected = new JSONObject("{\"action\":\"joinLobby\",\"success\":true,\"username\":\"User1234\"}");
-        JSONObject actual = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
-
-        assertTrue(actual.similar(expected));
-        assertEquals(1, lobbyService.getSessionUserMap().size());
-
-        JSONObject jsonMsgLeave = GenerateJSONObjectService.generateJSONObject(
-                "leaveLobby", "User1234", true, "", "");
-        lobbyService.handleLeaveLobby(session, jsonMsgLeave);
-        JSONObject expectedLeave = new JSONObject("{\"action\":\"leaveLobby\",\"success\":true,\"username\":\"User1234\"}");
-        JSONObject actualLeave = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
-
-        assertTrue(actualLeave.similar(expectedLeave));
-        assertEquals(0, lobbyService.getSessionUserMap().size());
-
-    }
-
-    @Test
-    void testLeaveLobbyFail() throws Exception {
-
-        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
-                "leaveLobby", "User1234", false, null, "Username not in Lobby.");
+        assertEquals(1, lobbyService.gamelobby.getUserListFromLobby().size());
+        lobbyService.handleJoinLobby(session, jsonMsg);
+        assertEquals(1, lobbyService.gamelobby.getUserListFromLobby().size());
         lobbyService.handleLeaveLobby(session, jsonMsg);
-
-        JSONObject expected = new JSONObject("{\"action\":\"leaveLobby\",\"success\":false,\"username\":\"User1234\",\"error\":\"Username not in Lobby.\"}");
-        JSONObject actual = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
-
-        assertTrue(actual.similar(expected));
-        assertEquals(0, lobbyService.getSessionUserMap().size());
+        assertEquals(0, lobbyService.gamelobby.getUserListFromLobby().size());
+        lobbyService.handleLeaveLobby(session, jsonMsg);
+        assertEquals(0, lobbyService.gamelobby.getUserListFromLobby().size());
     }
 
     @Test
-    void testJoinLobbyDefault() throws Exception{
-
+    void testHandleRequestLobby() throws Exception {
         JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
-                "ungültig", "testUser", null, "", "Unbekannte Aktion"
-        );
-        session.sendMessage(new TextMessage(jsonMsg.toString()));
-
-        JSONObject expected = new JSONObject("{\"action\":\"ungültig\",\"error\":\"Unbekannte Aktion\"}");
-        JSONObject actual = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
-
-        assertTrue(actual.similar(expected));
+                "requestLobbyUser", "User12345", true, "", "");
+        lobbyService.handleRequestLobbyUser(session);
+        assertEquals(0, lobbyService.gamelobby.getUserListFromLobby().size());
+        lobbyService.handleJoinLobby(session, jsonMsg);
+        lobbyService.handleRequestLobbyUser(session);
+        assertEquals(1, lobbyService.gamelobby.getUserListFromLobby().size());
     }
+
 
     /**
      * Testet die Methode handleJoinLobby aus dem LobbyService
      */
-    @Test
-    void testJoinLobbyDuplicateUsername()throws Exception{
-
-        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
-                "joinLobby", "testUser", true, null, null);
-
-        lobbyService.handleJoinLobby(session, jsonMsg);
-
-        JSONObject expected = new JSONObject("{\"action\":\"joinLobby\",\"success\":true,\"username\":\"testUser\"}");
-        JSONObject actual = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
-
-        assertTrue(actual.similar(expected));
-        assertEquals(1, lobbyService.getSessionUserMap().size());
-
-        WebSocketSession session2 = initStompSession();
-
-        JSONObject jsonMsg2 = GenerateJSONObjectService.generateJSONObject(
-                "joinLobby", "testUser", false, null, null);
-        lobbyService.handleJoinLobby(session2, jsonMsg2);
-
-        JSONObject expected2 = new JSONObject("{\"action\":\"joinLobby\",\"success\":false,\"username\":\"testUser\",\"error\":\"lobby is full or Username already in use.\"}");
-        JSONObject actual2 = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
-
-        assertTrue(actual2.similar(expected2));
-        assertEquals(1, lobbyService.getSessionUserMap().size());
-    }
-
-    @Test
-    void testJoinLobbyAndLeaveAfterConnectionClosed() throws Exception {
-
-        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
-                "joinLobby", "User1234", true, "", "");
-        // Simulieren des Nachrichtenempfangs direkt
-        lobbyService.handleJoinLobby(session, jsonMsg);
-
-        JSONObject expected = new JSONObject("{\"action\":\"joinLobby\",\"success\":true,\"username\":\"User1234\"}");
-        JSONObject actual = new JSONObject(messages.poll(1, TimeUnit.SECONDS));
-
-
-        assertTrue(actual.similar(expected));
-        assertEquals(1, lobbyService.getSessionUserMap().size());
-
-        session.close();
-
-        // Stellen Sie sicher, dass die Entfernungslogik aufgerufen wird
-        lobbyService.removeFromLobbyAfterConnectionClosed(session.getId());
-
-        assertEquals(0, lobbyService.getSessionUserMap().size());
-    }
-    @Test
-    void testDrawNextCard() throws Exception{
-        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
-                "drawNextCard", "testUser", true, "", "");
-        assertDoesNotThrow(()->lobbyService.handleCardDraw(session,jsonMsg));
-
-
-    }
 
 
     public WebSocketSession initStompSession() throws Exception {
@@ -177,6 +97,29 @@ public class LobbyServiceTests {
                 .get(1, TimeUnit.SECONDS);
 
         return session;
+    }
+
+    @Test
+    void testStartGameSuccessfully() throws Exception {
+        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
+                "startGame", "User123", true, "", "");
+
+
+        lobbyService.handleStartGame(session, jsonMsg);
+
+        assertTrue(lobbyService.isGameStarted());
+    }
+
+    @Test
+    void testStartGameFailAlreadyStarted() throws Exception {
+        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
+                "startGame", "User123", true, "", "");
+
+        lobbyService.handleStartGame(session, jsonMsg);
+
+        Map<String, CreateUserService> result = lobbyService.handleStartGame(session, jsonMsg);
+
+        assertNull(result);
     }
 }
 

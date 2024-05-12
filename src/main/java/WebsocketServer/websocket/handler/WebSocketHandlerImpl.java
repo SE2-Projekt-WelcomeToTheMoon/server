@@ -1,10 +1,9 @@
 package WebsocketServer.websocket.handler;
 
-import WebsocketServer.game.lobby.Lobby;
+import WebsocketServer.services.GameService;
 import WebsocketServer.services.SendMessageService;
 import WebsocketServer.services.user.CreateUserService;
 import WebsocketServer.services.LobbyService;
-import lombok.Getter;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,8 +11,11 @@ import WebsocketServer.services.user.UserListService;
 import org.json.JSONObject;
 import org.springframework.web.socket.*;
 
+import java.util.Map;
+
 public class WebSocketHandlerImpl implements WebSocketHandler {
 
+    public static GameService gameService;
     public static LobbyService lobbyService;
     @Getter
     public static JSONObject responseMessage;
@@ -21,8 +23,8 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     private CreateUserService user;
 
     public WebSocketHandlerImpl(){
-        Lobby gameLobby = new Lobby();
-        lobbyService = new LobbyService(gameLobby);
+        lobbyService = new LobbyService();
+        gameService = new GameService();
     }
 
     @Override
@@ -39,7 +41,10 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
         } else {
             JSONObject messageJson = new JSONObject(message.getPayload().toString());
 
-            String username = messageJson.getString("username");
+            String username = null;
+            if(messageJson.has("username")){
+                username = messageJson.getString("username");
+            }
             String action = messageJson.getString("action");
 
             //Checks which action was requested by client.
@@ -59,9 +64,14 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     logger.info("Case leaveLobby: {} ",  username );
                     lobbyService.handleLeaveLobby(session, messageJson);
                     break;
-                case "getNextCard":
-                    logger.info("Case getNextCard: {}",username);
-                    lobbyService.handleCardDraw(session,messageJson);
+                case "requestLobbyUser":
+                    logger.info("Case requestLobbyUser." );
+                    lobbyService.handleRequestLobbyUser(session);
+                    break;
+                case "startGame":
+                    logger.info("Case startGame: {} ",  username );
+                    Map<String, CreateUserService> players =  lobbyService.handleStartGame(session, messageJson);
+                    gameService.handleStartGame(players);
                     break;
                 default:
                     JSONObject response = new JSONObject();
@@ -81,17 +91,17 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-        //Deletes registered user
         if(UserListService.userList.getUserBySessionID(session.getId()) != null){
+
+            //Removes user from lobby
+            String username = UserListService.userList.getUserBySessionID(session.getId()).getUsername();
+            lobbyService.gamelobby.removePlayerFromLobbyByName(username);
+            logger.info("User nicht mehr in der Lobby vorhanden(ConnectionCloses).{}", session.getId());
+
             UserListService.userList.deleteUser(session.getId());
             logger.info("User gelöscht.");
         }
-        //Removes user from lobby
-        lobbyService.removeFromLobbyAfterConnectionClosed(session.getId());
-        logger.info("User nicht mehr in der Lobby vorhanden.");
-
-        logger.info("Verbindung getrennt: {} ",  session.getId());
-
+        logger.info(" Verbindung getrennt.: {} ",  session.getId());
     }
 
     @Override

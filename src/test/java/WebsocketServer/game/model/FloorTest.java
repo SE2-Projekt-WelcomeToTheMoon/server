@@ -2,10 +2,14 @@ package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.enums.FieldValue;
+import WebsocketServer.game.enums.RewardCategory;
 import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -230,5 +234,132 @@ class FloorTest {
         assertThrows(FloorSequenceException.class, () -> floor.setFieldAtIndex(4,FieldValue.FOUR));
     }
 
+    @Test
+    void testGetChambersList(){
+        List<Chamber> chambers = new ArrayList<>();
+        Chamber chamber1 = new Chamber(FieldCategory.ENERGIE);
+        chambers.add(chamber1);
 
+        Floor floor1 = new Floor(FieldCategory.ENERGIE);
+        floor1.addChamber(chamber1);
+
+        assertEquals(chambers, floor1.getChambers());
+    }
+
+    @Test
+    void testCanInsertValueThrowsIfNotFinalized() {
+        assertThrows(FinalizedException.class, () -> floor.canInsertValue(FieldValue.ONE));
+    }
+
+    @Test
+    void testCanInsertValueValidSimpleInsert() {
+        floor.addChamber(chamberCompatible);
+        floor.addChamber(chamberAllNull);
+        floor.finalizeFloor();
+        assertTrue(floor.canInsertValue(FieldValue.THREE));
+    }
+
+    @Test
+    void testCanInsertValueValidAcrossChambers() {
+        floor.addChamber(chamberCompatible);
+        floor.addChamber(secondChamberCompatible);
+        secondChamberCompatible.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+        floor.finalizeFloor();
+        assertTrue(floor.canInsertValue(FieldValue.FIVE));
+    }
+
+    @Test
+    void testCanInsertValueInvalidDueToNextValue() {
+        floor.addChamber(chamberCompatible);
+        floor.addChamber(secondChamberCompatible);
+        floor.finalizeFloor();
+        assertFalse(floor.canInsertValue(FieldValue.SIX));
+    }
+
+    @Test
+    void testCanInsertValueInvalidDueToLowValue() {
+        floor.addChamber(chamberCompatible);
+        floor.addChamber(secondChamberCompatible);
+        floor.finalizeFloor();
+        assertFalse(floor.canInsertValue(FieldValue.ONE));
+    }
+
+    @Test
+    void testCanInsertValueValidAtStart() {
+        floor.addChamber(chamberAllNull);
+        floor.addChamber(secondChamberCompatible);
+        floor.finalizeFloor();
+        assertTrue(floor.canInsertValue(FieldValue.ONE));
+    }
+
+    @Test
+    void testCanInsertValueInvalidAtEndDueToNextValue() {
+        floor.addChamber(chamberCompatible);
+        floor.addChamber(secondChamberCompatible);
+        floor.addChamber(chamberAllNull);
+        floor.finalizeFloor();
+        assertFalse(floor.canInsertValue(FieldValue.THREE));
+    }
+
+    @Test
+    void testCanInsertValueWithNextValueNull() {
+        Floor floor = new Floor(FieldCategory.ROBOTER);
+        Chamber chamber = new Chamber(FieldCategory.ROBOTER);
+        chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
+        chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
+        chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+
+        floor.addChamber(chamber);
+        floor.finalizeFloor();
+
+        assertTrue(floor.canInsertValue(FieldValue.THREE));
+    }
+
+    @Test
+    void testCanInsertValueLessThanNextValue() {
+        Floor floor = new Floor(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER);
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
+
+        Chamber chamber2 = new Chamber(FieldCategory.ROBOTER);
+        chamber2.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+        chamber2.addField(new Field(FieldCategory.ROBOTER, FieldValue.FIVE));
+
+        floor.addChamber(chamber1);
+        floor.addChamber(chamber2);
+        floor.finalizeFloor();
+
+        assertTrue(floor.canInsertValue(FieldValue.THREE));
+    }
+
+    @Test
+    void testCanInsertValueNotGreaterThanCurrentMax() {
+        Floor floor = new Floor(FieldCategory.ROBOTER);
+        Chamber chamber = new Chamber(FieldCategory.ROBOTER);
+        chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
+        chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.FOUR));
+
+        floor.addChamber(chamber);
+        floor.finalizeFloor();
+
+        assertFalse(floor.canInsertValue(FieldValue.THREE));
+    }
+
+    @Test
+    void testCanInsertValueNotLessThanNextValue() {
+        Floor floor = new Floor(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER);
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
+
+        Chamber chamber2 = new Chamber(FieldCategory.ROBOTER);
+        chamber2.addField(new Field(FieldCategory.ROBOTER, FieldValue.THREE));
+
+        floor.addChamber(chamber1);
+        floor.addChamber(chamber2);
+        floor.finalizeFloor();
+
+        assertFalse(floor.canInsertValue(FieldValue.FOUR));
+    }
 }

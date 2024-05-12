@@ -1,5 +1,6 @@
 package WebsocketServer.services;
 
+import WebsocketServer.services.user.CreateUserService;
 import WebsocketServer.services.user.UserListService;
 import WebsocketServer.websocket.handler.WebSocketHandlerImpl;
 import lombok.SneakyThrows;
@@ -18,7 +19,22 @@ public class SendMessageService {
     private static final Logger logger = LogManager.getLogger(String.valueOf(SendMessageService.class));
 
     /**
-     * Method to send one message to a specific client.
+     * Method to send one message to a specific client via username.
+     * @param username Client to send the message.
+     * @param messageToSend Message to send to client.
+     */
+    @SneakyThrows
+    public static void sendSingleMessage(String username, JSONObject messageToSend){
+        for (CreateUserService user : WebSocketHandlerImpl.lobbyService.getUsersInLobby()){
+            if(user.getUsername().equals(username)){
+                WebSocketSession session = user.getSession();
+                sendSingleMessage(session, messageToSend);
+            }
+        }
+    }
+
+    /**
+     * Method to send one message to a specific client via session.
      * @param session Client to send the message.
      * @param messageToSend Message to send to client.
      */
@@ -37,13 +53,25 @@ public class SendMessageService {
     @SneakyThrows
     public static void sendMessagesToAllUsers(JSONObject messageToSend){
         if(checkMessage(messageToSend)) {
-            ArrayList<String> usernames = WebSocketHandlerImpl.lobbyService.getUsersInLobby();
-            for(String username : usernames){
-                WebSocketSession session = UserListService.userList.getUserByUsername(username).getSession();
+            ArrayList<CreateUserService> users = WebSocketHandlerImpl.lobbyService.getUsersInLobby();
+            for(CreateUserService user : users){
+                WebSocketSession session = user.getSession();
                 session.sendMessage(new TextMessage(messageToSend.toString()));
             }
             logger.info("Message sent to all users.");
         }else logger.warn("Message incomplete. Message not sent.");
+    }
+    @SneakyThrows
+    public static void sendMessageToAllUsersBySession(JSONObject messageToSend){
+        if(checkMessage(messageToSend)) {
+            ArrayList<CreateUserService> users = UserListService.userList.getAllUsers();
+            for(CreateUserService user : users){
+                WebSocketSession session = user.getSession();
+                session.sendMessage(new TextMessage(messageToSend.toString()));
+                logger.info("Message sent to User (by connection): {} . ", user.getUsername());
+            }
+            logger.info("Message sent to all users by connection.");
+        }else logger.warn("Message incomplete. Message not sent by connection .");
     }
 
     /**
@@ -52,6 +80,6 @@ public class SendMessageService {
      * @return Boolean value if message to send has needed keys or not.
      */
     private static boolean checkMessage(JSONObject messageToCheck){
-        return ((messageToCheck.getString("action") != null) & !(messageToCheck.getString("action").isEmpty()));
+        return ((messageToCheck.getString("action") != null) && !(messageToCheck.getString("action").isEmpty()));
     }
 }

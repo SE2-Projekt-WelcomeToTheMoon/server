@@ -1,9 +1,12 @@
 package WebsocketServer.services.user;
 
+import WebsocketServer.game.model.GameBoard;
+import WebsocketServer.game.services.GameBoardService;
 import WebsocketServer.services.json.ActionValues;
 import WebsocketServer.services.json.GenerateJSONObjectService;
 import WebsocketServer.websocket.handler.WebSocketHandlerImpl;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,6 +26,9 @@ public class CreateUserService {
     private String username;
     @Getter
     private WebSocketSession session;
+    @Getter
+    @Setter
+    private GameBoard gameBoard;
 
     public CreateUserService(WebSocketSession session, String username){
         registerUser(session, username);
@@ -75,5 +81,10 @@ public class CreateUserService {
                     "No username has been passed. User not created.", "");
             logger.warn("No username has been passed. User not created.");
         }
+    }
+
+    public void createGameBoard() {
+        GameBoardService gameBoardService = new GameBoardService();
+        gameBoard = gameBoardService.createGameBoard();
     }
 }

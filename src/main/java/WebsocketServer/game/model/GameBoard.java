@@ -1,22 +1,28 @@
 package WebsocketServer.game.model;
 
+import WebsocketServer.game.enums.ChoosenCardCombination;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GameBoard {
-    private final List<Floor> floors;
-
-    private final SystemErrors systemErrors;
     @Getter
+    private final List<Floor> floors;
+    private final SystemErrors systemErrors;
+    private final int ROCKETS_TO_COMPLETE = 32;
+
+    private final RocketBarometer rocketBarometer;
+    @Getter(onMethod_ = {@JsonIgnore})
     private boolean isFinalized = false;
 
     public GameBoard() {
         floors = new ArrayList<>();
         systemErrors = new SystemErrors();
+        rocketBarometer = new RocketBarometer();
     }
 
     public void finalizeGameBoard() {
@@ -46,7 +52,7 @@ public class GameBoard {
         }
     }
 
-    public void setValueWithinFloorAtIndex(int floor, int index, FieldValue value) {
+    public void setValueWithinFloorAtIndex(int floor, int index, FieldValue value) throws FloorSequenceException{
         if (!isFinalized) {
             throw new FinalizedException("GameBoard must be finalized.");
         }
@@ -67,6 +73,35 @@ public class GameBoard {
         floors.add(floor);
     }
 
+    public boolean addRockets(int rockets){
+        if (!isFinalized) {
+            throw new FinalizedException("GameBoard must be finalized.");
+        }
+        rocketBarometer.addRockets(rockets);
+        return hasWon();
+    }
+
+    public boolean hasWon() {
+        if (!isFinalized) {
+            throw new FinalizedException("GameBoard must be finalized.");
+        }
+        return rocketBarometer.getRocketCount() - systemErrors.getCurrentErrors() > ROCKETS_TO_COMPLETE;
+    }
+
+    public int getRocketBarometerPoints(){
+        if (!isFinalized) {
+            throw new FinalizedException("GameBoard must be finalized.");
+        }
+        return rocketBarometer.getPointsOfRocketBarometer();
+    }
+
+    public int getRocketCount(){
+        if (!isFinalized) {
+            throw new FinalizedException("GameBoard must be finalized.");
+        }
+        return rocketBarometer.getRocketCount();
+    }
+
     public boolean addSystemError(){
         if (!isFinalized) {
             throw new FinalizedException("GameBoard must be finalized.");
@@ -81,6 +116,7 @@ public class GameBoard {
         return systemErrors.hasLost();
     }
 
+    @JsonIgnore
     public int getRemainingErrors() {
         if (!isFinalized) {
             throw new FinalizedException("GameBoard must be finalized.");
@@ -88,7 +124,23 @@ public class GameBoard {
         return systemErrors.getRemainingErrors();
     }
 
+    @JsonIgnore
     public int getSize() {
         return floors.size();
     }
+
+    public boolean checkCardCombination(CardCombination[] combinations) {
+        //TODO: Check whether the new card combination allows player to find a spot or leads to a system error
+        for(CardCombination currentCombination : combinations){
+            for(Floor floor : floors){
+                if(floor.getFieldCategory().equals(currentCombination.getCurrentSymbol()) &&
+                        floor.canInsertValue(FieldValue.fromWeight(currentCombination.getCurrentNumber()))){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
 }

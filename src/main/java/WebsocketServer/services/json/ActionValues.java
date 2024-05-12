@@ -10,7 +10,9 @@ import lombok.Getter;
 public enum ActionValues {
     REGISTERUSER("registerUser"),
     JOINLOBBY("joinLobby"),
-    LEAVELOBBY("leaveLobby");
+    LEAVELOBBY("leaveLobby"),
+    REQUESTLOBBYUSER("requestLobbyUser"),
+    STARTGAME("startGame");
 
     private final String value;
     ActionValues(String action){
