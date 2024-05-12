@@ -6,6 +6,7 @@ import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.GameStateException;
 import WebsocketServer.game.services.CardController;
 import WebsocketServer.game.services.GameBoardService;
+import WebsocketServer.services.GameBoardManager;
 import WebsocketServer.services.GameService;
 import WebsocketServer.services.user.CreateUserService;
 import org.hamcrest.core.IsAnything;
@@ -25,8 +26,7 @@ import java.util.concurrent.ExecutionException;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @DirtiesContext
@@ -44,6 +44,8 @@ class GameTest {
     GameBoard mockedGameBoard1;
     @Mock
     GameBoard mockedGameBoard2;
+    @Mock
+    GameBoardManager mockedGameBoardManager;
 
 
     @Mock
@@ -141,6 +143,23 @@ class GameTest {
         when(mockedGameBoard2.checkCardCombination(any())).thenReturn(true);
 
         mockedGame.doRoundOne();
+    }
+
+    @Test
+    void testGetUserByUserName() {
+        assertNotNull(game.getUserByUsername("Player1"));
+        assertNull(game.getUserByUsername("Player3"));
+    }
+
+    @Test
+    void testUpdateUser() {
+        game.setGameBoardManager(mockedGameBoardManager);
+        game.addPlayer(player2);
+
+        game.updateUser("Player1", "message");
+
+        verify(mockedGameBoardManager, times(1)).updateUser(any(), any());
+        verify(mockedGameBoardManager, times(1)).updateClientGameBoardFromGame(any(), any());
     }
 
 }

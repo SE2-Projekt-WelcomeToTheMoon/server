@@ -83,21 +83,26 @@ public class GameBoardManager {
         }
     }
 
-    public void updateClientGameBoard(CreateUserService player, GameBoard gameBoard) {
+    public void updateClientGameBoard(CreateUserService player, FieldUpdateMessage fieldUpdateMessage) {
         if (player == null) {
             logger.warn("Attempted to update game board for null player");
             return;
         }
-        String payload = serializeGameBoard(gameBoard);
-        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("updateGameBoard", player.getUsername(), true, payload, "");
+        String payload = serializeFieldUpdateMessage(fieldUpdateMessage);
+        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("updateUser", player.getUsername(), true, payload, "");
         SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         logger.info("GameBoard Update sent for {}", player.getUsername());
     }
+    public void updateClientGameBoardFromGame(CreateUserService player, String payload){
+        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("updateUser", player.getUsername(), true, payload, "");
+        SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
+        logger.info("Rerouted GameBoard Update sent for {}", player.getUsername());
+    }
 
-    String serializeGameBoard(GameBoard gameBoard) {
+    String serializeFieldUpdateMessage(FieldUpdateMessage fieldUpdateMessage) {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            return mapper.writeValueAsString(gameBoard);
+            return mapper.writeValueAsString(fieldUpdateMessage);
         } catch (JsonProcessingException e) {
             logger.error("JSON serialization error", e);
             return null;

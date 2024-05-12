@@ -31,6 +31,7 @@ public class Game {
     @Getter
     List<CreateUserService> players;
     GameService gameService;
+    @Setter
     GameBoardManager gameBoardManager;
     CardController cardController;
     HashMap<CreateUserService, ChoosenCardCombination> currentPlayerChoices;
@@ -220,7 +221,7 @@ public class Game {
     public void addPlayer(CreateUserService player) {
         players.add(player);
     }
-    private CreateUserService getUserByUsername(String username) {
+    public CreateUserService getUserByUsername(String username) {
         for (CreateUserService player : players) {
             if (player.getUsername().equals(username)) {
                 return player;
@@ -229,21 +230,18 @@ public class Game {
         return null;
     }
 
+    /**
+     * when client sends update to server, and it gets approved, also reroutes the message to all other clients
+     * TODO put it somewhere into the rounds
+     * @param username
+     * @param message
+     */
     public void updateUser(String username, String message) {
         gameBoardManager.updateUser(getUserByUsername(username), message);
-    }
-
-    /**
-     * TODO: put this somewhere where it doesnt break anything
-     */
-    public void updateAllUsers(){
         for (CreateUserService player : players) {
-            for (CreateUserService otherPlayer : players) {
-                if (!player.equals(otherPlayer)) {
-                    gameService.updateClientGameBoard(player, otherPlayer.getGameBoard());
-                }
+            if (!player.getUsername().equals(username)) {
+                gameBoardManager.updateClientGameBoardFromGame(player, message);
             }
         }
     }
-
 }

@@ -2,6 +2,7 @@ package WebsocketServer.services;
 
 import WebsocketServer.game.enums.EndType;
 import WebsocketServer.game.model.CardCombination;
+import WebsocketServer.game.model.FieldUpdateMessage;
 import WebsocketServer.game.model.Game;
 import WebsocketServer.game.model.GameBoard;
 import WebsocketServer.game.services.CardController;
@@ -68,7 +69,7 @@ public class GameService {
         game.updateUser(username, message);
     }
 
-    public void updateClientGameBoard(CreateUserService player, GameBoard gameBoard) {
-        gameBoardManager.updateClientGameBoard(player, gameBoard);
+    public void updateClientGameBoard(CreateUserService player, FieldUpdateMessage fieldUpdateMessage) {
+        gameBoardManager.updateClientGameBoard(player, fieldUpdateMessage);
     }
 }
