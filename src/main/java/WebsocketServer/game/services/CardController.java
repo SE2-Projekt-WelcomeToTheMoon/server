@@ -6,7 +6,9 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-
+/***
+ * Internal class to manage Cards, please use CardManager for game implementation
+ */
 public class CardController {
     private final CardStack cardStack;
     @Getter
