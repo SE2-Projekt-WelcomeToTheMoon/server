@@ -27,6 +27,6 @@ public class MissionCard {
 
     public void flipCard() {
         this.isFlipped = true;
-        this.reward = new Reward(RewardCategory.PLANING, this.reward.getNumberRockets() / 2); // Adjust reward based on game rules
+        this.reward = new Reward(reward.getCategory(), reward.getNumberRockets() - 1); // Decrease rockets by 1 upon flipping (because all rewards in the first map are decreased by 1)
     }
 }

@@ -222,19 +222,4 @@ public class Game {
     public void addPlayer(CreateUserService player) {
         players.add(player);
     }
-
-    public void checkMissions() {
-        if (checkAllRobotsTasksCompleted()) {
-            gameBoard.checkAndFlipMissionCards("Complete all robot tasks");
-            gameService.notifyAllPlayers("Mission 'Complete all robot tasks' completed and card flipped.");
-        }
-    }
-
-    private boolean checkAllRobotsTasksCompleted() {
-        return gameBoard.getFloors().stream()
-            .filter(floor -> floor.getFieldCategory() == FieldCategory.ROBOTER)
-            .allMatch(floor -> floor.getChambers().stream()
-                .allMatch(chamber -> chamber.getFields().stream()
-                    .allMatch(field -> field.getFieldValue().getValue() >= 1)));
-    }
 }

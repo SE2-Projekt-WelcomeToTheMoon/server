@@ -3,9 +3,11 @@ package WebsocketServer.services;
 import WebsocketServer.game.enums.EndType;
 import WebsocketServer.game.model.CardCombination;
 import WebsocketServer.game.model.Game;
+import WebsocketServer.game.model.MissionCard;
 import WebsocketServer.game.services.CardController;
 import WebsocketServer.services.user.CreateUserService;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,4 +88,20 @@ public class GameService {
             System.err.println("Failed to send message to player: " + e.getMessage());
         }
     }
+
+    public void notifyPlayersMissionFlipped(MissionCard card) {
+    JSONObject message = new JSONObject();
+    try {
+        message.put("action", "missionFlipped");
+        message.put("missionDescription", card.getMissionDescription());
+        message.put("newReward", card.getReward().getNumberRockets());
+        message.put("flipped", true);
+    } catch (JSONException e) {
+        e.printStackTrace();
+    }
+
+    for (CreateUserService player : players) {
+        SendMessageService.sendSingleMessage(player.getSession(), message);
+    }
+}
 }

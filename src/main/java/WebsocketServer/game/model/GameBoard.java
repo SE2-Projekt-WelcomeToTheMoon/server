@@ -1,14 +1,20 @@
 package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.ChoosenCardCombination;
+import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.enums.RewardCategory;
 import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
+import WebsocketServer.services.GameService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
+
+import org.json.JSONObject;
 
 public class GameBoard {
     @Getter
@@ -20,6 +26,8 @@ public class GameBoard {
     private final RocketBarometer rocketBarometer;
     @Getter(onMethod_ = {@JsonIgnore})
     private boolean isFinalized = false;
+
+private GameService gameService;
 
     public GameBoard() {
         floors = new ArrayList<>();
@@ -148,9 +156,13 @@ public class GameBoard {
 
     private List<MissionCard> initializeMissionCards() {
         List<MissionCard> cards = new ArrayList<>();
-        cards.add(new MissionCard("Test 1", new Reward(RewardCategory.ROCKET, 5)));
-        cards.add(new MissionCard("Test 2", new Reward(RewardCategory.ROCKET, 5)));
-        // Other Cards
+        Random random = new Random();
+
+        // Initialize mission cards randomly as A1 or A2, B1 or B2, C1 or C2
+        cards.add(new MissionCard("Mission A", new Reward(RewardCategory.ROCKET, random.nextBoolean() ? 3 : 2)));
+        cards.add(new MissionCard("Mission B", new Reward(RewardCategory.ROCKET, random.nextBoolean() ? 3 : 2)));
+        cards.add(new MissionCard("Mission C", new Reward(RewardCategory.ROCKET, random.nextBoolean() ? 3 : 2)));
+
         return cards;
     }
 
@@ -158,12 +170,52 @@ public class GameBoard {
         for (MissionCard card : missionCards) {
             if (!card.isFlipped() && card.getMissionDescription().equals(missionDescription)) {
                 card.flipCard();
-                informAllPlayersAboutFlip(card);
+                gameService.notifyPlayersMissionFlipped(card);
             }
         }
     }
 
-    private void informAllPlayersAboutFlip(MissionCard card) {
-        // TODO: Inform players that mission card was flipped
+     public void checkMissions() {
+        for (MissionCard missionCard : missionCards) {
+                switch (missionCard.getMissionDescription()) {
+                    case "Mission A1":
+                if (areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER)) {
+                    checkAndFlipMissionCards("Mission A1");
+                }
+                break;
+            case "Mission A2":
+                if (areAllFieldsNumbered(FieldCategory.ROBOTER, FieldCategory.PLANUNG)) {
+                    checkAndFlipMissionCards("Mission A2");
+                }
+                break;
+            case "Mission B1":
+                if (areAllFieldsNumbered(FieldCategory.ENERGIE)) {
+                    checkAndFlipMissionCards("Mission B1");
+                }
+                break;
+            case "Mission B2":
+                if (areAllFieldsNumbered(FieldCategory.PFLANZE)) {
+                    checkAndFlipMissionCards("Mission B2");
+                }
+                break;
+            case "Mission C1":
+                if (systemErrors.getCurrentErrors() >= 5) {
+                    checkAndFlipMissionCards("Mission C1");
+                }
+                break;
+            case "Mission C2":
+                //TODO: Implement Mission Card, if 10 X are entered
+                break;
+            }
+        }
     }
+
+    private boolean areAllFieldsNumbered(FieldCategory... categories) {
+        return floors.stream()
+            .filter(floor -> Arrays.asList(categories).contains(floor.getFieldCategory()))
+            .allMatch(floor -> floor.getChambers().stream()
+                .allMatch(chamber -> chamber.getFields().stream()
+                    .allMatch(field -> field.getFieldValue() != FieldValue.NONE)));
+    }
+
 }
