@@ -1,7 +1,6 @@
 package WebsocketServer.services;
 
 import WebsocketServer.game.enums.EndType;
-import WebsocketServer.game.model.CardCombination;
 import WebsocketServer.game.model.Game;
 import WebsocketServer.services.user.CreateUserService;
 import org.slf4j.Logger;
@@ -16,14 +15,14 @@ public class GameService {
 
     public final Game game;
     public final GameBoardManager gameBoardManager;
-    CardManager cardManager;
+    private final CardManager cardManager;
     boolean gameStarted = false;
 
     private static final String USERNAME_KEY = "username";
     private static final Logger logger = LoggerFactory.getLogger(GameService.class);
 
     public GameService() {
-        cardManager = new CardManager(null);
+        cardManager = new CardManager();
         game = new Game(cardManager, this);
         gameBoardManager = new GameBoardManager(null);
     }

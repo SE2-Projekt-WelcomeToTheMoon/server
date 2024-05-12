@@ -7,18 +7,17 @@ import WebsocketServer.services.user.CreateUserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
-import org.springframework.web.socket.WebSocketSession;
-
+import org.springframework.stereotype.Service;
 import java.util.List;
-
+@Service
 public class CardManager {
 
     private final CardController cardController;
-    private final WebSocketSession session;
+
     private final Logger logger = LogManager.getLogger(CardManager.class);
 
-    public CardManager(WebSocketSession session) {
-        this.session = session;
+    public CardManager() {
+
         this.cardController=new CardController();
     }
     public void drawNextCard(){
@@ -27,7 +26,7 @@ public class CardManager {
     }
 
     public CardCombination[] getCurrentCombination(){
-        return cardController.currentCombinations;
+        return cardController.getCurrentCombinations();
     }
 
     public boolean sendCurrentCardsToPlayers(List<CreateUserService> players){
@@ -36,14 +35,14 @@ public class CardManager {
             return false;
         }
 
-        String cardData= CardController.getCurrentCardMessage(this.cardController.currentCombinations);
+        String cardData= CardController.getCurrentCardMessage(this.cardController.getCurrentCombinations());
         for (CreateUserService player : players) {
             if (player == null){
                 logger.warn("Player is null");
                 return false;
             }
             JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("nextCardDraw", player.getUsername(), true,cardData , "");
-            SendMessageService.sendSingleMessage(this.session, jsonObject);
+            SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         }
         return true;
     }

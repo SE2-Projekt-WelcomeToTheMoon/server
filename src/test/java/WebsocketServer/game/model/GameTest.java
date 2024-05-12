@@ -4,14 +4,12 @@ import WebsocketServer.game.enums.ChoosenCardCombination;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.GameStateException;
-import WebsocketServer.game.services.CardController;
 import WebsocketServer.game.services.GameBoardService;
+import WebsocketServer.services.CardManager;
 import WebsocketServer.services.GameService;
 import WebsocketServer.services.user.CreateUserService;
-import org.hamcrest.core.IsAnything;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +37,7 @@ class GameTest {
     @Mock
     GameService mockedGameService;
     @Mock
-    CardController mockedCardController;
+    CardManager mockedCardManager;
     @Mock
     GameBoard mockedGameBoard1;
     @Mock
@@ -83,7 +81,7 @@ class GameTest {
 
     }
     @Test
-    void testStartGameSuccess() throws InterruptedException, ExecutionException, ExecutionException {
+    void testStartGameSuccess() throws InterruptedException, ExecutionException {
         game.addPlayer(player2);
         game.startGame();
 
@@ -124,14 +122,14 @@ class GameTest {
 
 
         // Attempt to run doRoundOne and expect a GameStateException
-        ReflectionTestUtils.setField(mockedGame, "cardController", mockedCardController);
+        ReflectionTestUtils.setField(mockedGame, "cardManager", mockedCardManager);
         ReflectionTestUtils.setField(mockedGame, "gameService", mockedGameService);
         when(mockedGame.getGameState()).thenReturn(GameState.ROUND_ONE);
 
         mockedGame.addPlayer(player1);
         mockedGame.addPlayer(player2);
 
-        doNothing().when(mockedCardController).drawNextCard();
+        doNothing().when(mockedCardManager).drawNextCard();
 
         when(player1.getGameBoard()).thenReturn(mockedGameBoard1);
         when(player2.getGameBoard()).thenReturn(mockedGameBoard2);

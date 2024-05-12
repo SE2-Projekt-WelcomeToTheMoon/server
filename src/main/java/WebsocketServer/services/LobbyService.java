@@ -115,7 +115,6 @@ public class LobbyService {
 
 
 
-
     public void removeAllUsersFromLobby() {
         gamelobby.removeAllPlayersFromLobby();
     }
@@ -139,5 +138,3 @@ public class LobbyService {
         return null;
     }
 }
-
-

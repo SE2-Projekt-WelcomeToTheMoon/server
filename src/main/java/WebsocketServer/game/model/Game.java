@@ -36,9 +36,9 @@ public class Game {
     private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
 
 
-    public Game(CardManager cardController, GameService gameService) {
+    public Game(CardManager cardManager, GameService gameService) {
         this.gameState = GameState.INITIAL;
-        this.cardManager = cardController;
+        this.cardManager = cardManager;
         this.players = new ArrayList<>();
         currentPlayerChoices = new HashMap<>();
         this.gameService = gameService;
