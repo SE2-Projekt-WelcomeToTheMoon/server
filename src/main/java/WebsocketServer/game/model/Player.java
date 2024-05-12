@@ -1,6 +1,5 @@
 package WebsocketServer.game.model;
 
-import WebsocketServer.game.services.CardController;
 import WebsocketServer.game.services.GameBoardService;
 import lombok.Getter;
 import org.springframework.context.annotation.Scope;
@@ -23,7 +22,7 @@ public class Player {
     //TODO Add sending to Server
     public void sendCurrentCardCombination(CardCombination[] currentCombination) {
         //TODO: Implement Network Interface to access client and connect it.
-        String messageString= CardController.getCurrentCardMessage(currentCombination);
+        //String messageString= CardController.getCurrentCardMessage(currentCombination);
 
     }
 }
