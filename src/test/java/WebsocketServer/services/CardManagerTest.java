@@ -4,7 +4,6 @@ import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.model.CardCombination;
 import WebsocketServer.game.model.PlayingCard;
 import WebsocketServer.game.services.CardController;
-import WebsocketServer.services.json.GenerateJSONObjectService;
 import WebsocketServer.services.user.CreateUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +15,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -31,7 +29,7 @@ public class CardManagerTest {
     private CardController cardController;
 
     @BeforeEach
-    public void setUp() throws IllegalAccessException, NoSuchFieldException {
+    void setUp() throws IllegalAccessException, NoSuchFieldException {
         MockitoAnnotations.openMocks(this);
         cardManager = new CardManager();
 
@@ -71,7 +69,7 @@ public class CardManagerTest {
     }
 
     @Test
-    public void testSendCurrentCardsToPlayers() {
+    void testSendCurrentCardsToPlayers() {
 
         List<CreateUserService> players = new ArrayList<>();
         players.add(createUserService);
