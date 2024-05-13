@@ -46,7 +46,7 @@ class FloorTest {
 
     @Test
     void testGetFieldCategory(){
-        assertEquals(floor.getFieldCategory(), FieldCategory.ROBOTER);
+        assertEquals(FieldCategory.ROBOTER, floor.getFieldCategory());
     }
 
     @Test
@@ -361,5 +361,25 @@ class FloorTest {
         floor.finalizeFloor();
 
         assertFalse(floor.canInsertValue(FieldValue.FOUR));
+    }
+
+    @Test
+    void testGetFloorSize(){
+        assertEquals(0, floor.getFloorSize());
+        floor.addChamber(chamberCompatible);
+        assertEquals(2, floor.getFloorSize());
+    }
+
+    @Test
+    void testGetNumOfChambers(){
+        floor.addChamber(chamberCompatible);
+        assertEquals(1, floor.getNumberOfChambers());
+    }
+
+    @Test
+    void testGetCorrectChamber(){
+        floor.addChamber(chamberCompatible);
+        floor.finalizeFloor();
+        assertEquals(chamberCompatible, floor.getChamber(0));
     }
 }

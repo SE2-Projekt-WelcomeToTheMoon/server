@@ -1,8 +1,6 @@
 package WebsocketServer.services;
 
 import WebsocketServer.game.enums.EndType;
-import WebsocketServer.game.model.CardCombination;
-import WebsocketServer.game.model.FieldUpdateMessage;
 import WebsocketServer.game.model.Game;
 import WebsocketServer.services.user.CreateUserService;
 import org.slf4j.Logger;
@@ -21,12 +19,12 @@ public class GameService {
     boolean gameStarted = false;
 
     private static final String USERNAME_KEY = "username";
-    private static final Logger logger = LoggerFactory.getLogger(GameService.class);
+    private static Logger logger = LoggerFactory.getLogger(GameService.class);
 
     public GameService() {
         cardManager = new CardManager();
         game = new Game(cardManager, this);
-        gameBoardManager = new GameBoardManager(null);
+        gameBoardManager = new GameBoardManager();
     }
 
     public void handleStartGame(Map<String, CreateUserService> players) {
@@ -40,7 +38,6 @@ public class GameService {
         }
     }
 
-
     public void informClientsAboutStart() {
         logger.info("Player werden über game start informiert");
         gameBoardManager.informClientsAboutStart(game.getPlayers());
@@ -48,20 +45,22 @@ public class GameService {
 
     public void sendNewCardCombinationToPlayer() {
         cardManager.drawNextCard();
-        if(!cardManager.sendCurrentCardsToPlayers(game.getPlayers()))logger.error("Error sending cards to players");
+        if (!cardManager.sendCurrentCardsToPlayers(game.getPlayers())) logger.error("Error sending cards to players");
     }
 
     public void sendInvalidCombination(CreateUserService player) {
+        logger.info("GameService sendInvalidCombination");
         //TODO: If Player sends invalid selection use this method, to return failure.
     }
 
     public void informPlayersAboutEndOfGame(List<CreateUserService> winners, EndType endType) {
+        logger.info("GameService informPlayersAboutEndOfGame");
         //TODO: If Player has won, game will call this Method to send information to players.
     }
 
     public void informPlayerAboutSystemerror(CreateUserService createUserService) {
+        logger.info("GameService informPlayerAboutSystemerror");
         //TODO: If new card combination and player can't find a spot
-
     }
 
     public void updateUser(String username, String message) {
@@ -69,7 +68,8 @@ public class GameService {
         game.updateUser(username, message);
     }
 
-    public void updateClientGameBoard(CreateUserService player, FieldUpdateMessage fieldUpdateMessage) {
-        gameBoardManager.updateClientGameBoard(player, fieldUpdateMessage);
+    // for testing purposes
+    public void setLogger(Logger logger) {
+        GameService.logger = logger;
     }
 }

@@ -5,6 +5,7 @@ import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.GameStateException;
 import WebsocketServer.game.services.GameBoardService;
+import WebsocketServer.services.CardManager;
 import WebsocketServer.services.GameBoardManager;
 import WebsocketServer.services.GameService;
 import WebsocketServer.services.user.CreateUserService;
