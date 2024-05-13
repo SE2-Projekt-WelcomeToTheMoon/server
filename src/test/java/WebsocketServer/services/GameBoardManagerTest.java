@@ -6,7 +6,9 @@ import static org.mockito.Mockito.*;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.model.FieldUpdateMessage;
 import WebsocketServer.game.model.GameBoard;
+import WebsocketServer.game.model.Player;
 import WebsocketServer.game.services.GameBoardService;
+import WebsocketServer.services.json.GenerateJSONObjectService;
 import WebsocketServer.services.user.CreateUserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,11 +27,15 @@ class GameBoardManagerTest {
     private GameBoardManager gameBoardManager;
     private CreateUserService player;
     @Mock
+    private CreateUserService player1;
+    @Mock
+    private CreateUserService player2;
+    @Mock
     private Logger logger;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         gameBoardManager = new GameBoardManager();
         logger = mock(Logger.class);
         this.player = new CreateUserService(mock(WebSocketSession.class), "User");
@@ -157,7 +163,6 @@ class GameBoardManagerTest {
         gameBoardManager.updateClientGameBoardFromGame(player, "test");
         verify(logger).info("Rerouted GameBoard Update sent for {}", player.getUsername());
     }
-
 }
 
 
