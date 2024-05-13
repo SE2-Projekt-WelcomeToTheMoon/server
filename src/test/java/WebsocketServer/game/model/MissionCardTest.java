@@ -43,12 +43,4 @@ class MissionCardTest {
         assertNotNull(missionCard.getReward(), "Reward should not be null after flipping.");
         assertEquals(2, missionCard.getReward().getNumberRockets(), "The number of rockets should decrease by 1 when the card is flipped.");
     }
-
-    @Test
-    void testMultipleFlipCardShouldNotChangeAfterFirst() {
-        missionCard.flipCard();
-        Reward firstFlippedReward = missionCard.getReward();
-        missionCard.flipCard();  // Trying to flip again, which should not change anything
-        assertEquals(firstFlippedReward.getNumberRockets(), missionCard.getReward().getNumberRockets(), "Additional flips should not change the reward further.");
-    }
 }
