@@ -88,7 +88,7 @@ public class GameBoardService {
         return gameBoard;
     }
 
-    //TODO ADD Rewards
+
     private Floor createFloor(FieldCategory fieldCategory, List<Chamber> chambers) {
         Floor floor = new Floor(fieldCategory);
 
