@@ -7,13 +7,10 @@ import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.FloorSequenceException;
 import WebsocketServer.game.exceptions.GameStateException;
-import WebsocketServer.game.services.CardController;
+import WebsocketServer.services.CardManager;
 import WebsocketServer.services.GameService;
 import WebsocketServer.services.user.CreateUserService;
 import lombok.Getter;
-import lombok.Setter;
-
-import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -33,7 +30,7 @@ public class Game {
     @Getter
     List<CreateUserService> players;
     GameService gameService;
-    CardController cardController;
+    CardManager cardManager;
     HashMap<CreateUserService, ChoosenCardCombination> currentPlayerChoices;
 
     private final AtomicInteger clientResponseReceived = new AtomicInteger(0);
@@ -41,9 +38,9 @@ public class Game {
     private GameBoard gameBoard;
 
 
-    public Game(CardController cardController, GameService gameService) {
+    public Game(CardManager cardManager, GameService gameService) {
         this.gameState = GameState.INITIAL;
-        this.cardController = cardController;
+        this.cardManager = cardManager;
         this.players = new ArrayList<>();
         currentPlayerChoices = new HashMap<>();
         this.gameService = gameService;
@@ -71,10 +68,10 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_ONE");
         }
 
-        cardController.drawNextCard();
+        cardManager.drawNextCard();
 
         for(CreateUserService createUserService : players){
-            if(!createUserService.getGameBoard().checkCardCombination(cardController.getLastCardCombination())) {
+            if(!createUserService.getGameBoard().checkCardCombination(cardManager.getCurrentCombination())) {
                 if(createUserService.getGameBoard().addSystemError()){
                     gameService.informPlayersAboutEndOfGame(null, EndType.SYSTEM_ERROR_EXCEEDED);
                 }else{
@@ -90,8 +87,8 @@ public class Game {
     }
 
     private void sendNewCardCombinationToPlayer() {
-        CardCombination[] currentCombination = cardController.getLastCardCombination();
-        gameService.sendNewCardCombinationToPlayer(currentCombination);
+
+        gameService.sendNewCardCombinationToPlayer();
     }
 
     protected void doRoundTwo() {
@@ -115,7 +112,7 @@ public class Game {
         }
 
         //TODO: Insert check if combination is valid
-        if(player.getGameBoard().checkCardCombination(new CardCombination[]{cardController.getLastCardCombination()[choosenCardCombination.ordinal()]})){
+        if(player.getGameBoard().checkCardCombination(new CardCombination[]{cardManager.getCurrentCombination()[choosenCardCombination.ordinal()]})){
             currentPlayerChoices.put(player, choosenCardCombination);
         }else {
             //TODO: Return failure to client as there is no spot for the chosen combination
