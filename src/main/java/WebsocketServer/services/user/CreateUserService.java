@@ -6,7 +6,6 @@ import WebsocketServer.services.json.ActionValues;
 import WebsocketServer.services.json.GenerateJSONObjectService;
 import WebsocketServer.websocket.handler.WebSocketHandlerImpl;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +26,6 @@ public class CreateUserService {
     @Getter
     private WebSocketSession session;
     @Getter
-    @Setter
     private GameBoard gameBoard;
 
     public CreateUserService(WebSocketSession session, String username){
@@ -41,12 +39,9 @@ public class CreateUserService {
      * @return boolean according to if user exists or not.
      */
     public boolean checkUserExists(String sessionID, String username){
-        if(UserListService.userList.getUserBySessionID(sessionID) != null){
-            if(UserListService.userList.getUserByUsername(username) != null) {
-                if(UserListService.userList.getUserBySessionID(sessionID).equals(sessionID)){
-                    if (UserListService.userList.getUserByUsername(username).equals(username)) return false;
-                }
-            }
+        if((UserListService.userList.getUserByUsername(username) != null) || (UserListService.userList.getUserBySessionID(sessionID) != null)){
+            if(UserListService.userList.getUserByUsername(username).getUsername().equals(username)) return false;
+            if (UserListService.userList.getUserBySessionID(sessionID).getSessionID().equals(sessionID)) return false;
         } else return true;
         return false;
     }
