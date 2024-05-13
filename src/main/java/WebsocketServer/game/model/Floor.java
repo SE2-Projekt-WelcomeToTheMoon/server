@@ -19,6 +19,7 @@ public class Floor {
     @Getter
     @JsonIgnore
     private boolean isFinalized = false;
+    private static final String TAG_FINALIZED = "Floor already finalized.";
 
     public Floor(FieldCategory fieldCategory) {
         this.fieldCategory = fieldCategory;
@@ -27,7 +28,7 @@ public class Floor {
 
     public Field getFieldAtIndex(int index) {
         if (!isFinalized) {
-            throw new FinalizedException("Floor must be finalized.");
+            throw new FinalizedException(TAG_FINALIZED);
         }
 
         int currentIndex = 0;
@@ -47,7 +48,7 @@ public class Floor {
 
     public void addChamber(Chamber chamber) {
         if (isFinalized) {
-            throw new FinalizedException("Floor already finalized.");
+            throw new FinalizedException(TAG_FINALIZED);
         }
 
         if (chamber.getFieldCategory().equals(fieldCategory)) {
@@ -60,7 +61,7 @@ public class Floor {
     //add check on fieldcategory via currentcombination
     public void setFieldAtIndex(int index, FieldValue value) {
         if (!isFinalized) {
-            throw new FinalizedException("Floor must be finalized.");
+            throw new FinalizedException(TAG_FINALIZED);
         }
         int count=0;
         int currentMax=0;
@@ -78,7 +79,7 @@ public class Floor {
 
     public boolean canInsertValue(FieldValue value) {
         if (!isFinalized) {
-            throw new FinalizedException("Floor must be finalized.");
+            throw new FinalizedException(TAG_FINALIZED);
         }
 
         int currentMax = 0;
@@ -128,7 +129,7 @@ public class Floor {
     @JsonIgnore
     public Chamber getChamber(int index) {
         if (!isFinalized) {
-            throw new FinalizedException("Floor must be finalized.");
+            throw new FinalizedException(TAG_FINALIZED);
         }
 
         if (index >= 0 && index < chambers.size()) {
@@ -155,7 +156,7 @@ public class Floor {
 
     public void finalizeFloor() {
         if (isFinalized) {
-            throw new FinalizedException("Floor already finalized.");
+            throw new FinalizedException(TAG_FINALIZED);
         } else {
             try {
                 for (Chamber chamber : chambers) {

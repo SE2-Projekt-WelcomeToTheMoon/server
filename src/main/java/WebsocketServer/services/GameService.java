@@ -27,14 +27,12 @@ public class GameService {
 
     private static final String USERNAME_KEY = "username";
     private static Logger logger = LoggerFactory.getLogger(GameService.class);
-    private static final Logger logger = LoggerFactory.getLogger(GameService.class);
     private List<CreateUserService> players;
 
     public GameService() {
         cardManager = new CardManager();
         game = new Game(cardManager, this);
         gameBoardManager = new GameBoardManager();
-        gameBoardManager = new GameBoardManager(null);
         this.players = players;
     }
 

@@ -161,6 +161,19 @@ class GameBoardManagerTest {
         gameBoardManager.updateClientGameBoardFromGame(player, "test");
         verify(logger).info("Rerouted GameBoard Update sent for {}", player.getUsername());
     }
+
+    @Test
+    void test(){
+        ObjectMapper mapper = new ObjectMapper();
+        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0,0,0,FieldValue.FIVE, "test");
+        String message = null;
+        try {
+            message = mapper.writeValueAsString(fieldUpdateMessage);
+        } catch (JsonProcessingException e) {
+            fail("JSON serialization error");
+        }
+        System.out.println(message);
+    }
 }
 
 
