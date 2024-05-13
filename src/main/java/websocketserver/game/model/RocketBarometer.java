@@ -5,10 +5,10 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class RocketBarometer {
-    private final int MAX_ROCKET = 40;
+    private static final int MAX_ROCKET = 40;
 
-    @Getter
     private int rocketCount;
 
     public RocketBarometer() {

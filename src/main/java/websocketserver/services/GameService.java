@@ -24,7 +24,6 @@ public class GameService {
     private final CardManager cardManager;
     boolean gameStarted = false;
 
-    private static final String USERNAME_KEY = "username";
     private static Logger logger = LoggerFactory.getLogger(GameService.class);
     private List<CreateUserService> players;
 
@@ -93,10 +92,10 @@ public class GameService {
         try {
             if (session.isOpen()) {
                 session.sendMessage(new TextMessage(message.toString()));
-                System.out.println("Message sent to player: " + message);
+                logger.info("Message sent to player: {}", message);
             }
         } catch (Exception e) {
-            System.err.println("Failed to send message to player: " + e.getMessage());
+            logger.error("Failed to send message to player: {}", e.getMessage());
         }
     }
 
@@ -108,7 +107,7 @@ public class GameService {
         message.put("newReward", card.getReward().getNumberRockets());
         message.put("flipped", true);
     } catch (JSONException e) {
-        e.printStackTrace();
+        logger.error(e.getMessage());
     }
 
     for (CreateUserService player : players) {

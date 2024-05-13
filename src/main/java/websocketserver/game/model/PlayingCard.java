@@ -3,11 +3,10 @@ package websocketserver.game.model;
 import websocketserver.game.enums.FieldCategory;
 import lombok.Getter;
 
+@Getter
 public class PlayingCard{
 
-    @Getter
     private FieldCategory symbol;
-    @Getter
     private int number;
 
     public PlayingCard(FieldCategory symbol, int number) {

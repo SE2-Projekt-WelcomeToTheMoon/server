@@ -1,5 +1,6 @@
 package websocketserver.services.user;
 
+import lombok.Setter;
 import websocketserver.game.model.GameBoard;
 import websocketserver.game.services.GameBoardService;
 import websocketserver.services.json.ActionValues;
@@ -26,6 +27,7 @@ public class CreateUserService {
     @Getter
     private WebSocketSession session;
     @Getter
+    @Setter
     private GameBoard gameBoard;
 
     public CreateUserService(WebSocketSession session, String username){
@@ -54,15 +56,15 @@ public class CreateUserService {
     @SneakyThrows
     public void registerUser(WebSocketSession session, String username) {
         if (!(username.isEmpty()) && (session != null)) {
-            String sessionID = session.getId();
-            if(checkUserExists(sessionID, username)){
-                this.sessionID = sessionID;
+            String sessionId = session.getId();
+            if(checkUserExists(sessionId, username)){
+                this.sessionID = sessionId;
                 this.username = username;
                 this.session = session;
                 WebSocketHandlerImpl.responseMessage = GenerateJSONObjectService.generateJSONObject(
                         ActionValues.REGISTERUSER.getValue(), username, true,
                         "", "");
-                logger.info("SessionID {} and Username {} set. User created.", sessionID, username);
+                logger.info("SessionID {} and Username {} set. User created.", sessionId, username);
             }
             else{
                 WebSocketHandlerImpl.responseMessage = GenerateJSONObjectService.generateJSONObject(

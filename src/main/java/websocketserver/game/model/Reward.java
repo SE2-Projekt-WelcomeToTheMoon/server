@@ -3,16 +3,12 @@ package websocketserver.game.model;
 import websocketserver.game.enums.RewardCategory;
 import lombok.Getter;
 
+@Getter
 public class Reward {
-    @Getter
     private RewardCategory category;
-    @Getter
     private int numberRockets;
-    @Getter
     private boolean rocketsFilled=false;
-    @Getter
     private int unfilledRockets;
-    @Getter
     private boolean systemErrorClaimed=false;
 
     public Reward(RewardCategory category) {

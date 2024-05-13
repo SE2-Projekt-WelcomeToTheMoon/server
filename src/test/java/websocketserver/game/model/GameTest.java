@@ -1,6 +1,6 @@
 package websocketserver.game.model;
 
-import websocketserver.game.enums.ChoosenCardCombination;
+import websocketserver.game.enums.ChosenCardCombination;
 import websocketserver.game.enums.FieldValue;
 import websocketserver.game.enums.GameState;
 import websocketserver.game.exceptions.GameStateException;
@@ -90,8 +90,8 @@ class GameTest {
         player1.getGameBoard().addRockets(35);
 
         CompletableFuture<Void> future1 = CompletableFuture.runAsync(() -> {
-            game.receiveSelectedCombinationOfPlayer(player1, ChoosenCardCombination.ONE);
-            game.receiveSelectedCombinationOfPlayer(player2, ChoosenCardCombination.TWO);
+            game.receiveSelectedCombinationOfPlayer(player1, ChosenCardCombination.ONE);
+            game.receiveSelectedCombinationOfPlayer(player2, ChosenCardCombination.TWO);
         });
 
         future1.get(); // Wait until all players have made their choice
@@ -113,7 +113,7 @@ class GameTest {
 
     @Test
     void testWrongStateForRound() throws InterruptedException {
-        assertThrows(GameStateException.class, () -> game.receiveSelectedCombinationOfPlayer(player1, ChoosenCardCombination.ONE));
+        assertThrows(GameStateException.class, () -> game.receiveSelectedCombinationOfPlayer(player1, ChosenCardCombination.ONE));
     }
 
     @Test

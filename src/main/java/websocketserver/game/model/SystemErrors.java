@@ -2,9 +2,9 @@ package websocketserver.game.model;
 
 import lombok.Getter;
 
+@Getter
 public class SystemErrors {
-    public final int MAX_ERRORS = 8;
-    @Getter
+    public static final int MAX_ERRORS = 8;
     private int currentErrors;
 
     public SystemErrors() {

@@ -1,6 +1,6 @@
 package websocketserver.game.model;
 
-import websocketserver.game.enums.ChoosenCardCombination;
+import websocketserver.game.enums.ChosenCardCombination;
 import websocketserver.game.enums.EndType;
 import websocketserver.game.enums.FieldValue;
 import websocketserver.game.enums.GameState;
@@ -38,11 +38,10 @@ public class Game {
     @Setter
     GameBoardManager gameBoardManager;
     CardController cardController;
-    HashMap<CreateUserService, ChoosenCardCombination> currentPlayerChoices;
+    HashMap<CreateUserService, ChosenCardCombination> currentPlayerChoices;
 
     private final AtomicInteger clientResponseReceived = new AtomicInteger(0);
     private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
-    private GameBoard gameBoard;
 
     private final Logger logger = LogManager.getLogger(Game.class);
 
@@ -114,14 +113,14 @@ public class Game {
         });
     }
 
-    protected void receiveSelectedCombinationOfPlayer(CreateUserService player, ChoosenCardCombination choosenCardCombination) {
+    protected void receiveSelectedCombinationOfPlayer(CreateUserService player, ChosenCardCombination chosenCardCombination) {
         if (this.gameState != GameState.ROUND_TWO) {
             throw new GameStateException("Invalid game state for selecting card combinations");
         }
 
         //TODO: Insert check if combination is valid
-        if(player.getGameBoard().checkCardCombination(new CardCombination[]{cardManager.getCurrentCombination()[choosenCardCombination.ordinal()]})){
-            currentPlayerChoices.put(player, choosenCardCombination);
+        if(player.getGameBoard().checkCardCombination(new CardCombination[]{cardManager.getCurrentCombination()[chosenCardCombination.ordinal()]})){
+            currentPlayerChoices.put(player, chosenCardCombination);
         }else {
             //TODO: Return failure to client as there is no spot for the chosen combination
         }

@@ -16,6 +16,7 @@ public class CardController {
 
     @Getter
     private CardCombination[] currentCombinations;
+    @Getter
     private final LinkedList<CardCombination[]> pastCombinations;
 
     public CardController() {
@@ -54,10 +55,6 @@ public class CardController {
     }
     public CardCombination[] getLastCardCombination(){
         return pastCombinations.get(pastCombinations.size() - 1);
-    }
-
-    public LinkedList<CardCombination[]> getPastCombinations(){
-        return this.pastCombinations;
     }
 
     /***

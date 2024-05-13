@@ -25,7 +25,7 @@ public class Lobby {
     private static final int MAX_PLAYERS = 4;
 
     public Map<String, CreateUserService> userListMap;
-    private static final Logger logger = LoggerFactory.getLogger(LobbyService.class);
+    private static final Logger logger = LoggerFactory.getLogger(Lobby.class);
 
     public Lobby() {
         userListMap = new HashMap<>();

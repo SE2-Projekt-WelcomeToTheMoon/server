@@ -1,9 +1,9 @@
 package websocketserver.game.enums;
 
-public enum ChoosenCardCombination {
+public enum ChosenCardCombination {
     ONE(1), TWO(2), THREE(3);
 
-    ChoosenCardCombination(int i) {
+    ChosenCardCombination(int i) {
 
     }
 }

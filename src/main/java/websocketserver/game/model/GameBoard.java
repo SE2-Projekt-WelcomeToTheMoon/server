@@ -16,12 +16,13 @@ import java.util.List;
 import java.util.Random;
 
 public class GameBoard {
+    private static final String ERRORMESSAGE = "GameBoard must be finalized.";
     private final List<Floor> floors;
     @JsonIgnore
     private List<MissionCard> missionCards;
     private final SystemErrors systemErrors;
     @JsonIgnore
-    private final int ROCKETS_TO_COMPLETE = 32;
+    private static final int ROCKETS_TO_COMPLETE = 32;
 
     private final RocketBarometer rocketBarometer;
     @Getter(onMethod_ = {@JsonIgnore})
@@ -53,7 +54,7 @@ private GameService gameService;
 
     public Floor getFloorAtIndex(int index) {
         if (!isFinalized) {
-            throw new FinalizedException("GameBoard must be finalized.");
+            throw new FinalizedException(ERRORMESSAGE);
         }
 
         if (index >= 0 && index < floors.size()) {
@@ -65,7 +66,7 @@ private GameService gameService;
 
     public void setValueWithinFloorAtIndex(int floor, int index, FieldValue value) throws FloorSequenceException {
         if (!isFinalized) {
-            throw new FinalizedException("GameBoard must be finalized.");
+            throw new FinalizedException(ERRORMESSAGE);
         }
 
         try {
@@ -86,7 +87,7 @@ private GameService gameService;
 
     public boolean addRockets(int rockets) {
         if (!isFinalized) {
-            throw new FinalizedException("GameBoard must be finalized.");
+            throw new FinalizedException(ERRORMESSAGE);
         }
         rocketBarometer.addRockets(rockets);
         return hasWon();
@@ -94,7 +95,7 @@ private GameService gameService;
 
     public boolean hasWon() {
         if (!isFinalized) {
-            throw new FinalizedException("GameBoard must be finalized.");
+            throw new FinalizedException(ERRORMESSAGE);
         }
         return rocketBarometer.getRocketCount() - systemErrors.getCurrentErrors() > ROCKETS_TO_COMPLETE;
     }
@@ -102,7 +103,7 @@ private GameService gameService;
     @JsonIgnore
     public int getRocketBarometerPoints() {
         if (!isFinalized) {
-            throw new FinalizedException("GameBoard must be finalized.");
+            throw new FinalizedException(ERRORMESSAGE);
         }
         return rocketBarometer.getPointsOfRocketBarometer();
     }
@@ -110,21 +111,21 @@ private GameService gameService;
     @JsonIgnore
     public int getRocketCount() {
         if (!isFinalized) {
-            throw new FinalizedException("GameBoard must be finalized.");
+            throw new FinalizedException(ERRORMESSAGE);
         }
         return rocketBarometer.getRocketCount();
     }
 
     public boolean addSystemError() {
         if (!isFinalized) {
-            throw new FinalizedException("GameBoard must be finalized.");
+            throw new FinalizedException(ERRORMESSAGE);
         }
         return systemErrors.increaseCurrentErrors();
     }
 
     public boolean hasLost() {
         if (!isFinalized) {
-            throw new FinalizedException("GameBoard must be finalized.");
+            throw new FinalizedException(ERRORMESSAGE);
         }
         return systemErrors.hasLost();
     }
@@ -132,7 +133,7 @@ private GameService gameService;
     @JsonIgnore
     public int getRemainingErrors() {
         if (!isFinalized) {
-            throw new FinalizedException("GameBoard must be finalized.");
+            throw new FinalizedException(ERRORMESSAGE);
         }
         return systemErrors.getRemainingErrors();
     }
@@ -211,6 +212,7 @@ private GameService gameService;
             case "Mission C2":
                 //TODO: Implement Mission Card, if 10 X are entered
                 break;
+            default:
             }
         }
     }

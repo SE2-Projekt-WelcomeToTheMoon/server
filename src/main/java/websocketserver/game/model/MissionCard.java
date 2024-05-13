@@ -1,7 +1,11 @@
 package websocketserver.game.model;
 
+import lombok.Getter;
+
 public class MissionCard {
+    @Getter
     private String missionDescription;
+    @Getter
     private Reward reward;
     private boolean isFlipped;
 
@@ -9,14 +13,6 @@ public class MissionCard {
         this.missionDescription = missionDescription;
         this.reward = reward;
         this.isFlipped = false;
-    }
-
-    public String getMissionDescription() {
-        return missionDescription;
-    }
-
-    public Reward getReward() {
-        return reward;
     }
 
     public boolean isFlipped() {
