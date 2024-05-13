@@ -1,6 +1,5 @@
 package websocketserver.game.lobby;
 
-import websocketserver.services.LobbyService;
 import websocketserver.services.user.CreateUserService;
 import websocketserver.services.user.UserListService;
 import lombok.Getter;
