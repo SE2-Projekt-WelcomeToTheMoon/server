@@ -37,6 +37,18 @@ private GameService gameService;
         rocketBarometer = new RocketBarometer();
     }
 
+    public void setGameService(GameService gameService) {
+        this.gameService = gameService;
+    }
+
+    public void setMissionCards(List<MissionCard> missionCards) {
+        this.missionCards = missionCards;
+    }
+
+    public List<MissionCard> getMissionCards() {
+        return this.missionCards;
+    }
+
     public void finalizeGameBoard() {
         if (isFinalized) {
             throw new FinalizedException("GameBoard already finalized.");
@@ -160,7 +172,7 @@ private GameService gameService;
     public List<Floor> getFloors() {
         return new ArrayList<>(floors);
     }
-    private List<MissionCard> initializeMissionCards() {
+    public List<MissionCard> initializeMissionCards() {
         List<MissionCard> cards = new ArrayList<>();
         Random random = new Random();
 
@@ -181,7 +193,7 @@ private GameService gameService;
         }
     }
 
-     public void checkMissions() {
+    public void checkMissions() {
         for (MissionCard missionCard : missionCards) {
                 switch (missionCard.getMissionDescription()) {
                     case "Mission A1":
@@ -217,7 +229,7 @@ private GameService gameService;
         }
     }
 
-    private boolean areAllFieldsNumbered(FieldCategory... categories) {
+    public boolean areAllFieldsNumbered(FieldCategory... categories) {
         return floors.stream()
             .filter(floor -> Arrays.asList(categories).contains(floor.getFieldCategory()))
             .allMatch(floor -> floor.getChambers().stream()
