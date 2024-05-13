@@ -6,8 +6,8 @@ import static org.mockito.Mockito.*;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.model.FieldUpdateMessage;
 import WebsocketServer.game.model.GameBoard;
-import WebsocketServer.game.model.Player;
 import WebsocketServer.game.services.GameBoardService;
+import WebsocketServer.services.user.CreateUserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,126 +17,162 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+
+import org.apache.logging.log4j.Logger;
+
 
 class GameBoardManagerTest {
-    @Mock
-    private WebSocketSession session;
-    @Mock
-    private GameBoardService gameBoardService;
-    @Mock
-    private Player player;
-    @Mock
-    private GameBoard gameBoard;
-    FieldUpdateMessage testMessage;
-
     private GameBoardManager gameBoardManager;
+    private CreateUserService player;
+    @Mock
+    private CreateUserService player1;
+    @Mock
+    private CreateUserService player2;
+    @Mock
+    private Logger logger;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        gameBoardManager = new GameBoardManager(session);
-        when(gameBoardService.createGameBoard()).thenReturn(gameBoard);
-        testMessage = new FieldUpdateMessage(1,1,1,FieldValue.ONE);
-
-        gameBoard = mock(GameBoard.class);
-        player = mock(Player.class);
-        when(player.getGameBoard()).thenReturn(gameBoard);
-        when(player.getPlayerId()).thenReturn(UUID.randomUUID());
+        gameBoardManager = new GameBoardManager();
+        logger = mock(Logger.class);
+        this.player = new CreateUserService(mock(WebSocketSession.class), "User");
     }
 
     @Test
-    void shouldSuccessfullyUpdateGameBoardWhenJsonValid() {
+    void testInitGameBoardJSON() {
+        GameBoardService gameBoardService = new GameBoardService();
+        GameBoard testGameBoard = gameBoardService.createGameBoard();
+        ObjectMapper mapper = new ObjectMapper();
+        String emptyGameBoardJSON = null;
+        try {
+            emptyGameBoardJSON = mapper.writeValueAsString(testGameBoard);
+            System.out.println(emptyGameBoardJSON);
+        } catch (JsonProcessingException e) {
+            fail("JSON serialization error");
+        }
+        assertEquals(emptyGameBoardJSON, gameBoardManager.getEmptyGameBoardJSON());
+    }
+
+    @Test
+    void testUpdateUser() {
+        GameBoardService gameBoardService = new GameBoardService();
+        GameBoard gameBoard = gameBoardService.createGameBoard();
+        player.setGameBoard(gameBoard);
+
+        assertEquals(FieldValue.NONE, player.getGameBoard().getFloorAtIndex(0).getChamber(0).getField(0).getFieldValue());
+
+        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0, 0, 0, FieldValue.FIVE, "");
         ObjectMapper mapper = new ObjectMapper();
         String message = null;
         try {
-            message = mapper.writeValueAsString(testMessage);
+            message = mapper.writeValueAsString(fieldUpdateMessage);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            fail("JSON serialization error");
         }
-        FieldUpdateMessage updateMessage = null;
+        gameBoardManager.updateUser(player, message);
+        assertEquals(FieldValue.FIVE, player.getGameBoard().getFloorAtIndex(0).getChamber(0).getField(0).getFieldValue());
+    }
+
+    @Test
+    void testUpdateUserJsonProcessingException() {
+        String invalidMessage = "";
+
+        gameBoardManager.setLogger(logger);
+        gameBoardManager.updateUser(player, invalidMessage);
+
+        verify(logger).error(eq("JSON deserialization error"), any(JsonProcessingException.class));
+    }
+
+    @Test
+    void testUpdateUserNullPointerException() {
+        player.setGameBoard(null);
+        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0, 0, 0, FieldValue.FIVE, "");
+        ObjectMapper mapper = new ObjectMapper();
+        String validJsonMessage = null;
         try {
-            updateMessage = mapper.readValue(message, FieldUpdateMessage.class);
+            validJsonMessage = mapper.writeValueAsString(fieldUpdateMessage);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            fail("JSON serialization error");
         }
 
-        assertTrue(gameBoardManager.updateUser(player, message));
-        verify(gameBoard, times(1)).setValueWithinFloorAtIndex(updateMessage.floor(), updateMessage.chamber(), updateMessage.fieldValue());
+        gameBoardManager.setLogger(logger);
+        gameBoardManager.updateUser(player, validJsonMessage);
+
+        verify(logger).error(eq("Failed to update field value due to null object reference"), any(NullPointerException.class));
     }
 
     @Test
-    void shouldReturnFalseWhenJsonMalformed() {
-        String malformedJson = "{bad_json}";
+    void testUpdateClientGameBoard() {
+        gameBoardManager.setLogger(logger);
+        gameBoardManager.updateClientGameBoard(player, new FieldUpdateMessage(0,0,0,FieldValue.FIVE, ""));
 
-        assertFalse(gameBoardManager.updateUser(player, malformedJson));
+        verify(logger).info("GameBoard Update sent for {}", player.getUsername());
     }
 
     @Test
-    void shouldReturnFalseWhenGameBoardUpdateFails() {
-        String message = "{\"floor\":1, \"chamber\":2, \"field\":1 \"fieldValue\":ONE}";
-        assertFalse(gameBoardManager.updateUser(player, message));
+    void testUpdateClientGameBoardNullPlayer() {
+        gameBoardManager.setLogger(logger);
+        gameBoardManager.updateClientGameBoard(null, null);
+
+        verify(logger).warn("Attempted to update game board for null player");
     }
 
     @Test
-    void shouldReturnFalseWhenPlayerIsNull(){
-        player = null;
+    void testSerializeFieldUpdateMessage() {
 
-        assertFalse(gameBoardManager.updateUser(player, "dingdong"));
-    }
-
-    @Test
-    void shouldReturnString() throws JsonProcessingException {
+        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0, 0, 0, FieldValue.FIVE, "");
         ObjectMapper mapper = new ObjectMapper();
-        String result = mapper.writeValueAsString(gameBoard);
-
-        String test = gameBoardManager.getGameBoardUser(player);
-        assertEquals(result,test);
+        String fieldUpdateJSON = null;
+        try {
+            fieldUpdateJSON = mapper.writeValueAsString(fieldUpdateMessage);
+        } catch (JsonProcessingException e) {
+            fail("JSON serialization error");
+        }
+        assertEquals(fieldUpdateJSON, gameBoardManager.serializeFieldUpdateMessage(fieldUpdateMessage));
     }
 
     @Test
-    void shouldReturnNullForNullPlayerInGetGameBoardUser() {
-        assertNull(gameBoardManager.getGameBoardUser(null));
+    void testInformClientsAboutStart() {
+        List<CreateUserService> players = new ArrayList<>();
+        players.add(player);
+
+        gameBoardManager.setLogger(logger);
+        gameBoardManager.informClientsAboutStart(players);
+        verify(logger).info("Player: {} wird informiert", player.getUsername());
     }
 
     @Test
-    void testInitGameBoardsTrue(){
-        List<Player> playerList = new ArrayList<>();
-        playerList.add(player);
-
-        assertTrue(gameBoardManager.initGameBoards(playerList));
-    }
-
-    @Test
-    void testInitGameBoardsFalse(){
-        List<Player> playerList = new ArrayList<>();
-
-        assertFalse(gameBoardManager.initGameBoards(playerList));
-    }
-
-    @Test
-    void testInitGameBoardsFalse2(){
-        List<Player> playerList = null;
-
-        assertFalse(gameBoardManager.initGameBoards(playerList));
-    }
-
-    @Test
-    void testInitGameBoardsFalse3(){
-        List<Player> playerList = new ArrayList<>();
-        playerList.add(null);
-
-        assertFalse(gameBoardManager.initGameBoards(playerList));
-    }
-
-    @Test
-    void testSerializeGameBoard() throws JsonProcessingException {
+    void testFieldUpdateMessage(){
+        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0,0,0,FieldValue.FIVE, "test");
         ObjectMapper mapper = new ObjectMapper();
-        String result = mapper.writeValueAsString(gameBoard);
-        String test = gameBoardManager.serializeGameBoard(gameBoard);
+        String message = null;
+        try {
+            message = mapper.writeValueAsString(fieldUpdateMessage);
+        } catch (JsonProcessingException e) {
+            fail("JSON serialization error");
+        }
+        System.out.println(message);
+    }
 
-        assertEquals(result, test);
+    @Test
+    void testUpdateClientGameBoardFromGame(){
+        gameBoardManager.setLogger(logger);
+        gameBoardManager.updateClientGameBoardFromGame(player, "test");
+        verify(logger).info("Rerouted GameBoard Update sent for {}", player.getUsername());
+    }
+
+    @Test
+    void test(){
+        ObjectMapper mapper = new ObjectMapper();
+        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0,0,0,FieldValue.FIVE, "test");
+        String message = null;
+        try {
+            message = mapper.writeValueAsString(fieldUpdateMessage);
+        } catch (JsonProcessingException e) {
+            fail("JSON serialization error");
+        }
+        System.out.println(message);
     }
 }
 

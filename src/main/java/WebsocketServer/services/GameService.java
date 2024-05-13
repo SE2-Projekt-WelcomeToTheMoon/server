@@ -26,18 +26,18 @@ public class GameService {
     boolean gameStarted = false;
 
     private static final String USERNAME_KEY = "username";
-    private static final Logger logger = LoggerFactory.getLogger(GameService.class);
+    private static Logger logger = LoggerFactory.getLogger(GameService.class);
     private List<CreateUserService> players;
 
     public GameService() {
         cardManager = new CardManager();
         game = new Game(cardManager, this);
-        gameBoardManager = new GameBoardManager(null);
+        gameBoardManager = new GameBoardManager();
         this.players = players;
     }
 
     public void handleStartGame(Map<String, CreateUserService> players) {
-        if(!gameStarted){
+        if (!gameStarted) {
             logger.info("GameService fügt player hinzu");
             players.values().forEach(CreateUserService::createGameBoard);
             game.addPlayers(players);
@@ -54,20 +54,32 @@ public class GameService {
 
     public void sendNewCardCombinationToPlayer() {
         cardManager.drawNextCard();
-        if(!cardManager.sendCurrentCardsToPlayers(game.getPlayers()))logger.error("Error sending cards to players");
+        if (!cardManager.sendCurrentCardsToPlayers(game.getPlayers())) logger.error("Error sending cards to players");
     }
 
     public void sendInvalidCombination(CreateUserService player) {
+        logger.info("GameService sendInvalidCombination");
         //TODO: If Player sends invalid selection use this method, to return failure.
     }
 
     public void informPlayersAboutEndOfGame(List<CreateUserService> winners, EndType endType) {
+        logger.info("GameService informPlayersAboutEndOfGame");
         //TODO: If Player has won, game will call this Method to send information to players.
     }
 
     public void informPlayerAboutSystemerror(CreateUserService createUserService) {
+        logger.info("GameService informPlayerAboutSystemerror");
         //TODO: If new card combination and player can't find a spot
+    }
 
+    public void updateUser(String username, String message) {
+        logger.info("GameService updateUser");
+        game.updateUser(username, message);
+    }
+
+    // for testing purposes
+    public void setLogger(Logger logger) {
+        GameService.logger = logger;
     }
 
     public void notifyAllPlayers(String message) {
