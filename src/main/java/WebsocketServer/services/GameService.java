@@ -4,7 +4,6 @@ import WebsocketServer.game.enums.EndType;
 import WebsocketServer.game.model.CardCombination;
 import WebsocketServer.game.model.FieldUpdateMessage;
 import WebsocketServer.game.model.Game;
-import WebsocketServer.game.model.GameBoard;
 import WebsocketServer.game.services.CardController;
 import WebsocketServer.services.user.CreateUserService;
 import org.slf4j.Logger;
@@ -66,6 +65,7 @@ public class GameService {
     }
 
     public void updateUser(String username, String message) {
+        logger.info("GameService updateUser");
         game.updateUser(username, message);
     }
 

@@ -12,6 +12,8 @@ import WebsocketServer.services.GameService;
 import WebsocketServer.services.user.CreateUserService;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -39,6 +41,7 @@ public class Game {
     private final AtomicInteger clientResponseReceived = new AtomicInteger(0);
     private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
 
+    private final Logger logger = LogManager.getLogger(Game.class);
 
     public Game(CardController cardController, GameService gameService) {
         this.gameState = GameState.INITIAL;
@@ -46,6 +49,7 @@ public class Game {
         this.players = new ArrayList<>();
         currentPlayerChoices = new HashMap<>();
         this.gameService = gameService;
+        this.gameBoardManager = new GameBoardManager();
     }
 
     public void startGame() {
@@ -232,14 +236,15 @@ public class Game {
 
     /**
      * when client sends update to server, and it gets approved, also reroutes the message to all other clients
-     * TODO put it somewhere into the rounds
      * @param username
      * @param message
      */
     public void updateUser(String username, String message) {
+        logger.info("Game updateUser for {}", username);
         gameBoardManager.updateUser(getUserByUsername(username), message);
         for (CreateUserService player : players) {
             if (!player.getUsername().equals(username)) {
+                logger.info("Rerouting GameBoard Update from {} to {}", username, player.getUsername());
                 gameBoardManager.updateClientGameBoardFromGame(player, message);
             }
         }

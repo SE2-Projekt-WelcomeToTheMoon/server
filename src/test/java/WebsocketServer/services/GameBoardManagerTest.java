@@ -6,9 +6,7 @@ import static org.mockito.Mockito.*;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.model.FieldUpdateMessage;
 import WebsocketServer.game.model.GameBoard;
-import WebsocketServer.game.model.Player;
 import WebsocketServer.game.services.GameBoardService;
-import WebsocketServer.services.json.GenerateJSONObjectService;
 import WebsocketServer.services.user.CreateUserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -64,7 +62,7 @@ class GameBoardManagerTest {
 
         assertEquals(FieldValue.NONE, player.getGameBoard().getFloorAtIndex(0).getChamber(0).getField(0).getFieldValue());
 
-        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0, 0, 0, FieldValue.FIVE);
+        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0, 0, 0, FieldValue.FIVE, "");
         ObjectMapper mapper = new ObjectMapper();
         String message = null;
         try {
@@ -89,7 +87,7 @@ class GameBoardManagerTest {
     @Test
     void testUpdateUserNullPointerException() {
         player.setGameBoard(null);
-        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0, 0, 0, FieldValue.FIVE);
+        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0, 0, 0, FieldValue.FIVE, "");
         ObjectMapper mapper = new ObjectMapper();
         String validJsonMessage = null;
         try {
@@ -107,7 +105,7 @@ class GameBoardManagerTest {
     @Test
     void testUpdateClientGameBoard() {
         gameBoardManager.setLogger(logger);
-        gameBoardManager.updateClientGameBoard(player, new FieldUpdateMessage(0,0,0,FieldValue.FIVE));
+        gameBoardManager.updateClientGameBoard(player, new FieldUpdateMessage(0,0,0,FieldValue.FIVE, ""));
 
         verify(logger).info("GameBoard Update sent for {}", player.getUsername());
     }
@@ -123,7 +121,7 @@ class GameBoardManagerTest {
     @Test
     void testSerializeFieldUpdateMessage() {
 
-        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0, 0, 0, FieldValue.FIVE);
+        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0, 0, 0, FieldValue.FIVE, "");
         ObjectMapper mapper = new ObjectMapper();
         String fieldUpdateJSON = null;
         try {
@@ -146,7 +144,7 @@ class GameBoardManagerTest {
 
     @Test
     void testFieldUpdateMessage(){
-        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0,0,0,FieldValue.FIVE);
+        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0,0,0,FieldValue.FIVE, "test");
         ObjectMapper mapper = new ObjectMapper();
         String message = null;
         try {

@@ -75,8 +75,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     break;
                 case "updateUser":
                     logger.info("Case updateGameBoard: {} ", username);
-                    // could be fatal if .toString() fucks the object up
-                    gameService.updateUser(username, messageJson.toString());
+                    gameService.updateUser(username, messageJson.getString("message"));
                     break;
                 default:
                     JSONObject response = new JSONObject();
