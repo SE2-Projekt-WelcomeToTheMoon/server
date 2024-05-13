@@ -22,6 +22,7 @@ public class GameBoard {
     private List<MissionCard> missionCards;
     private final SystemErrors systemErrors;
     private final int ROCKETS_TO_COMPLETE = 32;
+    private final Random random = new Random();
 
     private final RocketBarometer rocketBarometer;
     @Getter(onMethod_ = {@JsonIgnore})
@@ -168,12 +169,11 @@ private GameService gameService;
 
     public List<MissionCard> initializeMissionCards() {
         List<MissionCard> cards = new ArrayList<>();
-        Random random = new Random();
 
         // Initialize mission cards randomly as A1 or A2, B1 or B2, C1 or C2
-        cards.add(new MissionCard("Mission A", new Reward(RewardCategory.ROCKET, random.nextBoolean() ? 3 : 2)));
-        cards.add(new MissionCard("Mission B", new Reward(RewardCategory.ROCKET, random.nextBoolean() ? 3 : 2)));
-        cards.add(new MissionCard("Mission C", new Reward(RewardCategory.ROCKET, random.nextBoolean() ? 3 : 2)));
+        cards.add(new MissionCard("Mission A" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
+        cards.add(new MissionCard("Mission B" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
+        cards.add(new MissionCard("Mission C" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
 
         return cards;
     }
