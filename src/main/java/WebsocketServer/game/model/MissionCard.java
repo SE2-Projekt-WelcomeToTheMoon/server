@@ -1,7 +1,5 @@
 package WebsocketServer.game.model;
 
-import WebsocketServer.game.enums.RewardCategory;
-
 public class MissionCard {
     private String missionDescription;
     private Reward reward;
