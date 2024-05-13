@@ -2,12 +2,24 @@ package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.enums.FieldValue;
+import WebsocketServer.game.enums.RewardCategory;
 import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
+import WebsocketServer.services.GameService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
+
 
 class GameBoardTest {
     private GameBoard gameBoard;
@@ -211,5 +223,29 @@ class GameBoardTest {
         floor.addChamber(chamber);
         gameBoard.addFloor(floor);
         assertThrows(FinalizedException.class, () -> gameBoard.setValueWithinFloorAtIndex(0, 0, FieldValue.ONE));
+    }
+
+    @Test
+    void testInitializeMissionCards() {
+        List<MissionCard> cards = gameBoard.initializeMissionCards();
+
+        assertEquals(3, cards.size(), "Should initialize exactly three mission cards");
+        assertTrue(cards.stream().allMatch(card -> card.getMissionDescription().startsWith("Mission ")), "Mission descriptions should be correctly set");
+        assertTrue(cards.stream().allMatch(card -> Arrays.asList(2, 3).contains(card.getReward().getNumberRockets())), "Rewards should be correctly set between 2 and 3 rockets");
+    }
+
+    @Test
+    void testCheckAndFlipMissionCards() {
+        GameService mockGameService = mock(GameService.class);
+        gameBoard.setGameService(mockGameService); 
+
+        MissionCard card1 = new MissionCard("Mission A1", new Reward(RewardCategory.ROCKET, 3));
+        MissionCard card2 = new MissionCard("Mission A2", new Reward(RewardCategory.ROCKET, 3));
+        gameBoard.setMissionCards(Arrays.asList(card1, card2)); // Assuming setter for missionCards
+
+        gameBoard.checkAndFlipMissionCards("Mission A1");
+        assertTrue(card1.isFlipped(), "Mission A1 should be flipped");
+        assertFalse(card2.isFlipped(), "Mission A2 should not be flipped");
+        verify(mockGameService).notifyPlayersMissionFlipped(card1); // Verifying interaction
     }
 }
