@@ -2,6 +2,7 @@ package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.ChoosenCardCombination;
 import WebsocketServer.game.enums.EndType;
+import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.FloorSequenceException;
@@ -34,6 +35,7 @@ public class Game {
 
     private final AtomicInteger clientResponseReceived = new AtomicInteger(0);
     private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
+    private GameBoard gameBoard;
 
 
     public Game(CardManager cardManager, GameService gameService) {
@@ -217,5 +219,4 @@ public class Game {
     public void addPlayer(CreateUserService player) {
         players.add(player);
     }
-
 }
