@@ -39,9 +39,8 @@ public class LobbyService {
      * Add Player to Lobby
      * @param session       current connection
      * @param messageJson   received string for assignment in HandleMessage
-     * @throws Exception    Exception for handling errors
      */
-    public void handleJoinLobby(WebSocketSession session, JSONObject messageJson) throws Exception {
+    public void handleJoinLobby(WebSocketSession session, JSONObject messageJson) {
 
         logger.info("Versuchen zur Lobby hinzuzufügen: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
 
@@ -49,8 +48,6 @@ public class LobbyService {
         String username = messageJson.getString(USERNAME_KEY);
         if(gamelobby.addPlayerToLobby(username)){
             JSONObject response = GenerateJSONObjectService.generateJSONObject("joinLobby", username, true, "", "");
-//            SendMessageService.sendMessagesToAllUsersFromLobby(response);
-            // everyone who is connected to the server gets the message and see the user in the lobby
             SendMessageService.sendMessageToAllUsersBySession(response);
             logger.info("Erfolgreich zur Lobby hinzugefügt: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
 
@@ -66,9 +63,8 @@ public class LobbyService {
      * Remove Player from Lobby
      * @param session  current connection
      * @param messageJson   received string for assignment in HandleMessage
-     * @throws Exception    Exception for handling errors
      */
-    public void handleLeaveLobby(WebSocketSession session, JSONObject messageJson) throws Exception {
+    public void handleLeaveLobby(WebSocketSession session, JSONObject messageJson) {
 
         logger.info("Versuchen aus der Lobby zu entfernen: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
 
