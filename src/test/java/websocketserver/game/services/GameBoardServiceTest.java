@@ -38,7 +38,7 @@ class GameBoardServiceTest {
                 for(int j = 0; i < currentChamber.getSize(); i++){
                     Field field = currentChamber.getField(j);
                     assertEquals(field.getFieldCategory(), currentFloor.getFieldCategory());
-                    assertEquals(field.getFieldValue(), FieldValue.NONE);
+                    assertEquals(FieldValue.NONE, field.getFieldValue());
                 }
             }
         }
