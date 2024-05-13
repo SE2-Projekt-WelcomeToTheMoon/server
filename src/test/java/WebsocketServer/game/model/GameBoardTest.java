@@ -12,7 +12,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -241,11 +245,76 @@ class GameBoardTest {
 
         MissionCard card1 = new MissionCard("Mission A1", new Reward(RewardCategory.ROCKET, 3));
         MissionCard card2 = new MissionCard("Mission A2", new Reward(RewardCategory.ROCKET, 3));
-        gameBoard.setMissionCards(Arrays.asList(card1, card2)); // Assuming setter for missionCards
+        gameBoard.setMissionCards(Arrays.asList(card1, card2));
 
         gameBoard.checkAndFlipMissionCards("Mission A1");
         assertTrue(card1.isFlipped(), "Mission A1 should be flipped");
         assertFalse(card2.isFlipped(), "Mission A2 should not be flipped");
-        verify(mockGameService).notifyPlayersMissionFlipped(card1); // Verifying interaction
+        verify(mockGameService).notifyPlayersMissionFlipped(card1);
+    }
+
+    @Test
+    void testAreAllFieldsNumberedAllNumbered() {
+        GameBoard gameBoard = new GameBoard();
+        Floor floor1 = new Floor(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER);
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
+        floor1.addChamber(chamber1);
+
+        gameBoard.addFloor(floor1);
+
+        assertTrue(gameBoard.areAllFieldsNumbered(FieldCategory.ROBOTER), 
+            "Should return true as all fields in the specified category are numbered.");
+    }
+
+    @Test
+    void testAreAllFieldsNumberedSomeUnnumbered() {
+        GameBoard gameBoard = new GameBoard();
+        Floor floor1 = new Floor(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER);
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE)); 
+        floor1.addChamber(chamber1);
+
+        gameBoard.addFloor(floor1);
+
+        assertFalse(gameBoard.areAllFieldsNumbered(FieldCategory.ROBOTER),
+            "Should return false as not all fields in the specified category are numbered.");
+    }
+
+    @Test
+    void testAreAllFieldsNumberedNoRelevantFloors() {
+        GameBoard gameBoard = new GameBoard();
+        Floor floor1 = new Floor(FieldCategory.PLANUNG);
+        Chamber chamber1 = new Chamber(FieldCategory.PLANUNG);
+        chamber1.addField(new Field(FieldCategory.PLANUNG, FieldValue.ONE));
+        floor1.addChamber(chamber1);
+
+        gameBoard.addFloor(floor1);
+
+        assertTrue(gameBoard.areAllFieldsNumbered(FieldCategory.ROBOTER),
+            "Should return true because there are no floors of the specified category.");
+    }
+
+     @Test
+    void testCheckMissions() {
+        GameBoard gameBoard = new GameBoard();
+        gameBoard.setMissionCards(Arrays.asList(
+            new MissionCard("Mission A1", new Reward(RewardCategory.ROCKET, 3)),
+            new MissionCard("Mission B1", new Reward(RewardCategory.ROCKET, 3))
+        ));
+
+        GameBoard spyGameBoard = spy(gameBoard);
+        GameService mockGameService = mock(GameService.class);
+        spyGameBoard.setGameService(mockGameService);
+
+        doReturn(true).when(spyGameBoard).areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER);
+        doReturn(false).when(spyGameBoard).areAllFieldsNumbered(FieldCategory.ENERGIE);
+
+        spyGameBoard.checkMissions();
+
+        verify(mockGameService, times(1)).notifyPlayersMissionFlipped(any(MissionCard.class));
+        verify(mockGameService, never()).notifyPlayersMissionFlipped(new MissionCard("Mission B1", new Reward(RewardCategory.ROCKET, 3)));
     }
 }
