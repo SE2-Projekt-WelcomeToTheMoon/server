@@ -4,18 +4,22 @@ import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class Floor {
-
     private final List<Chamber> chambers;
     @Getter
+    @JsonProperty("fieldCategory")
     private FieldCategory fieldCategory;
     @Getter
+    @JsonIgnore
     private boolean isFinalized = false;
+    private static final String TAG_FINALIZED = "Floor already finalized.";
 
     public Floor(FieldCategory fieldCategory) {
         this.fieldCategory = fieldCategory;
@@ -24,7 +28,7 @@ public class Floor {
 
     public Field getFieldAtIndex(int index) {
         if (!isFinalized) {
-            throw new FinalizedException("Floor must be finalized.");
+            throw new FinalizedException(TAG_FINALIZED);
         }
 
         int currentIndex = 0;
@@ -44,7 +48,7 @@ public class Floor {
 
     public void addChamber(Chamber chamber) {
         if (isFinalized) {
-            throw new FinalizedException("Floor already finalized.");
+            throw new FinalizedException(TAG_FINALIZED);
         }
 
         if (chamber.getFieldCategory().equals(fieldCategory)) {
@@ -57,7 +61,7 @@ public class Floor {
     //add check on fieldcategory via currentcombination
     public void setFieldAtIndex(int index, FieldValue value) {
         if (!isFinalized) {
-            throw new FinalizedException("Floor must be finalized.");
+            throw new FinalizedException(TAG_FINALIZED);
         }
         int count=0;
         int currentMax=0;
@@ -75,7 +79,7 @@ public class Floor {
 
     public boolean canInsertValue(FieldValue value) {
         if (!isFinalized) {
-            throw new FinalizedException("Floor must be finalized.");
+            throw new FinalizedException(TAG_FINALIZED);
         }
 
         int currentMax = 0;
@@ -105,6 +109,7 @@ public class Floor {
         return false;
     }
 
+    @JsonIgnore
     private FieldValue getNextValueInNextChamber(int startChamberIndex) {
         for (int i = startChamberIndex; i < chambers.size(); i++) {
             for (Field field : chambers.get(i).getFields()) {
@@ -116,13 +121,15 @@ public class Floor {
         return null;
     }
 
+    @JsonIgnore
     public int getFloorSize() {
         return chambers.stream().mapToInt(Chamber::getSize).sum();
     }
 
+    @JsonIgnore
     public Chamber getChamber(int index) {
         if (!isFinalized) {
-            throw new FinalizedException("Floor must be finalized.");
+            throw new FinalizedException(TAG_FINALIZED);
         }
 
         if (index >= 0 && index < chambers.size()) {
@@ -132,10 +139,12 @@ public class Floor {
         }
     }
 
+    @JsonIgnore
     public int getNumberOfChambers() {
         return chambers.size();
     }
 
+    @JsonProperty("floorSize")
     public int getSize() {
         int sum = 0;
         for (Chamber chamber : chambers) {
@@ -147,7 +156,7 @@ public class Floor {
 
     public void finalizeFloor() {
         if (isFinalized) {
-            throw new FinalizedException("Floor already finalized.");
+            throw new FinalizedException(TAG_FINALIZED);
         } else {
             try {
                 for (Chamber chamber : chambers) {

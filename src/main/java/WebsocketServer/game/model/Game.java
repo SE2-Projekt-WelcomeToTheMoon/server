@@ -2,14 +2,20 @@ package WebsocketServer.game.model;
 
 import WebsocketServer.game.enums.ChoosenCardCombination;
 import WebsocketServer.game.enums.EndType;
+import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.enums.GameState;
 import WebsocketServer.game.exceptions.FloorSequenceException;
 import WebsocketServer.game.exceptions.GameStateException;
 import WebsocketServer.services.CardManager;
+import WebsocketServer.game.services.CardController;
+import WebsocketServer.services.GameBoardManager;
 import WebsocketServer.services.GameService;
 import WebsocketServer.services.user.CreateUserService;
 import lombok.Getter;
+import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -30,11 +36,16 @@ public class Game {
     List<CreateUserService> players;
     GameService gameService;
     CardManager cardManager;
+    @Setter
+    GameBoardManager gameBoardManager;
+    CardController cardController;
     HashMap<CreateUserService, ChoosenCardCombination> currentPlayerChoices;
 
     private final AtomicInteger clientResponseReceived = new AtomicInteger(0);
     private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
+    private GameBoard gameBoard;
 
+    private final Logger logger = LogManager.getLogger(Game.class);
 
     public Game(CardManager cardManager, GameService gameService) {
         this.gameState = GameState.INITIAL;
@@ -42,6 +53,7 @@ public class Game {
         this.players = new ArrayList<>();
         currentPlayerChoices = new HashMap<>();
         this.gameService = gameService;
+        this.gameBoardManager = new GameBoardManager();
     }
 
     public void startGame() {
@@ -85,7 +97,6 @@ public class Game {
     }
 
     private void sendNewCardCombinationToPlayer() {
-
         gameService.sendNewCardCombinationToPlayer();
     }
 
@@ -217,5 +228,28 @@ public class Game {
     public void addPlayer(CreateUserService player) {
         players.add(player);
     }
+    public CreateUserService getUserByUsername(String username) {
+        for (CreateUserService player : players) {
+            if (player.getUsername().equals(username)) {
+                return player;
+            }
+        }
+        return null;
+    }
 
+    /**
+     * when client sends update to server, and it gets approved, also reroutes the message to all other clients
+     * @param username
+     * @param message
+     */
+    public void updateUser(String username, String message) {
+        logger.info("Game updateUser for {}", username);
+        gameBoardManager.updateUser(getUserByUsername(username), message);
+        for (CreateUserService player : players) {
+            if (!player.getUsername().equals(username)) {
+                logger.info("Rerouting GameBoard Update from {} to {}", username, player.getUsername());
+                gameBoardManager.updateClientGameBoardFromGame(player, message);
+            }
+        }
+    }
 }

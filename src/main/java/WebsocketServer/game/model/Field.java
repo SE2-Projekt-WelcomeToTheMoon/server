@@ -3,13 +3,17 @@ package WebsocketServer.game.model;
 import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.exceptions.FinalizedException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 
 @Getter
 public class Field {
+    @JsonIgnore
     private FieldCategory fieldCategory;
     private FieldValue fieldValue;
+    @JsonIgnore
     private boolean isFinalized = false;
+    private boolean isChanged = false;
 
     public Field(FieldCategory fieldCategory) {
         this.fieldCategory = fieldCategory;
@@ -43,5 +47,17 @@ public class Field {
             isFinalized = true;
 
         }
+    }
+
+    /**
+     * So that Client won't change it again
+     * @param fieldValue
+     */
+    public void setFieldValueClient(FieldValue fieldValue) {
+        if (!isFinalized) {
+            throw new FinalizedException("Field must be finalized.");
+        }
+        this.fieldValue = fieldValue;
+        isChanged = true;
     }
 }

@@ -4,6 +4,7 @@ import WebsocketServer.game.enums.FieldCategory;
 import WebsocketServer.game.enums.FieldValue;
 import WebsocketServer.game.exceptions.FinalizedException;
 import WebsocketServer.game.exceptions.FloorSequenceException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +13,13 @@ import java.util.List;
 public class Chamber {
     private final List<Field> fields;
     @Getter
+    @JsonIgnore
     private final FieldCategory fieldCategory;
     @Getter
+    @JsonIgnore
     private boolean isFinalized = false;
     @Getter
+    @JsonIgnore
     private List<Reward> rewards;
 
     /***
@@ -62,6 +66,7 @@ public class Chamber {
         }
     }
 
+    @JsonIgnore
     public int getSize() {
         return fields.size();
     }
@@ -89,6 +94,8 @@ public class Chamber {
 
         return true;
     }
+
+    @JsonIgnore
     public int getHighestValueInChamber(){
         if(fields.isEmpty())throw new FloorSequenceException();
         int highest=0;
