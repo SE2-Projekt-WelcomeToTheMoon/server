@@ -10,7 +10,7 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
-
+// fixme dont mix networking dtos and game logic (eg, jsonignores)
 public class Floor {
     private final List<Chamber> chambers;
     @Getter

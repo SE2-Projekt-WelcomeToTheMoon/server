@@ -1,5 +1,6 @@
 package websocketserver.game.exceptions;
 
+// fixme remove unused constructors
 public class FloorSequenceException extends RuntimeException {
     public FloorSequenceException() {
         super();

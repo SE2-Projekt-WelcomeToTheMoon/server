@@ -3,6 +3,7 @@ package websocketserver.game.model;
 import lombok.Getter;
 
 public class MissionCard {
+    // fixme see GameBoard::checkMissions
     @Getter
     private String missionDescription;
     @Getter

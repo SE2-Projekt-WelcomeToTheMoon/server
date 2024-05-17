@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 public class GenerateJSONObjectService {
 
+    // fixme static methods are bad for oop, use as object. even better: send dedicated objects, e.g., User update dto with constructor(username, payload/fieldupdate)
     /**
      * Methode um ein JSONObject zu generieren
      * @param action    Aktion die ausgeführt werden soll

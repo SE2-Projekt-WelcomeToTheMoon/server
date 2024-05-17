@@ -193,6 +193,8 @@ private GameService gameService;
         }
     }
 
+    // fixme format code!
+    // fixme mission description (type string?) should be oo, ie, MissionCard subtypes or enum
     public void checkMissions() {
         for (MissionCard missionCard : missionCards) {
                 switch (missionCard.getMissionDescription()) {

@@ -10,6 +10,7 @@ import java.util.List;
 
 @Service
 public class GameBoardService {
+    // fixme extract method per floor
     public GameBoard createGameBoard() {
         GameBoard gameBoard = new GameBoard();
         //TOP FLOOR RAUMANZUG, ONE CHAMBER SIZE 3, rewards 3 Rockets, one filling and a planning

@@ -22,6 +22,7 @@ public class Chamber {
     @JsonIgnore
     private List<Reward> rewards;
 
+    // fixme remove artificial constructor and use dummy rewards list in tests
     /***
      * This constructor solely exists for test cases and should not be used in Code as it does not have any rewards
      * @param fieldCategory Category of the chamber

@@ -141,6 +141,8 @@ class GameTest {
         when(mockedGameBoard2.checkCardCombination(any())).thenReturn(true);
 
         mockedGame.doRoundOne();
+
+        // fixme what is the assertion? did i miss something? an empty doRoundOne method and a method throwing an exception pass
     }
 
     @Test

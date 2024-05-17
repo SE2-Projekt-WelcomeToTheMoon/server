@@ -6,6 +6,10 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+
+// fixme format code!
+// fixme too many magic constants
+
 /***
  * Internal class to manage Cards, please use CardManager for game implementation
  */
@@ -57,6 +61,7 @@ public class CardController {
         return pastCombinations.get(pastCombinations.size() - 1);
     }
 
+    // fixme why is the complex string required? is there an oop alternative?
     /***
      * Creates a message String with the current Combinations. The Combinations are split by ;
      * the data inside the combinations is split by - and ordered CombinationNumber-CurrentSymbol-CurrentNumber-NextSymbol

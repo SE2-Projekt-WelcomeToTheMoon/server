@@ -1,5 +1,6 @@
 package websocketserver.game.exceptions;
 
+// fixme remove unused constructors
 public class FinalizedException extends RuntimeException {
     public FinalizedException() {
         super();
