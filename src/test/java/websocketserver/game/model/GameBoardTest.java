@@ -9,6 +9,8 @@ import websocketserver.services.GameService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,6 +28,18 @@ import java.util.Arrays;
 
 
 class GameBoardTest {
+
+    @Mock
+    private SystemErrors systemErrors;
+    
+    @Mock
+    private GameService gameService;
+    
+    @Mock
+    private MissionCard missionCard;
+
+    private List<MissionCard> missionCards;
+
     private GameBoard gameBoard;
     private Floor floor;
 
@@ -33,6 +47,12 @@ class GameBoardTest {
     void setUp() {
         gameBoard = new GameBoard();
         floor = new Floor(FieldCategory.ROBOTER);
+
+        MockitoAnnotations.openMocks(this);
+        gameBoard = spy(new GameBoard());
+        missionCards = new ArrayList<>();
+        gameBoard.setMissionCards(missionCards);
+        gameBoard.setGameService(gameService);
     }
 
     @Test
@@ -316,5 +336,60 @@ class GameBoardTest {
 
         verify(mockGameService, times(1)).notifyPlayersMissionFlipped(any(MissionCard.class));
         verify(mockGameService, never()).notifyPlayersMissionFlipped(new MissionCard("Mission B1", new Reward(RewardCategory.ROCKET, 3)));
+    }
+
+     @Test
+    public void testMissionA1() {
+        when(missionCard.getMissionDescription()).thenReturn("Mission A1");
+        missionCards.add(missionCard);
+        doReturn(true).when(gameBoard).areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER);
+
+        gameBoard.checkMissions();
+
+        verify(gameBoard).checkAndFlipMissionCards("Mission A1");
+    }
+
+    @Test
+    public void testMissionA2() {
+        when(missionCard.getMissionDescription()).thenReturn("Mission A2");
+        missionCards.add(missionCard);
+        doReturn(true).when(gameBoard).areAllFieldsNumbered(FieldCategory.ROBOTER, FieldCategory.PLANUNG);
+
+        gameBoard.checkMissions();
+
+        verify(gameBoard).checkAndFlipMissionCards("Mission A2");
+    }
+
+    @Test
+    public void testMissionB1() {
+        when(missionCard.getMissionDescription()).thenReturn("Mission B1");
+        missionCards.add(missionCard);
+        doReturn(true).when(gameBoard).areAllFieldsNumbered(FieldCategory.ENERGIE);
+
+        gameBoard.checkMissions();
+
+        verify(gameBoard).checkAndFlipMissionCards("Mission B1");
+    }
+
+    @Test
+    public void testMissionB2() {
+        when(missionCard.getMissionDescription()).thenReturn("Mission B2");
+        missionCards.add(missionCard);
+        doReturn(true).when(gameBoard).areAllFieldsNumbered(FieldCategory.PFLANZE);
+
+        gameBoard.checkMissions();
+
+        verify(gameBoard).checkAndFlipMissionCards("Mission B2");
+    }
+
+    @Test
+    public void testMissionC2() {
+        when(missionCard.getMissionDescription()).thenReturn("Mission C2");
+        missionCards.add(missionCard);
+
+        gameBoard.checkMissions();
+
+        // Verify that checkAndFlipMissionCards was not called for Mission C2 since it's not implemented
+        verify(gameBoard, never()).checkAndFlipMissionCards("Mission C2");
     }
 }
