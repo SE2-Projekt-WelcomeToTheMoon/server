@@ -12,7 +12,9 @@ public enum ActionValues {
     JOINLOBBY("joinLobby"),
     LEAVELOBBY("leaveLobby"),
     REQUESTLOBBYUSER("requestLobbyUser"),
-    STARTGAME("startGame");
+    STARTGAME("startGame"),
+    RECONNECT("reconnect"),
+    DISCONNECT("disconnect");
 
     private final String value;
     ActionValues(String action){
