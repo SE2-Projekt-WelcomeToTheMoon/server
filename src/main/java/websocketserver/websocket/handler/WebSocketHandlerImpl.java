@@ -116,14 +116,22 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
         }
     }
 
+    @SneakyThrows
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) {
-        //TODO handle transport error
+        session.close();
+        logger.error("Transport error: {}. Connection to Client {} closed.", exception.getMessage(),
+                session.getId());
+        TimeUnit.SECONDS.sleep(5);
+        removeUserFromLobby(session);
+        removeUserFromServer(session);
+        logger.error("User did not reconnect, User removed from server.");
+
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-        logger.error("Connection to User interrupted, attempting reconnect...");
+//        logger.error("Connection to User interrupted, attempting reconnect...");
 
 //        if (UserListService.userList.getUserBySessionID(session.getId()) != null) {
 //            //Removes user from lobby
@@ -171,16 +179,18 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     }
 
     private boolean removeUserFromLobby(WebSocketSession session){
-        if(UserListService.userList.getUserBySessionID(session.getId()) != null){
+        if(lobbyService.gamelobby.getUserListFromLobby().contains(
+                UserListService.userList.getUserBySessionID(session.getId()))){
             String username = UserListService.userList.getUserBySessionID(session.getId()).getUsername();
             lobbyService.gamelobby.removePlayerFromLobbyByName(username);
-            return true;
+            logger.info("User nicht mehr in der Lobby vorhanden(ConnectionCloses).{}", session.getId());
         }
-        else return false;
+        return true;
     }
     private boolean removeUserFromServer(WebSocketSession session){
         if(UserListService.userList.getUserBySessionID(session.getId()) != null){
             UserListService.userList.deleteUser(session.getId());
+            logger.info("User gelöscht.");
             return true;
         }
         else return false;
