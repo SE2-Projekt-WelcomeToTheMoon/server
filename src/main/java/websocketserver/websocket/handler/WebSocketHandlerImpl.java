@@ -77,6 +77,10 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     logger.info("Case updateGameBoard: {} ", username);
                     gameService.updateUser(username, messageJson.getString("message"));
                     break;
+                case "cheat":
+                    logger.info("Case cheat: {} ", username);
+                    gameService.cheat(session, username);
+                    break;
                 default:
                     JSONObject response = new JSONObject();
                     response.put("error", "Unbekannte Aktion");
