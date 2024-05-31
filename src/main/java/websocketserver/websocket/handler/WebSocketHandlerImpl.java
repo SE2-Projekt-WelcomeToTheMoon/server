@@ -45,6 +45,10 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
             if (messageJson.has("username")) {
                 username = messageJson.getString("username");
             }
+            String messageValue = null;
+            if (messageJson.has("message")) {
+                messageValue = messageJson.getString("message");
+            }
             String action = messageJson.getString("action");
 
             //Checks which action was requested by client.
@@ -80,6 +84,10 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                 case "cheat":
                     logger.info("Case cheat: {} ", username);
                     gameService.cheat(session, username);
+                    break;
+                case "detectCheat":
+                    logger.info("Case detect cheat: {} with messageValue: {} ", username, messageValue);
+                    gameService.detectCheat(session, username, messageValue);
                     break;
                 default:
                     JSONObject response = new JSONObject();

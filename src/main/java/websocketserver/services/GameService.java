@@ -119,4 +119,9 @@ public class GameService {
         game.cheat(session, username);
         gameBoardManager.informClientsAboutCheat( game.getPlayers(), username);
     }
+
+    public void detectCheat(WebSocketSession session, String username, String cheater) {
+        boolean hasCheated = game.detectCheat(session, username, cheater);
+        gameBoardManager.informClientsAboutDetectedCheat( game.getPlayers(), username, hasCheated);
+    }
 }

@@ -270,4 +270,36 @@ public class Game {
             }
         }
     }
+
+    public boolean detectCheat(WebSocketSession session, String username, String cheater) {
+        CreateUserService detector = null;
+        CreateUserService suspect = null;
+        for(CreateUserService player : players){
+            if(player.getUsername().equals(username)){
+                detector = player;
+            }else if(player.getUsername().equals(cheater)){
+                suspect = player;
+            }
+        }
+
+        JSONObject response = GenerateJSONObjectService.generateJSONObject("detectCheat", username, true, "", "");
+        try {
+            session.sendMessage(new TextMessage(response.toString()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        assert suspect != null;
+        assert detector != null;
+
+        if(suspect.getGameBoard().isHasCheated()){
+            logger.info("Has cheated  {}", cheater);
+            detector.getGameBoard().addRockets(1);
+            return true;
+        }else {
+            logger.info("Has not cheated  {}", cheater);
+            detector.getGameBoard().addRockets(-1);
+            return false;
+        }
+    }
 }
