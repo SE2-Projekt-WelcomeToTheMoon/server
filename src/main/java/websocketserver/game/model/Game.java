@@ -1,5 +1,8 @@
 package websocketserver.game.model;
 
+import org.json.JSONObject;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 import websocketserver.game.enums.ChosenCardCombination;
 import websocketserver.game.enums.EndType;
 import websocketserver.game.enums.FieldValue;
@@ -10,6 +13,7 @@ import websocketserver.services.CardManager;
 import websocketserver.game.services.CardController;
 import websocketserver.services.GameBoardManager;
 import websocketserver.services.GameService;
+import websocketserver.services.json.GenerateJSONObjectService;
 import websocketserver.services.user.CreateUserService;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -247,6 +252,21 @@ public class Game {
             if (!player.getUsername().equals(username)) {
                 logger.info("Rerouting GameBoard Update from {} to {}", username, player.getUsername());
                 gameBoardManager.updateClientGameBoardFromGame(player, message);
+            }
+        }
+    }
+
+    public void cheat(WebSocketSession session, String username) {
+        for(CreateUserService player : players){
+            if(player.getUsername().equals(username)){
+                player.getGameBoard().cheat();
+                JSONObject response = GenerateJSONObjectService.generateJSONObject("cheat", username, true, "", "");
+                try {
+                    session.sendMessage(new TextMessage(response.toString()));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                logger.info("Cheated one rocket for {}", username);
             }
         }
     }
