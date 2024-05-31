@@ -1,7 +1,6 @@
 package websocketserver.websocket.handler;
 
 import lombok.SneakyThrows;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import websocketserver.services.GameService;
 import websocketserver.services.SendMessageService;
 import websocketserver.services.json.ActionValues;
@@ -62,23 +61,28 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     SendMessageService.sendSingleMessage(session, responseMessage);
                     responseMessage = null;
                     break;
+
                 case "joinLobby":
                     logger.info("Case joinLobby: {} ", username);
                     lobbyService.handleJoinLobby(session, messageJson);
                     break;
+
                 case "leaveLobby":
                     logger.info("Case leaveLobby: {} ", username);
                     lobbyService.handleLeaveLobby(session, messageJson);
                     break;
+
                 case "requestLobbyUser":
                     logger.info("Case requestLobbyUser.");
                     lobbyService.handleRequestLobbyUser(session);
                     break;
+
                 case "startGame":
                     logger.info("Case startGame: {} ", username);
                     Map<String, CreateUserService> players = lobbyService.handleStartGame(session, messageJson);
                     gameService.handleStartGame(players);
                     break;
+
                 case "updateUser":
                     logger.info("Case updateGameBoard: {} ", username);
                     gameService.updateUser(username, messageJson.getString("message"));
@@ -131,19 +135,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-//        logger.error("Connection to User interrupted, attempting reconnect...");
-
-//        if (UserListService.userList.getUserBySessionID(session.getId()) != null) {
-//            //Removes user from lobby
-//            if (removeUserFromLobby(session)) {
-//                logger.info("User nicht mehr in der Lobby vorhanden(ConnectionCloses).{}", session.getId());
-//            }
-//            else logger.error("User konnte nicht aus der Lobby entfernt werden.");
-//
-//            if(removeUserFromServer(session)) logger.info("User gelöscht.");
-//            else logger.error("User konnte nicht gelöscht werden.");
-//        }
-//        logger.info(" Verbindung getrennt.: {} ", session.getId());
+        logger.error("Connection to User interrupted.");
     }
 
     @Override
