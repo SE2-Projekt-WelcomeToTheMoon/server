@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}/docker-image-gihub:latest
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build-and-push:
@@ -51,7 +51,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Build and push docker image to server
+      - name: Build and push docker image to github
         uses: docker/build-push-action@v3
         with:
           context: .
