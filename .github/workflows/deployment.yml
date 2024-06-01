@@ -70,13 +70,14 @@ jobs:
 #          echo ${{ secrets.REGISTRY_PAT }} | docker login ghcr.io -u ${{ github.actor }}
 #          --password-stdin
 
-      - name: Install SSH keys
-        run: |
-          install -m 600 -D /dev/null ~/.ssh/id_rsa
-          echo "${{ secrets.SERVER_SECRET }}" > ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SERVER_URL }} > ~/.ssh/known_hosts
+#      - name: Install SSH keys
+#        run: |
+#          install -m 600 -D /dev/null ~/.ssh/id_rsa
+#          echo "${{ secrets.SERVER_SECRET }}" > ~/.ssh/id_rsa
+#          ssh-keyscan -H ${{ secrets.SERVER_URL }} > ~/.ssh/known_hosts
 
       - name: Connect to server and pull docker image
         run: ssh -p ${{secrets.SERVER_PORT}} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_URL }} "cd ${{ secrets.WORK_DIR }} && docker compose pull && docker compose up -d && exit"
+
       - name: cleanup
         run: rm -rf ~/.ssh
