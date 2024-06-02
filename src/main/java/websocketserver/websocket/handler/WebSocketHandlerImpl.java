@@ -94,7 +94,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     if(reconnectUser(session, username)) {
                         logger.info("User {} reconnected.", username);
                     }
-                    logger.error("User {} not reconnected.", username);
+                    else logger.error("User {} not reconnected.", username);
                     if(reconnTry == 5){
                         logger.error("User {} reconnect timed out.", username);
                         break;
