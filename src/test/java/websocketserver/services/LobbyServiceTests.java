@@ -72,12 +72,13 @@ class LobbyServiceTests {
 
     @Test
     void testHandleRequestLobby() throws Exception {
+
         JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
-                "requestLobbyUser", "User12345", true, "", "");
-        lobbyService.handleRequestLobbyUser(session);
+                "requestLobbyUser", "User12345", true, "Test", "");
+        lobbyService.handleRequestLobbyUser(session, jsonMsg);
         assertEquals(0, lobbyService.gamelobby.getUserListFromLobby().size());
         lobbyService.handleJoinLobby(session, jsonMsg);
-        lobbyService.handleRequestLobbyUser(session);
+        lobbyService.handleRequestLobbyUser(session, jsonMsg);
         assertEquals(1, lobbyService.gamelobby.getUserListFromLobby().size());
     }
 
