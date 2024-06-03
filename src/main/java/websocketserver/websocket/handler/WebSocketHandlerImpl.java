@@ -74,9 +74,12 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
                 case "requestLobbyUser":
                     logger.info("Case requestLobbyUser.");
-                    lobbyService.handleRequestLobbyUser(session);
+                    lobbyService.handleRequestLobbyUser(session, messageJson);
                     break;
-
+                case "requestUsersForWinningScreen":
+                    logger.info("Case requestUsersForWinningScreen: {} ", username);
+                    lobbyService.handleRequestLobbyUser(session, messageJson);
+                    break;
                 case "startGame":
                     logger.info("Case startGame: {} ", username);
                     Map<String, CreateUserService> players = lobbyService.handleStartGame(session, messageJson);
