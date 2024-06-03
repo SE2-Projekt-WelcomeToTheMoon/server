@@ -12,6 +12,7 @@ public enum ActionValues {
     JOINLOBBY("joinLobby"),
     LEAVELOBBY("leaveLobby"),
     REQUESTLOBBYUSER("requestLobbyUser"),
+    REQUESTUSERSFORWINNINGSCREEN("requestUsersForWinningScreen"),
     STARTGAME("startGame"),
     RECONNECT("reconnect"),
     DISCONNECT("disconnect");
