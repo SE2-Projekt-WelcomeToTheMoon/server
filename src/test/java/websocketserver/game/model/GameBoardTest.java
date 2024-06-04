@@ -18,9 +18,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 
@@ -29,8 +27,10 @@ class GameBoardTest {
     private GameBoard gameBoard;
     private Floor floor;
 
+    private List<Reward> rewards;
     @BeforeEach
     void setUp() {
+        rewards= List.of(new Reward[]{new Reward(RewardCategory.PLANING), new Reward(RewardCategory.ROCKET, 5)});
         gameBoard = new GameBoard();
         floor = new Floor(FieldCategory.ROBOTER);
     }
@@ -145,7 +145,7 @@ class GameBoardTest {
 
     @Test
     void testSetAndGetFieldValueWithinFloorAtIndex() {
-        Chamber chamber = new Chamber(FieldCategory.ROBOTER);
+        Chamber chamber = new Chamber(FieldCategory.ROBOTER,rewards,0);
         Field field = new Field(FieldCategory.ROBOTER, FieldValue.ONE);
         Field field2 = new Field(FieldCategory.ROBOTER);
         chamber.addField(field);
@@ -161,7 +161,7 @@ class GameBoardTest {
 
     @Test
     void testSetInvalidValueWithinFloorAtIndex() {
-        Chamber chamber = new Chamber(FieldCategory.ROBOTER);
+        Chamber chamber = new Chamber(FieldCategory.ROBOTER,rewards,0);
         Field field1 = new Field(FieldCategory.ROBOTER, FieldValue.ONE);
         Field field2 = new Field(FieldCategory.ROBOTER, FieldValue.THREE);
         chamber.addField(field1);
@@ -222,7 +222,7 @@ class GameBoardTest {
 
     @Test
     void testSetValueWithinFloorAtIndexBeforeGameBoardFinalizationThrowsException() {
-        Chamber chamber = new Chamber(FieldCategory.ROBOTER);
+        Chamber chamber = new Chamber(FieldCategory.ROBOTER,rewards,0);
         chamber.addField(new Field(FieldCategory.ROBOTER));
         floor.addChamber(chamber);
         gameBoard.addFloor(floor);
@@ -257,7 +257,7 @@ class GameBoardTest {
     void testAreAllFieldsNumberedAllNumbered() {
         GameBoard gameBoard = new GameBoard();
         Floor floor1 = new Floor(FieldCategory.ROBOTER);
-        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER,rewards,0);
         chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
         chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
         floor1.addChamber(chamber1);
@@ -272,7 +272,7 @@ class GameBoardTest {
     void testAreAllFieldsNumberedSomeUnnumbered() {
         GameBoard gameBoard = new GameBoard();
         Floor floor1 = new Floor(FieldCategory.ROBOTER);
-        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER,rewards,0);
         chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
         chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE)); 
         floor1.addChamber(chamber1);
@@ -287,7 +287,7 @@ class GameBoardTest {
     void testAreAllFieldsNumberedNoRelevantFloors() {
         GameBoard gameBoard = new GameBoard();
         Floor floor1 = new Floor(FieldCategory.PLANUNG);
-        Chamber chamber1 = new Chamber(FieldCategory.PLANUNG);
+        Chamber chamber1 = new Chamber(FieldCategory.PLANUNG,rewards,0);
         chamber1.addField(new Field(FieldCategory.PLANUNG, FieldValue.ONE));
         floor1.addChamber(chamber1);
 
