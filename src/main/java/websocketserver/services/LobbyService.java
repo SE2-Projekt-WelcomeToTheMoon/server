@@ -81,7 +81,7 @@ public class LobbyService {
             logger.info("Nicht aus der Lobby entfernt: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
         }
     }
-    public void handleRequestLobbyUser(WebSocketSession session) {
+    public void handleRequestLobbyUser(WebSocketSession session, JSONObject message) {
         logger.info("Requesting users in lobby: {}", session.getId());
 
         ArrayList<CreateUserService> userlist = getUsersInLobby();
@@ -92,9 +92,16 @@ public class LobbyService {
                 userListJSONArr.put(user.getUsername());
             }
         }
+        String action = message.getString("action");
         JSONObject response = new JSONObject();
-        response.put("action", "requestLobbyUser");
-        response.put("users", userListJSONArr);
+        if(action.equals("requestLobbyUser")){
+            response.put("action", "requestLobbyUser");
+            logger.info("Requesting users in lobby(requestLobbyUser): {}", session.getId());
+        }
+        if(action.equals("requestUsersForWinningScreen")){
+            response.put("action", "requestUsersForWinningScreen");
+            logger.info("Requesting users in lobby for WinningScreen(requestUsersForWinningScreen): {}", session.getId());
+        }        response.put("users", userListJSONArr);
         response.put("success", true);
 
         try {
