@@ -317,4 +317,12 @@ class GameBoardTest {
         verify(mockGameService, times(1)).notifyPlayersMissionFlipped(any(MissionCard.class));
         verify(mockGameService, never()).notifyPlayersMissionFlipped(new MissionCard("Mission B1", new Reward(RewardCategory.ROCKET, 3)));
     }
+
+    @Test
+    void testCheat(){
+        gameBoard.finalizeGameBoard();
+        assertEquals(0, gameBoard.getRocketCount());
+        gameBoard.cheat();
+        assertEquals(1, gameBoard.getRocketCount());
+    }
 }
