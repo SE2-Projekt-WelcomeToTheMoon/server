@@ -122,7 +122,12 @@ public class GameBoardManager {
     public void informClientsAboutDetectedCheat(List<CreateUserService> players, String username, boolean hasCheated) {
         for (CreateUserService player : players) {
             logger.info("Player: {} wird über detect cheat informiert", player.getUsername());
-            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("playerDetectedCheat", player.getUsername(), hasCheated, username , "");
+            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject(
+                    hasCheated ? "playerDetectedCheatCorrect" : "playerDetectedCheatWrong",
+                    player.getUsername(),
+                    true,
+                    username,
+                    "");
             SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         }
     }
