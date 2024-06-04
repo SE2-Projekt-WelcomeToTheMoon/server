@@ -52,6 +52,10 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
             }
             String action = messageJson.getString("action");
 
+            String messageValue = null;
+            if (messageJson.has("message")) {
+                messageValue = messageJson.getString("message");
+            }
             //Checks which action was requested by client.
             switch (action) {
                 case "registerUser":
