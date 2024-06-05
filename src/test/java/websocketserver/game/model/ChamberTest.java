@@ -187,19 +187,19 @@ class ChamberTest {
         Field field = new Field(FieldCategory.ENERGIE);
         fields.add(field);
 
-        Chamber chamber = new Chamber(FieldCategory.ENERGIE,rewards,0);
-        chamber.addField(field);
+        Chamber chamberTest = new Chamber(FieldCategory.ENERGIE,rewards,0);
+        chamberTest.addField(field);
 
-        assertEquals(fields, chamber.getFields());
+        assertEquals(fields, chamberTest.getFields());
     }
 
     @Test
     void testGetRewardList(){
-        List<Reward> rewards = new ArrayList<>();
+        List<Reward> rewardsTest = new ArrayList<>();
         Reward reward = new Reward(RewardCategory.ROCKET);
-        rewards.add(reward);
-        Chamber chamber = new Chamber(FieldCategory.ENERGIE, rewards, 1);
+        rewardsTest.add(reward);
+        Chamber chamber = new Chamber(FieldCategory.ENERGIE, rewardsTest, 1);
 
-        assertEquals(rewards, chamber.getRewards());
+        assertEquals(rewardsTest, chamber.getRewards());
     }
 }

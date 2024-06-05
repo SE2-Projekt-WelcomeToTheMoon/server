@@ -305,12 +305,12 @@ class FloorTest {
     @Test
     void testCanInsertValueWithNextValueNull() {
         Floor floor = new Floor(FieldCategory.ROBOTER);
-        Chamber chamber = new Chamber(FieldCategory.ROBOTER,rewards,0);
-        chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
-        chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
-        chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+        Chamber chamberTest = new Chamber(FieldCategory.ROBOTER,rewards,0);
+        chamberTest.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
+        chamberTest.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
+        chamberTest.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
 
-        floor.addChamber(chamber);
+        floor.addChamber(chamberTest);
         floor.finalizeFloor();
 
         assertTrue(floor.canInsertValue(FieldValue.THREE));
@@ -337,11 +337,11 @@ class FloorTest {
     @Test
     void testCanInsertValueNotGreaterThanCurrentMax() {
         Floor floor = new Floor(FieldCategory.ROBOTER);
-        Chamber chamber = new Chamber(FieldCategory.ROBOTER,rewards,0);
-        chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
-        chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.FOUR));
+        Chamber chamberTest = new Chamber(FieldCategory.ROBOTER,rewards,0);
+        chamberTest.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
+        chamberTest.addField(new Field(FieldCategory.ROBOTER, FieldValue.FOUR));
 
-        floor.addChamber(chamber);
+        floor.addChamber(chamberTest);
         floor.finalizeFloor();
 
         assertFalse(floor.canInsertValue(FieldValue.THREE));
