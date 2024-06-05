@@ -59,25 +59,15 @@ jobs:
           tags: ${{steps.meta.outputs.tags}}
           labels: ${{steps.meta.outputs.labels}}
 
-  deploy:
-    needs: build-and-push
-    name: Deploy image on server
-    runs-on: ubuntu-latest
+      - name: Deploy to server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SECRET }}
+          SERVER_IP: ${{ secrets.SERVER_URL }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
 
-    steps:
-#      - name: Login
-#        run: |
-#          echo ${{ secrets.REGISTRY_PAT }} | docker login ghcr.io -u ${{ github.actor }}
-#          --password-stdin
-
-#      - name: Install SSH keys
-#        run: |
-#          install -m 600 -D /dev/null ~/.ssh/id_rsa
-#          echo "${{ secrets.SERVER_SECRET }}" > ~/.ssh/id_rsa
-#          ssh-keyscan -H ${{ secrets.SERVER_URL }} > ~/.ssh/known_hosts
-
-      - name: Connect to server and pull docker image
-        run: ssh -p ${{secrets.SERVER_PORT}} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_URL }} "cd ${{ secrets.WORK_DIR }} && docker compose pull && docker compose up -d && exit"
-
-      - name: cleanup
-        run: rm -rf ~/.ssh
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key
+          chmod 600 private_key
+          scp -i $SSH_PRIVATE_KEY -P $SERVER_PORT -i private_key deploy.sh $SERVER_USER@$SERVER_IP:/tmp/deploy.sh
+          ssh -i $SSH_PRIVATE_KEY -P $SERVER_PORT -i private_key $SERVER_USER@$SERVER_IP 'bash /tmp/deploy.sh'
