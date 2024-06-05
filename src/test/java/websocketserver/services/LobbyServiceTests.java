@@ -58,8 +58,8 @@ class LobbyServiceTests {
 
     @Test
     void testJoinLobbyAndLeave() throws Exception {
-        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
-                "joinLobby", "User12345", true, "", "");
+        JSONObject jsonMsg = new GenerateJSONObjectService(
+                "joinLobby", "User12345", true, "", "").generateJSONObject();
         lobbyService.handleJoinLobby(session, jsonMsg);
         assertEquals(1, lobbyService.gamelobby.getUserListFromLobby().size());
         lobbyService.handleJoinLobby(session, jsonMsg);
@@ -73,8 +73,8 @@ class LobbyServiceTests {
     @Test
     void testHandleRequestLobby_requestLobbyUser() throws Exception {
 
-        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
-                "requestLobbyUser", "User12345", true, "Test", "");
+        JSONObject jsonMsg = new GenerateJSONObjectService(
+                "requestLobbyUser", "User12345", true, "Test", "").generateJSONObject();
         lobbyService.handleRequestLobbyUser(session, jsonMsg);
         assertEquals(0, lobbyService.gamelobby.getUserListFromLobby().size());
         lobbyService.handleJoinLobby(session, jsonMsg);
@@ -84,8 +84,8 @@ class LobbyServiceTests {
     @Test
     void testHandleRequest_requestUsersForWinningScreen() throws Exception {
 
-        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
-                "requestUsersForWinningScreen", "User12345", true, "Test", "");
+        JSONObject jsonMsg = new GenerateJSONObjectService(
+                "requestUsersForWinningScreen", "User12345", true, "Test", "").generateJSONObject();
         lobbyService.handleRequestLobbyUser(session, jsonMsg);
         assertEquals(0, lobbyService.gamelobby.getUserListFromLobby().size());
         lobbyService.handleJoinLobby(session, jsonMsg);
@@ -113,8 +113,8 @@ class LobbyServiceTests {
 
     @Test
     void testStartGameSuccessfully() throws Exception {
-        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
-                "startGame", "User123", true, "", "");
+        JSONObject jsonMsg = new GenerateJSONObjectService(
+                "startGame", "User123", true, "", "").generateJSONObject();
 
 
         lobbyService.handleStartGame(session, jsonMsg);
@@ -124,8 +124,8 @@ class LobbyServiceTests {
 
     @Test
     void testStartGameFailAlreadyStarted() throws Exception {
-        JSONObject jsonMsg = GenerateJSONObjectService.generateJSONObject(
-                "startGame", "User123", true, "", "");
+        JSONObject jsonMsg = new GenerateJSONObjectService(
+                "startGame", "User123", true, "", "").generateJSONObject();
 
         lobbyService.handleStartGame(session, jsonMsg);
 

@@ -47,12 +47,12 @@ public class LobbyService {
 
         String username = messageJson.getString(USERNAME_KEY);
         if(gamelobby.addPlayerToLobby(username)){
-            JSONObject response = GenerateJSONObjectService.generateJSONObject("joinLobby", username, true, "", "");
+            JSONObject response = new GenerateJSONObjectService("joinLobby", username, true, "", "").generateJSONObject();
             SendMessageService.sendMessageToAllUsersBySession(response);
             logger.info("Erfolgreich zur Lobby hinzugefügt: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
 
         }else{
-            JSONObject errorResponse = GenerateJSONObjectService.generateJSONObject("joinLobby", username, false, "", "lobby is full or Username already in use.");
+            JSONObject errorResponse = new GenerateJSONObjectService("joinLobby", username, false, "", "lobby is full or Username already in use.").generateJSONObject();
             SendMessageService.sendSingleMessage(session, errorResponse);
             logger.info("Nicht zur Lobby hinzugefügt : {}, {} ", session.getId(), messageJson.getString(USERNAME_KEY));
         }
@@ -71,12 +71,12 @@ public class LobbyService {
         String username = messageJson.getString(USERNAME_KEY);
 
         if(gamelobby.userListMap.containsKey(username)) {
-            JSONObject response = GenerateJSONObjectService.generateJSONObject("leaveLobby", username, true, "", "");
+            JSONObject response = new GenerateJSONObjectService("leaveLobby", username, true, "", "").generateJSONObject();
             SendMessageService.sendMessageToAllUsersBySession(response);
             gamelobby.removePlayerFromLobbyByName(username);
             logger.info("Erfolgreich aus der Lobby entfernt: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
         }else{
-            JSONObject errorResponse = GenerateJSONObjectService.generateJSONObject("leaveLobby", username, false, "", "Username not in Lobby.");
+            JSONObject errorResponse = new GenerateJSONObjectService("leaveLobby", username, false, "", "Username not in Lobby.").generateJSONObject();
             SendMessageService.sendSingleMessage(session, errorResponse);
             logger.info("Nicht aus der Lobby entfernt: {}, {}", session.getId(), messageJson.getString(USERNAME_KEY));
         }
@@ -132,7 +132,7 @@ public class LobbyService {
 
         if(!gameStarted){
             gameStarted = true;
-            JSONObject response = GenerateJSONObjectService.generateJSONObject("startGame", username, true, "", "");
+            JSONObject response = new GenerateJSONObjectService("startGame", username, true, "", "").generateJSONObject();
             session.sendMessage(new TextMessage(response.toString()));
             logger.info("Lobby returned UserList");
             return gamelobby.getUserListMap();

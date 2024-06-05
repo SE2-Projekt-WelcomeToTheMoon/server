@@ -41,7 +41,7 @@ public class CardManager {
                 logger.warn("Player is null");
                 return false;
             }
-            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("nextCardDraw", player.getUsername(), true,cardData , "");
+            JSONObject jsonObject = new GenerateJSONObjectService("nextCardDraw", player.getUsername(), true,cardData , "").generateJSONObject();
             SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         }
         return true;
