@@ -15,10 +15,12 @@ class ChamberTest {
     private Chamber chamber;
     private Field validField;
     private Field invalidField;
+    private List<Reward> rewards;
 
     @BeforeEach
     void setUp() {
-        chamber = new Chamber(FieldCategory.ROBOTER);
+        rewards= List.of(new Reward[]{new Reward(RewardCategory.PLANING), new Reward(RewardCategory.ROCKET, 5)});
+        chamber = new Chamber(FieldCategory.ROBOTER,rewards,0);
         validField = new Field(FieldCategory.ROBOTER);
         invalidField = new Field(FieldCategory.WASSER);
     }
@@ -185,19 +187,19 @@ class ChamberTest {
         Field field = new Field(FieldCategory.ENERGIE);
         fields.add(field);
 
-        Chamber chamber = new Chamber(FieldCategory.ENERGIE);
-        chamber.addField(field);
+        Chamber chamberTest = new Chamber(FieldCategory.ENERGIE,rewards,0);
+        chamberTest.addField(field);
 
-        assertEquals(fields, chamber.getFields());
+        assertEquals(fields, chamberTest.getFields());
     }
 
     @Test
     void testGetRewardList(){
-        List<Reward> rewards = new ArrayList<>();
+        List<Reward> rewardsTest = new ArrayList<>();
         Reward reward = new Reward(RewardCategory.ROCKET);
-        rewards.add(reward);
-        Chamber chamber = new Chamber(FieldCategory.ENERGIE, rewards, 1);
+        rewardsTest.add(reward);
+        Chamber chamber = new Chamber(FieldCategory.ENERGIE, rewardsTest, 1);
 
-        assertEquals(rewards, chamber.getRewards());
+        assertEquals(rewardsTest, chamber.getRewards());
     }
 }

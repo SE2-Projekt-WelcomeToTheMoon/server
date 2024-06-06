@@ -5,11 +5,11 @@ import lombok.Getter;
 
 @Getter
 public class CardCombination {
-    private PlayingCard card1;
-    private PlayingCard card2;
-    private FieldCategory currentSymbol;
-    private FieldCategory nextSymbol;
-    private int currentNumber;
+    private final PlayingCard card1;
+    private final PlayingCard card2;
+    private final FieldCategory currentSymbol;
+    private final FieldCategory nextSymbol;
+    private final int currentNumber;
     public CardCombination(PlayingCard card1, PlayingCard card2){
         this.card1=card1;
         this.card2=card2;
