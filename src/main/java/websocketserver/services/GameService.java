@@ -25,7 +25,7 @@ public class GameService {
     boolean gameStarted = false;
 
     private static Logger logger = LoggerFactory.getLogger(GameService.class);
-    private List<CreateUserService> players;
+    public List<CreateUserService> players;
 
     public GameService() {
         cardManager = new CardManager();
@@ -120,8 +120,9 @@ public class GameService {
         gameBoardManager.informClientsAboutCheat( game.getPlayers(), username);
     }
 
-    public void detectCheat(WebSocketSession session, String username, String cheater) {
+    public boolean detectCheat(WebSocketSession session, String username, String cheater) {
         boolean hasCheated = game.detectCheat(session, username, cheater);
         gameBoardManager.informClientsAboutDetectedCheat( game.getPlayers(), username, hasCheated);
+        return hasCheated;
     }
 }
