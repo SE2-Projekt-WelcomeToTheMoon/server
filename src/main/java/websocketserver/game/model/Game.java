@@ -100,7 +100,7 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_TWO");
         }
 
-        gameService.informClientsAboutGameState();
+//        gameService.informClientsAboutGameState();
 
         gameState = GameState.ROUND_THREE;
         doRoundThree();
@@ -169,7 +169,7 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_FOUR");
         }
 
-        gameService.informClientsAboutGameState();
+//        gameService.informClientsAboutGameState();
 
         //Logic for round four where player optional do their action
 
@@ -183,7 +183,7 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_FIVE");
         }
 
-        gameService.informClientsAboutGameState();
+//        gameService.informClientsAboutGameState();
 
         //Logic for round two where affects of player moves are calculated
 
@@ -197,7 +197,7 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_SIX");
         }
 
-        gameService.informClientsAboutGameState();
+//        gameService.informClientsAboutGameState();
 
         //Logic for round six where missions can be completed, and it will be
         //checked whether the game is finished or not.
@@ -209,6 +209,7 @@ public class Game {
             gameService.informPlayersAboutEndOfGame(winners, EndType.ROCKETS_COMPLETED);
         } else {
             gameState = GameState.ROUND_ONE;
+            logger.info("RoundSIX finished, starting new round");
             doRoundOne();
         }
     }
