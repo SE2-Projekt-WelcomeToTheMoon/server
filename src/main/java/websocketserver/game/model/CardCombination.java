@@ -16,7 +16,13 @@ public class CardCombination {
         this.currentSymbol= card1.getSymbol();
         this.nextSymbol= card2.getSymbol();
         this.currentNumber= card2.getNumber();
-
+    }
+    public CardCombination(FieldCategory currentSymbol, FieldCategory nextSymbol, int currentNumber){
+        this.card1=null;
+        this.card2=null;
+        this.currentSymbol= currentSymbol;
+        this.nextSymbol= nextSymbol;
+        this.currentNumber= currentNumber;
     }
 
 

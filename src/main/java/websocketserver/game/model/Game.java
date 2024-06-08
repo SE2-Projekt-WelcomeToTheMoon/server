@@ -76,6 +76,8 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_ONE");
         }
 
+        informPLayersGameState();
+
         cardManager.drawNextCard();
 
         for(CreateUserService createUserService : players){
@@ -102,6 +104,8 @@ public class Game {
         if (gameState != GameState.ROUND_TWO) {
             throw new GameStateException("Game must be in state ROUND_TWO");
         }
+
+        informPLayersGameState();
 
         //Logic for round two where player choose their combination
         clientResponseReceived.set(0);
@@ -134,6 +138,8 @@ public class Game {
         if (gameState != GameState.ROUND_THREE) {
             throw new GameStateException("Game must be in state ROUND_THREE");
         }
+
+        informPLayersGameState();
 
         //Logic for round three where player enter their number
         clientResponseReceived.set(0);
@@ -170,6 +176,8 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_FOUR");
         }
 
+        informPLayersGameState();
+
         //Logic for round four where player optional do their action
 
         gameState = GameState.ROUND_FIVE;
@@ -181,6 +189,8 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_FIVE");
         }
 
+        informPLayersGameState();
+
         //Logic for round two where affects of player moves are calculated
 
         gameState = GameState.ROUND_SIX;
@@ -191,6 +201,8 @@ public class Game {
         if (gameState != GameState.ROUND_SIX) {
             throw new GameStateException("Game must be in state ROUND_SIX");
         }
+
+        informPLayersGameState();
 
         //Logic for round six where missions can be completed, and it will be
         //checked whether the game is finished or not.
@@ -249,5 +261,9 @@ public class Game {
                 gameBoardManager.updateClientGameBoardFromGame(player, message);
             }
         }
+    }
+
+    public void informPLayersGameState(){
+        gameService.informPlayersAboutGameState(gameState.toString());
     }
 }
