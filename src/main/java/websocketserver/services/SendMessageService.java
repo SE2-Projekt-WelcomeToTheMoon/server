@@ -20,13 +20,14 @@ public class SendMessageService {
 
     /**
      * Method to send one message to a specific client via username.
-     * @param username Client to send the message.
+     *
+     * @param username      Client to send the message.
      * @param messageToSend Message to send to client.
      */
     @SneakyThrows
-    public static void sendSingleMessage(String username, JSONObject messageToSend){
-        for (CreateUserService user : WebSocketHandlerImpl.lobbyService.getUsersInLobby()){
-            if(user.getUsername().equals(username)){
+    public static void sendSingleMessage(String username, JSONObject messageToSend) {
+        for (CreateUserService user : WebSocketHandlerImpl.lobbyService.getUsersInLobby()) {
+            if (user.getUsername().equals(username)) {
                 WebSocketSession session = user.getSession();
                 sendSingleMessage(session, messageToSend);
             }
@@ -35,51 +36,65 @@ public class SendMessageService {
 
     /**
      * Method to send one message to a specific client via session.
-     * @param session Client to send the message.
+     *
+     * @param session       Client to send the message.
      * @param messageToSend Message to send to client.
      */
     @SneakyThrows
-    public static void sendSingleMessage(WebSocketSession session, JSONObject messageToSend){
-        if(checkMessage(messageToSend)) {
-            session.sendMessage(new TextMessage(messageToSend.toString()));
-            logger.info("Message sent.");
-        }else logger.warn("Message incomplete. Message not sent.");
+    public static void sendSingleMessage(WebSocketSession session, JSONObject messageToSend) {
+        try {
+            if (session.isOpen()) {
+                if (checkMessage(messageToSend)) {
+                    session.sendMessage(new TextMessage(messageToSend.toString()));
+                    logger.info("Message sent.");
+                } else {
+                    logger.warn("Message incomplete. Message not sent.");
+                }
+            } else {
+                logger.warn("Attempted to send message to closed WebSocket session: {}", session.getId());
+            }
+        } catch (IllegalStateException e) {
+            logger.error("Attempt to use closed WebSocket session {}: {}", session.getId(), e.getMessage());
+        }
     }
 
     /**
      * Method sends messages to all users registered on the server and registered in a lobby.
+     *
      * @param messageToSend Message to send to all users.
      */
     @SneakyThrows
-    public static void sendMessagesToAllUsers(JSONObject messageToSend){
-        if(checkMessage(messageToSend)) {
+    public static void sendMessagesToAllUsers(JSONObject messageToSend) {
+        if (checkMessage(messageToSend)) {
             ArrayList<CreateUserService> users = WebSocketHandlerImpl.lobbyService.getUsersInLobby();
-            for(CreateUserService user : users){
+            for (CreateUserService user : users) {
                 WebSocketSession session = user.getSession();
                 session.sendMessage(new TextMessage(messageToSend.toString()));
             }
             logger.info("Message sent to all users.");
-        }else logger.warn("Message incomplete. Message not sent.");
+        } else logger.warn("Message incomplete. Message not sent.");
     }
+
     @SneakyThrows
-    public static void sendMessageToAllUsersBySession(JSONObject messageToSend){
-        if(checkMessage(messageToSend)) {
+    public static void sendMessageToAllUsersBySession(JSONObject messageToSend) {
+        if (checkMessage(messageToSend)) {
             ArrayList<CreateUserService> users = UserListService.userList.getAllUsers();
-            for(CreateUserService user : users){
+            for (CreateUserService user : users) {
                 WebSocketSession session = user.getSession();
                 session.sendMessage(new TextMessage(messageToSend.toString()));
                 logger.info("Message sent to User (by connection): {} . ", user.getUsername());
             }
             logger.info("Message sent to all users by connection.");
-        }else logger.warn("Message incomplete. Message not sent by connection .");
+        } else logger.warn("Message incomplete. Message not sent by connection .");
     }
 
     /**
      * Checks if must have keys are in the message.
+     *
      * @param messageToCheck Message to check.
      * @return Boolean value if message to send has needed keys or not.
      */
-    private static boolean checkMessage(JSONObject messageToCheck){
+    private static boolean checkMessage(JSONObject messageToCheck) {
         return ((messageToCheck.getString("action") != null) && !(messageToCheck.getString("action").isEmpty()));
     }
 }

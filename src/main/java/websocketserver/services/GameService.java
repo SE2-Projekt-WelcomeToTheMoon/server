@@ -105,18 +105,18 @@ public class GameService {
     }
 
     public void notifyPlayersMissionFlipped(MissionCard card) {
-    JSONObject message = new JSONObject();
-    try {
-        message.put("action", "missionFlipped");
-        message.put("missionDescription", card.getMissionDescription());
-        message.put("newReward", card.getReward().getNumberRockets());
-        message.put("flipped", true);
-    } catch (JSONException e) {
-        logger.error(e.getMessage());
-    }
+        JSONObject message = new JSONObject();
+        try {
+            message.put("action", "missionFlipped");
+            message.put("missionDescription", card.getMissionDescription());
+            message.put("newReward", card.getReward().getNumberRockets());
+            message.put("flipped", true);
+        } catch (JSONException e) {
+            logger.error(e.getMessage());
+        }
 
-    for (CreateUserService player : players) {
-        SendMessageService.sendSingleMessage(player.getSession(), message);
+        for (CreateUserService player : players) {
+            SendMessageService.sendSingleMessage(player.getSession(), message);
+        }
     }
-}
 }
