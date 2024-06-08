@@ -101,4 +101,12 @@ public class GameBoardManager {
             SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         }
     }
+
+    public void informClientsAboutGameState(List<CreateUserService> players, String currentGameState) {
+        for (CreateUserService player : players) {
+            logger.info("Player: {} wird informiert (GameState)", player.getUsername());
+            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("notifyGameState", player.getUsername(), true, currentGameState, "");
+            SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
+        }
+    }
 }

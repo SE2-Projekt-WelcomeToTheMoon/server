@@ -55,6 +55,11 @@ public class GameService {
         if (!cardManager.sendCurrentCardsToPlayers(game.getPlayers())) logger.error("Error sending cards to players");
     }
 
+    public void informClientsAboutGameState() {
+        logger.info("GameService informClientsAboutGameState");
+        gameBoardManager.informClientsAboutGameState(game.getPlayers(), game.getGameState().toString());
+    }
+
     public void sendInvalidCombination(CreateUserService player) {
         logger.info("GameService sendInvalidCombination");
         //TODO: If Player sends invalid selection use this method, to return failure.
