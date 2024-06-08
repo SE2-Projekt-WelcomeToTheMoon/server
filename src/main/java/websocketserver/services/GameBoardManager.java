@@ -82,13 +82,13 @@ public class GameBoardManager {
             return;
         }
         String payload = serializeFieldUpdateMessage(fieldUpdateMessage);
-        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("updateUser", player.getUsername(), true, payload, "");
+        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("makeMove", player.getUsername(), true, payload, "");
         SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         logger.info("GameBoard Update sent for {}", player.getUsername());
     }
 
     public void updateClientGameBoardFromGame(CreateUserService player, String payload) {
-        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("updateUser", player.getUsername(), true, payload, "");
+        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("makeMove", player.getUsername(), true, payload, "");
         SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         logger.info("Rerouted GameBoard Update sent for {}", player.getUsername());
     }

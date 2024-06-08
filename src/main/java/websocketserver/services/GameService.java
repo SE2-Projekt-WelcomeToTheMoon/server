@@ -72,7 +72,7 @@ public class GameService {
 
     public void informPlayersAboutGameState(String currentGameState) {
         logger.info("GameService informPlayersAboutGameState");
-        notifyAllPlayers(currentGameState);
+        //notifyAllPlayers(currentGameState);
     }
 
     public void updateUser(String username, String message) {

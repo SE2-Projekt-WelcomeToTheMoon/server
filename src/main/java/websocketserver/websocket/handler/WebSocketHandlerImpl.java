@@ -86,8 +86,8 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     gameService.handleStartGame(players);
                     break;
 
-                case "updateUser":
-                    logger.info("Case updateGameBoard: {} ", username);
+                case "makeMove":
+                    logger.info("Case makeMove: {} ", username);
                     gameService.updateUser(username, messageJson.getString("message"));
                     break;
 
