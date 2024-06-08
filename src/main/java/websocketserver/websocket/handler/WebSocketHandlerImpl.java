@@ -112,6 +112,11 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     else logger.error("User {} not disconnected.", username);
                     break;
 
+                case "sendGameState":
+                    logger.info("Case sendGameState: {} ", username);
+                    gameService.informClientsAboutGameState();
+                    break;
+
                 default:
                     JSONObject response = new JSONObject();
                     response.put("error", "Unbekannte Aktion");

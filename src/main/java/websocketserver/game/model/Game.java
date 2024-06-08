@@ -177,6 +177,7 @@ public class Game {
         //Logic for round four where player optional do their action
 
         gameState = GameState.ROUND_FIVE;
+        logger.info("Now in state ROUND_FIVE");
         doRoundFive();
     }
 

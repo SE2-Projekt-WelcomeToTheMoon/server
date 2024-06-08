@@ -75,11 +75,6 @@ public class GameService {
         //TODO: If new card combination and player can't find a spot
     }
 
-    public void informPlayersAboutGameState(String currentGameState) {
-        logger.info("GameService informPlayersAboutGameState");
-        //notifyAllPlayers(currentGameState);
-    }
-
     public void updateUser(String username, String message) {
         logger.info("GameService makeMove");
         game.updateUser(username, message);
