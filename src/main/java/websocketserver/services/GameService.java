@@ -16,6 +16,8 @@ import org.springframework.web.socket.WebSocketSession;
 import java.util.List;
 import java.util.Map;
 
+import static websocketserver.websocket.handler.WebSocketHandlerImpl.gameService;
+
 @Service
 public class GameService {
 

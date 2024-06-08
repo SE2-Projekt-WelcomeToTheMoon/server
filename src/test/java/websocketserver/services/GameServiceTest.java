@@ -2,48 +2,70 @@ package websocketserver.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.mockito.Mock;
+import org.springframework.web.socket.WebSocketSession;
+import websocketserver.game.model.Game;
+import websocketserver.services.user.CreateUserService;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
+import static websocketserver.websocket.handler.WebSocketHandlerImpl.gameService;
 
 class GameServiceTest {
-    private GameService gameService;
+    private GameService gameServiceObject;
     @Mock
-    Logger logger;
-
+    Logger loggerObject;
+    @Mock
+    private Game game;
+    @Mock
+    private GameBoardManager gameBoardManager;
+    @Mock
+    private WebSocketSession session;
+    @Mock
+    private CreateUserService player;
+    @Mock
+    private CreateUserService cheater;
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        logger = mock(Logger.class);
-        this.gameService = new GameService();
-        this.gameService.setLogger(logger);
+        loggerObject = mock(Logger.class);
+        this.gameServiceObject = new GameService();
+        this.gameServiceObject.setLogger(loggerObject);
+        when(player.getUsername()).thenReturn("player1");
+        when(cheater.getUsername()).thenReturn("player2");
     }
 
     @Test
     void testUpdateUser() {
-        gameService.updateUser("", "");
-        verify(logger).info("GameService updateUser");
+        gameServiceObject.updateUser("", "");
+        verify(loggerObject).info("GameService updateUser");
     }
 
     @Test
     void testSendInvalidCombination() {
-        gameService.sendInvalidCombination(null);
-        verify(logger).info("GameService sendInvalidCombination");
+        gameServiceObject.sendInvalidCombination(null);
+        verify(loggerObject).info("GameService sendInvalidCombination");
     }
 
     @Test
     void testInformPlayersAboutEndOfGame() {
-        gameService.informPlayersAboutEndOfGame(null, null);
-        verify(logger).info("GameService informPlayersAboutEndOfGame");
+        gameServiceObject.informPlayersAboutEndOfGame(null, null);
+        verify(loggerObject).info("GameService informPlayersAboutEndOfGame");
     }
 
     @Test
     void testInformPlayerAboutSystemerror() {
-        gameService.informPlayerAboutSystemerror(null);
-        verify(logger).info("GameService informPlayerAboutSystemerror");
+        gameServiceObject.informPlayerAboutSystemerror(null);
+        verify(loggerObject).info("GameService informPlayerAboutSystemerror");
     }
 
+    @Test
+    void testInformPlayersCheat() {
+        gameServiceObject.cheat(null, null);
+    }
 }
