@@ -156,7 +156,7 @@ class GameTest {
 
 
     @Test
-    void testWrongStateForRound() throws  {
+    void testWrongStateForRound() {
         assertThrows(GameStateException.class, () -> gameObject.receiveSelectedCombinationOfPlayer(player1, ChosenCardCombination.ONE));
     }
 
