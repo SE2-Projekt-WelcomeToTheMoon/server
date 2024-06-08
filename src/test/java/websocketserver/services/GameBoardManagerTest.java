@@ -62,42 +62,18 @@ class GameBoardManagerTest {
 
         assertEquals(FieldValue.NONE, player.getGameBoard().getFloorAtIndex(0).getChamber(0).getField(0).getFieldValue());
 
-        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0, 0, 0, FieldValue.FIVE, "");
-        ObjectMapper mapper = new ObjectMapper();
-        String message = null;
-        try {
-            message = mapper.writeValueAsString(fieldUpdateMessage);
-        } catch (JsonProcessingException e) {
-            fail("JSON serialization error");
-        }
-        gameBoardManager.updateUser(player, message);
+        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0, 0, 0, FieldValue.FIVE, "",null);
+        gameBoardManager.updateUser(player, fieldUpdateMessage);
         assertEquals(FieldValue.FIVE, player.getGameBoard().getFloorAtIndex(0).getChamber(0).getField(0).getFieldValue());
-    }
-
-    @Test
-    void testUpdateUserJsonProcessingException() {
-        String invalidMessage = "";
-
-        gameBoardManager.setLogger(logger);
-        gameBoardManager.updateUser(player, invalidMessage);
-
-        verify(logger).error(eq("JSON deserialization error"), any(JsonProcessingException.class));
     }
 
     @Test
     void testUpdateUserNullPointerException() {
         player.setGameBoard(null);
-        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0, 0, 0, FieldValue.FIVE, "");
-        ObjectMapper mapper = new ObjectMapper();
-        String validJsonMessage = null;
-        try {
-            validJsonMessage = mapper.writeValueAsString(fieldUpdateMessage);
-        } catch (JsonProcessingException e) {
-            fail("JSON serialization error");
-        }
+        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0, 0, 0, FieldValue.FIVE, "", null);
 
         gameBoardManager.setLogger(logger);
-        gameBoardManager.updateUser(player, validJsonMessage);
+        gameBoardManager.updateUser(player,fieldUpdateMessage);
 
         verify(logger).error(eq("Failed to update field value due to null object reference"), any(NullPointerException.class));
     }
@@ -105,7 +81,7 @@ class GameBoardManagerTest {
     @Test
     void testUpdateClientGameBoard() {
         gameBoardManager.setLogger(logger);
-        gameBoardManager.updateClientGameBoard(player, new FieldUpdateMessage(0,0,0,FieldValue.FIVE, ""));
+        gameBoardManager.updateClientGameBoard(player, new FieldUpdateMessage(0,0,0,FieldValue.FIVE, "", null));
 
         verify(logger).info("GameBoard Update sent for {}", player.getUsername());
     }
@@ -121,7 +97,7 @@ class GameBoardManagerTest {
     @Test
     void testSerializeFieldUpdateMessage() {
 
-        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0, 0, 0, FieldValue.FIVE, "");
+        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0, 0, 0, FieldValue.FIVE, "",null);
         ObjectMapper mapper = new ObjectMapper();
         String fieldUpdateJSON = null;
         try {
@@ -144,7 +120,7 @@ class GameBoardManagerTest {
 
     @Test
     void testFieldUpdateMessage(){
-        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0,0,0,FieldValue.FIVE, "test");
+        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0,0,0,FieldValue.FIVE, "test",null);
         ObjectMapper mapper = new ObjectMapper();
         String message = null;
         try {
@@ -165,7 +141,7 @@ class GameBoardManagerTest {
     @Test
     void test(){
         ObjectMapper mapper = new ObjectMapper();
-        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0,0,0,FieldValue.FIVE, "test");
+        FieldUpdateMessage fieldUpdateMessage = new FieldUpdateMessage(0,0,0,FieldValue.FIVE, "test",null);
         String message = null;
         try {
             message = mapper.writeValueAsString(fieldUpdateMessage);

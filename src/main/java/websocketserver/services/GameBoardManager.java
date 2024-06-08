@@ -54,16 +54,7 @@ public class GameBoardManager {
     /**
      * gets FieldUpdateMessage from Client
      */
-    public void updateUser(CreateUserService player, String message) {
-        ObjectMapper mapper = new ObjectMapper();
-        FieldUpdateMessage fieldUpdateMessage;
-        try {
-            fieldUpdateMessage = mapper.readValue(message, FieldUpdateMessage.class);
-        } catch (JsonProcessingException e) {
-            logger.error("JSON deserialization error", e);
-            return;
-        }
-        // just for readabilities sake
+    public void updateUser(CreateUserService player, FieldUpdateMessage fieldUpdateMessage) {
         try {
             GameBoard gameBoard = player.getGameBoard();
             Floor floor = gameBoard.getFloorAtIndex(fieldUpdateMessage.floor());

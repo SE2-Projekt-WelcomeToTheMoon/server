@@ -76,7 +76,7 @@ public class GameService {
     }
 
     public void updateUser(String username, String message) {
-        logger.info("GameService updateUser");
+        logger.info("GameService makeMove");
         game.updateUser(username, message);
     }
 
