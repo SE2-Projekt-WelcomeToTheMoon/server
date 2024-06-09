@@ -52,6 +52,10 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
             }
             String action = messageJson.getString("action");
 
+            String messageValue = null;
+            if (messageJson.has("message")) {
+                messageValue = messageJson.getString("message");
+            }
             //Checks which action was requested by client.
             switch (action) {
                 case "registerUser":
@@ -61,17 +65,14 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     SendMessageService.sendSingleMessage(session, responseMessage);
                     responseMessage = null;
                     break;
-
                 case "joinLobby":
                     logger.info("Case joinLobby: {} ", username);
                     lobbyService.handleJoinLobby(session, messageJson);
                     break;
-
                 case "leaveLobby":
                     logger.info("Case leaveLobby: {} ", username);
                     lobbyService.handleLeaveLobby(session, messageJson);
                     break;
-
                 case "requestLobbyUser":
                     logger.info("Case requestLobbyUser.");
                     lobbyService.handleRequestLobbyUser(session, messageJson);
@@ -85,10 +86,17 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     Map<String, CreateUserService> players = lobbyService.handleStartGame(session, messageJson);
                     gameService.handleStartGame(players);
                     break;
-
                 case "updateUser":
                     logger.info("Case updateGameBoard: {} ", username);
                     gameService.updateUser(username, messageJson.getString("message"));
+                    break;
+                case "cheat":
+                    logger.info("Case cheat: {} ", username);
+                    gameService.cheat(session, username);
+                    break;
+                case "detectCheat":
+                    logger.info("Case detect cheat: {} with messageValue: {} ", username, messageValue);
+                    gameService.detectCheat(session, username, messageValue);
                     break;
 
                 case "reconnect":

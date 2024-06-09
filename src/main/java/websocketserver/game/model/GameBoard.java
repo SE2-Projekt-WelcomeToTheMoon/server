@@ -27,6 +27,8 @@ public class GameBoard {
     private final RocketBarometer rocketBarometer;
     @Getter(onMethod_ = {@JsonIgnore})
     private boolean isFinalized = false;
+    @Getter
+    private boolean hasCheated;
 
 private GameService gameService;
 
@@ -35,6 +37,7 @@ private GameService gameService;
         missionCards = initializeMissionCards();
         systemErrors = new SystemErrors();
         rocketBarometer = new RocketBarometer();
+        hasCheated = false;
     }
 
     public void setGameService(GameService gameService) {
@@ -237,4 +240,8 @@ private GameService gameService;
                     .allMatch(field -> field.getFieldValue() != FieldValue.NONE)));
     }
 
+    public void cheat() {
+        addRockets(1);
+        hasCheated = true;
+    }
 }

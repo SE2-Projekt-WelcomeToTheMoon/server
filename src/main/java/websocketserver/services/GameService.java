@@ -16,6 +16,8 @@ import org.springframework.web.socket.WebSocketSession;
 import java.util.List;
 import java.util.Map;
 
+import static websocketserver.websocket.handler.WebSocketHandlerImpl.gameService;
+
 @Service
 public class GameService {
 
@@ -25,7 +27,7 @@ public class GameService {
     boolean gameStarted = false;
 
     private static Logger logger = LoggerFactory.getLogger(GameService.class);
-    private List<CreateUserService> players;
+    public List<CreateUserService> players;
 
     public GameService() {
         cardManager = new CardManager();
@@ -114,4 +116,15 @@ public class GameService {
         SendMessageService.sendSingleMessage(player.getSession(), message);
     }
 }
+
+    public void cheat(WebSocketSession session, String username) {
+        game.cheat(session, username);
+        gameBoardManager.informClientsAboutCheat( game.getPlayers(), username);
+    }
+
+    public boolean detectCheat(WebSocketSession session, String username, String cheater) {
+        boolean hasCheated = game.detectCheat(session, username, cheater);
+        gameBoardManager.informClientsAboutDetectedCheat( game.getPlayers(), username, hasCheated);
+        return hasCheated;
+    }
 }
