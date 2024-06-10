@@ -42,19 +42,16 @@ public class SendMessageService {
      */
     @SneakyThrows
     public static void sendSingleMessage(WebSocketSession session, JSONObject messageToSend) {
-        try {
-            if (session.isOpen()) {
-                if (checkMessage(messageToSend)) {
-                    session.sendMessage(new TextMessage(messageToSend.toString()));
-                    logger.info("Message sent.");
-                } else {
-                    logger.warn("Message incomplete. Message not sent.");
-                }
+
+        if (session.isOpen()) {
+            if (checkMessage(messageToSend)) {
+                session.sendMessage(new TextMessage(messageToSend.toString()));
+                logger.info("Message sent.");
             } else {
-                logger.warn("Attempted to send message to closed WebSocket session: {}", session.getId());
+                logger.warn("Message incomplete. Message not sent.");
             }
-        } catch (IllegalStateException e) {
-            logger.error("Attempt to use closed WebSocket session {}: {}", session.getId(), e.getMessage());
+        } else {
+            logger.warn("Attempted to send message to closed WebSocket session: {}", session.getId());
         }
     }
 

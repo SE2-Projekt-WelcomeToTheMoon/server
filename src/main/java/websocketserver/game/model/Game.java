@@ -35,6 +35,7 @@ public class Game {
     @Setter
     GameBoardManager gameBoardManager;
     HashMap<CreateUserService, ChosenCardCombination> currentPlayerChoices;
+    HashMap<CreateUserService, String> currentPlayerDraw;
 
     private final AtomicInteger clientResponseReceived = new AtomicInteger(0);
     private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
@@ -45,9 +46,10 @@ public class Game {
         this.gameState = GameState.INITIAL;
         this.cardManager = cardManager;
         this.players = new ArrayList<>();
-        currentPlayerChoices = new HashMap<>();
+        this.currentPlayerChoices = new HashMap<>();
         this.gameService = gameService;
         this.gameBoardManager = new GameBoardManager();
+        this.currentPlayerDraw = new HashMap<>();
     }
 
     public void startGame() {
@@ -72,6 +74,7 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_ONE");
         }
 
+        currentPlayerDraw.clear();
         cardManager.drawNextCard();
 
         for (CreateUserService createUserService : players) {
@@ -116,6 +119,8 @@ public class Game {
         if (player.getGameBoard().checkCardCombination(new CardCombination[]{cardManager.getCurrentCombination()[chosenCardCombination.ordinal()]})) {
             currentPlayerChoices.put(player, chosenCardCombination);
         } else {
+            logger.info("Player {} combination was incorrect or invalid, removing from Current Draw", player.getUsername());
+            currentPlayerDraw.remove(player);
             //TODO: Return failure to client as there is no spot for the chosen combination
         }
 
@@ -153,7 +158,14 @@ public class Game {
             if (currentPlayer.equals(player)) {
                 try {
                     currentPlayer.getGameBoard().setValueWithinFloorAtIndex(floor, field, fieldValue);
+                    logger.info("Move was valid, rerouting move to other Players", player.getUsername());
+                    for (CreateUserService otherPlayer : players) {
+                        logger.info("Sending validMove from Player {} to {}", player.getUsername(), otherPlayer.getUsername());
+                        gameBoardManager.updateClientGameBoardFromGame(player, currentPlayerDraw.get(player));
+                    }
                 } catch (FloorSequenceException e) {
+                    logger.info("Player {} move was incorrect or invalid, removing from Current Draw", player.getUsername());
+                    currentPlayerDraw.remove(player);
                     gameService.sendInvalidCombination(player);
                 }
             }
@@ -253,10 +265,18 @@ public class Game {
     public void updateUser(String username, String message) {
         logger.info("Game makeMove for {}", username);
 
+        if (currentPlayerDraw.containsKey(getUserByUsername(username))){
+            logger.error("Player {} already made a move this Round", username);
+            return;
+        }
+
         FieldUpdateMessage fieldUpdateMessage = returnFieldUpdateMessage(message);
         if (fieldUpdateMessage == null) {
             return;
         }
+
+        logger.info("Received Move from {}", username);
+        currentPlayerDraw.put(getUserByUsername(username), message);
 
         //check if the choosen combination exists
         logger.info("Checking if the chosen combination exists");
@@ -268,20 +288,8 @@ public class Game {
 
         // modify coords and check if we can set them (logically)
         logger.info("Checking if the chosen field is valid");
-        int[] coords = getFixedCoordinates(fieldUpdateMessage);
+        int[] coords = getServerCoordinates(fieldUpdateMessage);
         receiveValueAtPositionOfPlayer(getUserByUsername(username), coords[0], coords[1], fieldUpdateMessage.fieldValue());
-
-        // assume we did all the above and did not crash
-        // updating server side gameboard
-        logger.info("Updating server side gameboard");
-        gameBoardManager.updateUser(getUserByUsername(username), fieldUpdateMessage);
-
-        logger.info("Sending validMove from Player {} to all Players", username);
-        for (CreateUserService player : players) {
-            logger.info("Sending validMove from Player {} to all Players", username);
-            //sending to everyone because it doesn't matter
-            gameBoardManager.updateClientGameBoardFromGame(player, message);
-        }
     }
 
     public ChosenCardCombination findOutCorrectCombination(CardCombination cardCombination) {
@@ -297,7 +305,7 @@ public class Game {
         return null;
     }
 
-    public int[] getFixedCoordinates(FieldUpdateMessage fieldUpdateMessage) {
+    public int[] getServerCoordinates(FieldUpdateMessage fieldUpdateMessage) {
         int floor = fieldUpdateMessage.floor();
         switch (floor) {
             case 0, 1, 4:
@@ -316,6 +324,7 @@ public class Game {
                 return new int[]{0, 0};
         }
     }
+
 
     private FieldUpdateMessage returnFieldUpdateMessage(String message) {
         ObjectMapper mapper = new ObjectMapper();
