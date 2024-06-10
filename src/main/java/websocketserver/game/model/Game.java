@@ -260,9 +260,6 @@ public class Game {
 
     /**
      * when client sends update to server, and it gets approved, also reroutes the message to all other clients
-     *
-     * @param username
-     * @param message
      */
     public void updateUser(String username, String message) {
         logger.info("Game makeMove for {}", username);
@@ -315,9 +312,6 @@ public class Game {
      * Converts Client Coordinates to Server Coordinates
      * Client uses index floor, chamber, field
      * Server uses index floor, field meaning just indexing on the whole floor
-     *
-     * @param fieldUpdateMessage
-     * @return
      */
     public int[] getServerCoordinates(FieldUpdateMessage fieldUpdateMessage) {
         int floor = fieldUpdateMessage.floor();

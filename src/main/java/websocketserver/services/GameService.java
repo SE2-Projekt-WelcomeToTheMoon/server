@@ -31,7 +31,6 @@ public class GameService {
         cardManager = new CardManager();
         game = new Game(cardManager, this);
         gameBoardManager = new GameBoardManager();
-        this.players = players;
     }
 
     public void handleStartGame(Map<String, CreateUserService> players) {
