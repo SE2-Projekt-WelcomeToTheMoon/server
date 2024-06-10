@@ -103,7 +103,7 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_TWO");
         }
 
-//        gameService.informClientsAboutGameState();
+        gameService.informClientsAboutGameState();
 
         gameState = GameState.ROUND_THREE;
         doRoundThree();
@@ -121,7 +121,7 @@ public class Game {
         } else {
             logger.info("Player {} combination was incorrect or invalid, removing from Current Draw", player.getUsername());
             currentPlayerDraw.remove(player);
-            //TODO: Return failure to client as there is no spot for the chosen combination
+            gameService.notifySingleClient("invalidCombination", player);
         }
 
         if (clientResponseReceived.incrementAndGet() == players.size()) {
@@ -158,15 +158,16 @@ public class Game {
             if (currentPlayer.equals(player)) {
                 try {
                     currentPlayer.getGameBoard().setValueWithinFloorAtIndex(floor, field, fieldValue);
-                    logger.info("Move was valid, rerouting move to other Players", player.getUsername());
+                    logger.info("Move was valid, rerouting move to other Players {}", player.getUsername());
+                    gameService.notifySingleClient("alreadyMoved", currentPlayer);
                     for (CreateUserService otherPlayer : players) {
                         logger.info("Sending validMove from Player {} to {}", player.getUsername(), otherPlayer.getUsername());
-                        gameBoardManager.updateClientGameBoardFromGame(player, currentPlayerDraw.get(player));
+                        gameBoardManager.updateClientGameBoardFromGame(otherPlayer, currentPlayerDraw.get(player));
                     }
                 } catch (FloorSequenceException e) {
                     logger.info("Player {} move was incorrect or invalid, removing from Current Draw", player.getUsername());
                     currentPlayerDraw.remove(player);
-                    gameService.sendInvalidCombination(player);
+                    gameService.notifySingleClient("invalidMove", player);
                 }
             }
         }
@@ -181,7 +182,7 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_FOUR");
         }
 
-//        gameService.informClientsAboutGameState();
+        gameService.informClientsAboutGameState();
 
         //Logic for round four where player optional do their action
 
@@ -195,7 +196,7 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_FIVE");
         }
 
-//        gameService.informClientsAboutGameState();
+        gameService.informClientsAboutGameState();
 
         //Logic for round two where affects of player moves are calculated
 
@@ -209,7 +210,7 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_SIX");
         }
 
-//        gameService.informClientsAboutGameState();
+        gameService.informClientsAboutGameState();
 
         //Logic for round six where missions can be completed, and it will be
         //checked whether the game is finished or not.

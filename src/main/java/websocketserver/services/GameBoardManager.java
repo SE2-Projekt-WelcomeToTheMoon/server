@@ -109,4 +109,18 @@ public class GameBoardManager {
             SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         }
     }
+
+    public void notifyAllClients(List<CreateUserService> players, String action) {
+        for (CreateUserService player : players) {
+            logger.info("Notify all Players about {}", action);
+            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject(action, player.getUsername(), true, "", "");
+            SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
+        }
+    }
+
+    public void notifySingleClient(CreateUserService player, String action) {
+        logger.info("Notify Player {} about {}", player.getUsername(), action);
+        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject(action, player.getUsername(), true, "", "");
+        SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
+    }
 }

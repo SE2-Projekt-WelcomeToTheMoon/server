@@ -60,9 +60,15 @@ public class GameService {
         gameBoardManager.informClientsAboutGameState(game.getPlayers(), game.getGameState().toString());
     }
 
-    public void sendInvalidCombination(CreateUserService player) {
-        logger.info("GameService sendInvalidCombination");
-        //TODO: If Player sends invalid selection use this method, to return failure.
+
+    public void notifyAllClients(String action) {
+        logger.info("GameService notifyClients about {}", action);
+        gameBoardManager.notifyAllClients(game.getPlayers(), action);
+    }
+
+    public void notifySingleClient(String action, CreateUserService player) {
+        logger.info("GameService notifyClients about {}", action);
+        gameBoardManager.notifySingleClient(player, action);
     }
 
     public void informPlayersAboutEndOfGame(List<CreateUserService> winners, EndType endType) {
