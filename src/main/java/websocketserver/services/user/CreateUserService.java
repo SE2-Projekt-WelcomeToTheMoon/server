@@ -84,4 +84,9 @@ public class CreateUserService {
         GameBoardService gameBoardService = new GameBoardService();
         gameBoard = gameBoardService.createGameBoard();
     }
+
+    public void updateSession(WebSocketSession session){
+        this.session = session;
+        this.sessionID = session.getId();
+    }
 }

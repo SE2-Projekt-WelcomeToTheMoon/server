@@ -1,6 +1,4 @@
 # Repository for the Backend of the application _Welcome to the Moon_
-
----
 ## Spring Framework
 **Server Client communication is being realised with the Spring Boot Tool WebSocketHandler.**
 * [Spring.io](https://spring.io/projects/spring-framework)

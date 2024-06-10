@@ -2,6 +2,7 @@ package websocketserver.game.model;
 
 import websocketserver.game.enums.FieldCategory;
 import websocketserver.game.enums.FieldValue;
+import websocketserver.game.enums.RewardCategory;
 import websocketserver.game.exceptions.FinalizedException;
 import websocketserver.game.exceptions.FloorSequenceException;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,15 +20,16 @@ class FloorTest {
     private Chamber chamberIncompatible;
     private Chamber chamberAllNull;
     private Chamber chamber;
+    private List<Reward> rewards;
 
     @BeforeEach
     void setUp() {
+        rewards= List.of(new Reward[]{new Reward(RewardCategory.PLANING), new Reward(RewardCategory.ROCKET, 5)});
         floor = new Floor(FieldCategory.ROBOTER);
-        chamberCompatible = new Chamber(FieldCategory.ROBOTER);
-        secondChamberCompatible = new Chamber(FieldCategory.ROBOTER);
-        chamberIncompatible = new Chamber(FieldCategory.WASSER);
-        chamberAllNull = new Chamber(FieldCategory.ROBOTER);
-
+        chamberCompatible = new Chamber(FieldCategory.ROBOTER,rewards,0);
+        secondChamberCompatible = new Chamber(FieldCategory.ROBOTER,rewards,0);
+        chamberIncompatible = new Chamber(FieldCategory.WASSER,rewards,0);
+        chamberAllNull = new Chamber(FieldCategory.ROBOTER,rewards,0);
 
         chamberCompatible.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
         chamberCompatible.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
@@ -40,7 +42,7 @@ class FloorTest {
         chamberAllNull.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
         chamberAllNull.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
 
-        chamber = new Chamber(FieldCategory.ROBOTER);
+        chamber = new Chamber(FieldCategory.ROBOTER,rewards,0);
     }
 
     @Test
@@ -160,7 +162,7 @@ class FloorTest {
 
     @Test
     void testGetChamberBeforeFloorFinalizationThrowsException() {
-        floor.addChamber(new Chamber(FieldCategory.ROBOTER));
+        floor.addChamber(new Chamber(FieldCategory.ROBOTER,rewards,0));
         assertThrows(FinalizedException.class, () -> floor.getChamber(0));
     }
 
@@ -236,7 +238,7 @@ class FloorTest {
     @Test
     void testGetChambersList(){
         List<Chamber> chambers = new ArrayList<>();
-        Chamber chamber1 = new Chamber(FieldCategory.ENERGIE);
+        Chamber chamber1 = new Chamber(FieldCategory.ENERGIE,rewards,0);
         chambers.add(chamber1);
 
         Floor floor1 = new Floor(FieldCategory.ENERGIE);
@@ -303,12 +305,12 @@ class FloorTest {
     @Test
     void testCanInsertValueWithNextValueNull() {
         Floor floor = new Floor(FieldCategory.ROBOTER);
-        Chamber chamber = new Chamber(FieldCategory.ROBOTER);
-        chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
-        chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
-        chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+        Chamber chamberTest = new Chamber(FieldCategory.ROBOTER,rewards,0);
+        chamberTest.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
+        chamberTest.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
+        chamberTest.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
 
-        floor.addChamber(chamber);
+        floor.addChamber(chamberTest);
         floor.finalizeFloor();
 
         assertTrue(floor.canInsertValue(FieldValue.THREE));
@@ -317,11 +319,11 @@ class FloorTest {
     @Test
     void testCanInsertValueLessThanNextValue() {
         Floor floor = new Floor(FieldCategory.ROBOTER);
-        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER,rewards,0);
         chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
         chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
 
-        Chamber chamber2 = new Chamber(FieldCategory.ROBOTER);
+        Chamber chamber2 = new Chamber(FieldCategory.ROBOTER,rewards,0);
         chamber2.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
         chamber2.addField(new Field(FieldCategory.ROBOTER, FieldValue.FIVE));
 
@@ -335,11 +337,11 @@ class FloorTest {
     @Test
     void testCanInsertValueNotGreaterThanCurrentMax() {
         Floor floor = new Floor(FieldCategory.ROBOTER);
-        Chamber chamber = new Chamber(FieldCategory.ROBOTER);
-        chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
-        chamber.addField(new Field(FieldCategory.ROBOTER, FieldValue.FOUR));
+        Chamber chamberTest = new Chamber(FieldCategory.ROBOTER,rewards,0);
+        chamberTest.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
+        chamberTest.addField(new Field(FieldCategory.ROBOTER, FieldValue.FOUR));
 
-        floor.addChamber(chamber);
+        floor.addChamber(chamberTest);
         floor.finalizeFloor();
 
         assertFalse(floor.canInsertValue(FieldValue.THREE));
@@ -348,11 +350,11 @@ class FloorTest {
     @Test
     void testCanInsertValueNotLessThanNextValue() {
         Floor floor = new Floor(FieldCategory.ROBOTER);
-        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER,rewards, 0);
         chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
         chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
 
-        Chamber chamber2 = new Chamber(FieldCategory.ROBOTER);
+        Chamber chamber2 = new Chamber(FieldCategory.ROBOTER,rewards,0);
         chamber2.addField(new Field(FieldCategory.ROBOTER, FieldValue.THREE));
 
         floor.addChamber(chamber1);

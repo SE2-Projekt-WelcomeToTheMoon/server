@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 public class PlayingCard{
 
-    private FieldCategory symbol;
-    private int number;
+    private final FieldCategory symbol;
+    private final int number;
 
     public PlayingCard(FieldCategory symbol, int number) {
         this.symbol = symbol;
