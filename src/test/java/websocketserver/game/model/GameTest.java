@@ -77,10 +77,10 @@ class GameTest {
         assertThat(game.getPlayers()).hasSize(1);
     }
 
-    @Test
-    void testWrongStateForStart(){
-
-
+//    @Test
+//    void testWrongStateForStart(){
+//
+//
 //    }
 //    @Test
 //    void testStartGameSuccess() throws InterruptedException, ExecutionException {
