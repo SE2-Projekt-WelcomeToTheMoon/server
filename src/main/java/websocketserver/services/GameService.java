@@ -66,6 +66,7 @@ public class GameService {
     }
 
     public void notifySingleClient(String action, CreateUserService player) {
+        // this is crashing app lol
         logger.info("GameService notifyClients about {}", action);
         gameBoardManager.notifySingleClient(player, action);
     }

@@ -111,7 +111,7 @@ public class Game {
     }
 
     protected void receiveSelectedCombinationOfPlayer(CreateUserService player, ChosenCardCombination chosenCardCombination) {
-        if (this.gameState != GameState.ROUND_TWO) {
+        if (this.gameState != GameState.ROUND_THREE) {
             throw new GameStateException("Invalid game state for selecting card combinations");
         }
 
@@ -223,7 +223,7 @@ public class Game {
             gameService.informPlayersAboutEndOfGame(winners, EndType.ROCKETS_COMPLETED);
         } else {
             gameState = GameState.ROUND_ONE;
-            logger.info("RoundSIX finished, starting new round");
+            logger.info("Round SIX finished, starting new round");
             doRoundOne();
         }
     }
@@ -282,7 +282,7 @@ public class Game {
         //check if the chosen combination exists
         logger.info("Checking if the chosen combination exists");
         ChosenCardCombination chosenCardCombination = findCorrectCombination(fieldUpdateMessage.cardCombination());
-        receiveSelectedCombinationOfPlayer(getUserByUsername(username), chosenCardCombination);
+        //receiveSelectedCombinationOfPlayer(getUserByUsername(username), chosenCardCombination);
 
         // modify coords and check if we can set them (logically)
         logger.info("Checking if the chosen field is valid");
