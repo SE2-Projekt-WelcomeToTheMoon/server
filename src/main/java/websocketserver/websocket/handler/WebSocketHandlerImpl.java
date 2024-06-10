@@ -77,9 +77,9 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     logger.info("Case requestLobbyUser.");
                     lobbyService.handleRequestLobbyUser(session, messageJson);
                     break;
-                case "requestUsersForWinningScreen":
-                    logger.info("Case requestUsersForWinningScreen: {} ", username);
-                    lobbyService.handleRequestLobbyUser(session, messageJson);
+                case "winnerScreen":
+                    logger.info("Case winnerScreen: {} ", username);
+                    gameService.sendUserAndRocketCount(session, messageJson);
                     break;
                 case "startGame":
                     logger.info("Case startGame: {} ", username);
@@ -119,7 +119,6 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     }
                     else logger.error("User {} not disconnected.", username);
                     break;
-
                 default:
                     JSONObject response = new JSONObject();
                     response.put("error", "Unbekannte Aktion");
