@@ -229,7 +229,7 @@ public class Game {
 
         if (!winners.isEmpty()) {
             gameState = GameState.FINISHED;
-            gameService.informPlayersAboutEndOfGame(winners, EndType.ROCKETS_COMPLETED);
+            gameService.informPlayersAboutEndOfGame(this.players, EndType.ROCKETS_COMPLETED);
         } else {
             gameState = GameState.ROUND_ONE;
             logger.info("Round SIX finished, starting new round");

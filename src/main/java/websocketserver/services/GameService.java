@@ -160,11 +160,6 @@ public class GameService {
             SendMessageService.sendSingleMessage(player.getSession(), message);
         }
     }
-    for (CreateUserService player : players) {
-        SendMessageService.sendSingleMessage(player.getSession(), message);
-    }
-}
-
     public void cheat(WebSocketSession session, String username) {
         game.cheat(session, username);
         gameBoardManager.informClientsAboutCheat( game.getPlayers(), username);
