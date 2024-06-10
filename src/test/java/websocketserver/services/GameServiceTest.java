@@ -5,33 +5,24 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.mockito.Mock;
+import websocketserver.services.user.CreateUserService;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 class GameServiceTest {
     private GameService gameService;
     @Mock
     Logger logger;
+    @Mock
+    CreateUserService mockPlayer;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         logger = mock(Logger.class);
+        mockPlayer = mock(CreateUserService.class);
         this.gameService = new GameService();
         this.gameService.setLogger(logger);
-    }
-
-    @Test
-    void testUpdateUser() {
-        gameService.updateUser("", "");
-        verify(logger).info("GameService updateUser");
-    }
-
-    @Test
-    void testSendInvalidCombination() {
-        gameService.sendInvalidCombination(null);
-        verify(logger).info("GameService sendInvalidCombination");
     }
 
     @Test

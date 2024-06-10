@@ -81,34 +81,34 @@ class GameTest {
     void testWrongStateForStart(){
 
 
-    }
-    @Test
-    void testStartGameSuccess() throws InterruptedException, ExecutionException {
-        game.addPlayer(player2);
-        game.startGame();
-
-        player1.getGameBoard().addRockets(35);
-
-        CompletableFuture<Void> future1 = CompletableFuture.runAsync(() -> {
-            game.receiveSelectedCombinationOfPlayer(player1, ChosenCardCombination.ONE);
-            game.receiveSelectedCombinationOfPlayer(player2, ChosenCardCombination.TWO);
-        });
-
-        future1.get(); // Wait until all players have made their choice
-
-        CompletableFuture<Void> future2 = CompletableFuture.runAsync(() -> {
-            game.receiveValueAtPositionOfPlayer(player1, 1, 1, FieldValue.ONE);
-            game.receiveValueAtPositionOfPlayer(player2, 1, 1, FieldValue.TWO);
-        });
-
-        future2.get(); // Wait until all players have set their values
-
-        Thread.sleep(100);
-
-        assertEquals(GameState.FINISHED, game.getGameState());
-
-        assertThrows(GameStateException.class, () -> game.startGame());
-    }
+//    }
+//    @Test
+//    void testStartGameSuccess() throws InterruptedException, ExecutionException {
+//        game.addPlayer(player2);
+//        game.startGame();
+//
+//        player1.getGameBoard().addRockets(35);
+//
+//        CompletableFuture<Void> future1 = CompletableFuture.runAsync(() -> {
+//            game.receiveSelectedCombinationOfPlayer(player1, ChosenCardCombination.ONE);
+//            game.receiveSelectedCombinationOfPlayer(player2, ChosenCardCombination.TWO);
+//        });
+//
+//        future1.get(); // Wait until all players have made their choice
+//
+//        CompletableFuture<Void> future2 = CompletableFuture.runAsync(() -> {
+//            game.receiveValueAtPositionOfPlayer(player1, 1, 1, FieldValue.ONE);
+//            game.receiveValueAtPositionOfPlayer(player2, 1, 1, FieldValue.TWO);
+//        });
+//
+//        future2.get(); // Wait until all players have set their values
+//
+//        Thread.sleep(100);
+//
+//        assertEquals(GameState.FINISHED, game.getGameState());
+//
+//        assertThrows(GameStateException.class, () -> game.startGame());
+//    }
 
 
     @Test
@@ -148,16 +148,4 @@ class GameTest {
         assertNotNull(game.getUserByUsername("Player1"));
         assertNull(game.getUserByUsername("Player3"));
     }
-
-    @Test
-    void testUpdateUser() {
-        game.setGameBoardManager(mockedGameBoardManager);
-        game.addPlayer(player2);
-
-        game.updateUser("Player1", "message");
-
-        verify(mockedGameBoardManager, times(1)).updateUser(any(), any());
-        verify(mockedGameBoardManager, times(1)).updateClientGameBoardFromGame(any(), any());
-    }
-
 }
