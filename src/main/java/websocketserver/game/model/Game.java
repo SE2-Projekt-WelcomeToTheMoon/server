@@ -36,6 +36,7 @@ public class Game {
     GameBoardManager gameBoardManager;
     HashMap<CreateUserService, ChosenCardCombination> currentPlayerChoices;
     HashMap<CreateUserService, String> currentPlayerDraw;
+    HashMap<ChosenCardCombination, CardCombination> currentCardCombination;
 
     private final AtomicInteger clientResponseReceived = new AtomicInteger(0);
     private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
@@ -50,6 +51,7 @@ public class Game {
         this.gameService = gameService;
         this.gameBoardManager = new GameBoardManager();
         this.currentPlayerDraw = new HashMap<>();
+        this.currentCardCombination = new HashMap<>();
     }
 
     public void startGame() {
@@ -115,14 +117,14 @@ public class Game {
             throw new GameStateException("Invalid game state for selecting card combinations");
         }
 
-        //TODO: Insert check if combination is valid
-        if (player.getGameBoard().checkCardCombination(new CardCombination[]{cardManager.getCurrentCombination()[chosenCardCombination.ordinal()]})) {
-            currentPlayerChoices.put(player, chosenCardCombination);
-        } else {
+        // if not null means it found a combination in currentdraw
+        if(chosenCardCombination == null) {
             logger.info("Player {} combination was incorrect or invalid, removing from Current Draw", player.getUsername());
             currentPlayerDraw.remove(player);
             gameService.notifySingleClient("invalidCombination", player);
         }
+
+        currentPlayerChoices.put(player, chosenCardCombination);
 
         if (clientResponseReceived.incrementAndGet() == players.size()) {
             allClientResponseReceivedFuture.complete(null);
@@ -266,8 +268,9 @@ public class Game {
     public void updateUser(String username, String message) {
         logger.info("Game makeMove for {}", username);
 
-        if (currentPlayerDraw.containsKey(getUserByUsername(username))){
+        if (currentPlayerDraw.containsKey(getUserByUsername(username))) {
             logger.error("Player {} already made a move this Round", username);
+            gameService.notifySingleClient("alreadyMoved", getUserByUsername(username));
             return;
         }
 
@@ -281,11 +284,11 @@ public class Game {
 
         //check if the choosen combination exists
         logger.info("Checking if the chosen combination exists");
-        ChosenCardCombination chosenCardCombination = findOutCorrectCombination(fieldUpdateMessage.cardCombination());
+        ChosenCardCombination chosenCardCombination = findCorrectCombination(fieldUpdateMessage.cardCombination());
         if (chosenCardCombination == null) {
             logger.error("Chosen combination does not exist");
         }
-        //receiveSelectedCombinationOfPlayer(getUserByUsername(username), chosenCardCombination);
+        receiveSelectedCombinationOfPlayer(getUserByUsername(username), chosenCardCombination);
 
         // modify coords and check if we can set them (logically)
         logger.info("Checking if the chosen field is valid");
@@ -293,37 +296,50 @@ public class Game {
         receiveValueAtPositionOfPlayer(getUserByUsername(username), coords[0], coords[1], fieldUpdateMessage.fieldValue());
     }
 
-    public ChosenCardCombination findOutCorrectCombination(CardCombination cardCombination) {
+    public ChosenCardCombination findCorrectCombination(CardCombination cardCombination) {
         CardCombination[] combinations = cardManager.getCurrentCombination();
         for (int i = 0; i < combinations.length; i++) {
-            if (combinations[i].getCurrentSymbol() == cardCombination.getCurrentSymbol() &&
-                    combinations[i].getCurrentNumber() == cardCombination.getCurrentNumber()) {
-                if (i == 0) return ChosenCardCombination.ONE;
-                if (i == 1) return ChosenCardCombination.TWO;
-                if (i == 2) return ChosenCardCombination.THREE;
+            if (combinations[i].getCurrentSymbol().equals(cardCombination.getCurrentSymbol()) &&
+                    combinations[i].getCurrentNumber() == cardCombination.getCurrentNumber() &&
+                    combinations[i].getNextSymbol().equals(cardCombination.getNextSymbol())) {
+
+                return switch (i) {
+                    case 0 -> ChosenCardCombination.ONE;
+                    case 1 -> ChosenCardCombination.TWO;
+                    case 2 -> ChosenCardCombination.THREE;
+                    default -> null;
+                };
             }
         }
         return null;
     }
 
+    /**
+     * Converts Client Coordinates to Server Coordinates
+     * Client uses index floor, chamber, field
+     * Server uses index floor, field meaning just indexing on the whole floor
+     *
+     * @param fieldUpdateMessage
+     * @return
+     */
     public int[] getServerCoordinates(FieldUpdateMessage fieldUpdateMessage) {
         int floor = fieldUpdateMessage.floor();
-        switch (floor) {
-            case 0, 1, 4:
-                return new int[]{fieldUpdateMessage.floor(), fieldUpdateMessage.field()};
-            case 2, 3, 6, 7:
-                return new int[]{fieldUpdateMessage.floor(), fieldUpdateMessage.field() + (2 * fieldUpdateMessage.chamber())};
-            case 5:
-                if (fieldUpdateMessage.chamber() == 0) {
-                    return new int[]{fieldUpdateMessage.floor(), fieldUpdateMessage.field()};
-                }
-                if (fieldUpdateMessage.chamber() == 1) {
-                    return new int[]{fieldUpdateMessage.floor(), fieldUpdateMessage.field() + 5};
-                }
-                return new int[]{fieldUpdateMessage.floor(), fieldUpdateMessage.field() + 7};
-            default:
-                return new int[]{0, 0};
-        }
+        int field = fieldUpdateMessage.field();
+        int chamber = fieldUpdateMessage.chamber();
+
+        return switch (floor) {
+            case 0, 1, 4 -> new int[]{floor, field};
+            case 2, 3, 6, 7 -> new int[]{floor, field + (2 * chamber)};
+            case 5 -> {
+                int fieldOffset = switch (chamber) {
+                    case 0 -> 0;
+                    case 1 -> 5;
+                    default -> 7;
+                };
+                yield new int[]{floor, field + fieldOffset};
+            }
+            default -> new int[]{0, 0};
+        };
     }
 
 
