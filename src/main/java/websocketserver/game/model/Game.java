@@ -1,5 +1,8 @@
 package websocketserver.game.model;
 
+import org.json.JSONObject;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import websocketserver.game.enums.ChosenCardCombination;
 import websocketserver.game.enums.EndType;
@@ -10,6 +13,7 @@ import websocketserver.game.exceptions.GameStateException;
 import websocketserver.services.CardManager;
 import websocketserver.services.GameBoardManager;
 import websocketserver.services.GameService;
+import websocketserver.services.json.GenerateJSONObjectService;
 import websocketserver.services.user.CreateUserService;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +21,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -344,5 +353,52 @@ public class Game {
             return null;
         }
         return fieldUpdateMessage;
+    }
+
+    public void cheat(WebSocketSession session, String username) {
+        for(CreateUserService player : players){
+            if(player.getUsername().equals(username)){
+                player.getGameBoard().cheat();
+                JSONObject response = GenerateJSONObjectService.generateJSONObject("cheat", username, true, "", "");
+                try {
+                    session.sendMessage(new TextMessage(response.toString()));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                logger.info("Cheated one rocket for {}", username);
+            }
+        }
+    }
+
+    public boolean detectCheat(WebSocketSession session, String username, String cheater) {
+        CreateUserService detector = null;
+        CreateUserService suspect = null;
+        for(CreateUserService player : players){
+            if(player.getUsername().equals(username)){
+                detector = player;
+            }else if(player.getUsername().equals(cheater)){
+                suspect = player;
+            }
+        }
+
+        JSONObject response = GenerateJSONObjectService.generateJSONObject("detectCheat", username, true, "", "");
+        try {
+            session.sendMessage(new TextMessage(response.toString()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        assert suspect != null;
+        assert detector != null;
+
+        if(suspect.getGameBoard().isHasCheated()){
+            logger.info("Has cheated  {}", cheater);
+            detector.getGameBoard().addRockets(1);
+            return true;
+        }else {
+            logger.info("Has not cheated  {}", cheater);
+            detector.getGameBoard().addRockets(-1);
+            return false;
+        }
     }
 }

@@ -123,4 +123,25 @@ public class GameBoardManager {
         JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject(action, player.getUsername(), true, "", "");
         SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
     }
+
+    public void informClientsAboutCheat(List<CreateUserService> players, String username) {
+        for (CreateUserService player : players) {
+            logger.info("Player: {} wird über cheat informiert", player.getUsername());
+            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("playerHasCheated", player.getUsername(), true, username , "");
+            SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
+        }
+    }
+
+    public void informClientsAboutDetectedCheat(List<CreateUserService> players, String username, boolean hasCheated) {
+        for (CreateUserService player : players) {
+            logger.info("Player: {} wird über detect cheat informiert", player.getUsername());
+            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject(
+                    hasCheated ? "playerDetectedCheatCorrect" : "playerDetectedCheatWrong",
+                    player.getUsername(),
+                    true,
+                    username,
+                    "");
+            SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
+        }
+    }
 }

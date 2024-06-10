@@ -52,6 +52,10 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
             }
             String action = messageJson.getString("action");
 
+            String messageValue = null;
+            if (messageJson.has("message")) {
+                messageValue = messageJson.getString("message");
+            }
             //Checks which action was requested by client.
             switch (action) {
                 case "registerUser":
@@ -61,34 +65,41 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     SendMessageService.sendSingleMessage(session, responseMessage);
                     responseMessage = null;
                     break;
-
                 case "joinLobby":
                     logger.info("Case joinLobby: {} ", username);
                     lobbyService.handleJoinLobby(session, messageJson);
                     break;
-
                 case "leaveLobby":
                     logger.info("Case leaveLobby: {} ", username);
                     lobbyService.handleLeaveLobby(session, messageJson);
                     break;
-
                 case "requestLobbyUser":
                     logger.info("Case requestLobbyUser.");
                     lobbyService.handleRequestLobbyUser(session, messageJson);
                     break;
-                case "requestUsersForWinningScreen":
-                    logger.info("Case requestUsersForWinningScreen: {} ", username);
-                    lobbyService.handleRequestLobbyUser(session, messageJson);
+                case "winnerScreen":
+                    logger.info("Case winnerScreen: {} ", username);
+                    gameService.sendUserAndRocketCount(session, messageJson);
                     break;
                 case "startGame":
                     logger.info("Case startGame: {} ", username);
                     Map<String, CreateUserService> players = lobbyService.handleStartGame(session, messageJson);
                     gameService.handleStartGame(players);
                     break;
+                case "updateUser":
+                    logger.info("Case updateGameBoard: {} ", username);
 
                 case "makeMove":
                     logger.info("Case makeMove: {} ", username);
                     gameService.updateUser(username, messageJson.getString("message"));
+                    break;
+                case "cheat":
+                    logger.info("Case cheat: {} ", username);
+                    gameService.cheat(session, username);
+                    break;
+                case "detectCheat":
+                    logger.info("Case detect cheat: {} with messageValue: {} ", username, messageValue);
+                    gameService.detectCheat(session, username, messageValue);
                     break;
 
                 case "reconnect":
@@ -114,7 +125,6 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     logger.info("Case sendGameState: {} ", username);
                     gameService.informClientsAboutGameState();
                     break;
-
                 default:
                     JSONObject response = new JSONObject();
                     response.put("error", "Unbekannte Aktion");

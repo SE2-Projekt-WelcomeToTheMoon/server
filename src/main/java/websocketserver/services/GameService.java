@@ -1,8 +1,10 @@
 package websocketserver.services;
 
+import org.json.JSONArray;
 import websocketserver.game.enums.EndType;
 import websocketserver.game.model.Game;
 import websocketserver.game.model.MissionCard;
+import websocketserver.services.json.GenerateJSONObjectService;
 import websocketserver.services.user.CreateUserService;
 
 import org.json.JSONException;
@@ -25,7 +27,7 @@ public class GameService {
     boolean gameStarted = false;
 
     private static Logger logger = LoggerFactory.getLogger(GameService.class);
-    private List<CreateUserService> players;
+    public List<CreateUserService> players;
 
     public GameService() {
         cardManager = new CardManager();
@@ -73,7 +75,40 @@ public class GameService {
 
     public void informPlayersAboutEndOfGame(List<CreateUserService> winners, EndType endType) {
         logger.info("GameService informPlayersAboutEndOfGame");
-        //TODO: If Player has won, game will call this Method to send information to players.
+        for(CreateUserService player: winners){
+            JSONObject msg = GenerateJSONObjectService.generateJSONObject("endGame", player.getUsername(), true, "Game is finished", "");
+            SendMessageService.sendSingleMessage(player.getSession(), msg);
+        }
+    }
+
+    public void sendUserAndRocketCount(WebSocketSession session, JSONObject message) {
+        logger.info("Case winnerScreen(sendUserAndRocketCount): {}{} ", session.getId(), message.toString());
+
+        List<CreateUserService> players = game.getPlayers();
+        logger.info("players im aktuellen Spiel: {}", players.size());
+
+        JSONArray playersInfoArr = new JSONArray();
+        for (CreateUserService player : players) {
+            JSONObject playerinfo = new JSONObject();
+            playerinfo.put("username", player.getUsername());
+            playerinfo.put("points", player.getGameBoard().getRocketCount());
+            playersInfoArr.put(playerinfo);
+        }
+        logger.info("playersInfoArr: {}", playersInfoArr);
+
+        JSONObject response = new JSONObject();
+        response.put("action", "winnerScreen");
+        response.put("users", playersInfoArr);
+        response.put("success", true);
+
+        logger.info("response: {}", response);
+
+        try {
+            SendMessageService.sendSingleMessage(session, response);
+            logger.info("Users in lobby sent: {} {}", session.getId(), playersInfoArr);
+        } catch (Exception e) {
+            logger.error("Error sending message: {}", e.getMessage());
+        }
     }
 
     public void informPlayerAboutSystemerror(CreateUserService createUserService) {
@@ -124,5 +159,20 @@ public class GameService {
         for (CreateUserService player : players) {
             SendMessageService.sendSingleMessage(player.getSession(), message);
         }
+    }
+    for (CreateUserService player : players) {
+        SendMessageService.sendSingleMessage(player.getSession(), message);
+    }
+}
+
+    public void cheat(WebSocketSession session, String username) {
+        game.cheat(session, username);
+        gameBoardManager.informClientsAboutCheat( game.getPlayers(), username);
+    }
+
+    public boolean detectCheat(WebSocketSession session, String username, String cheater) {
+        boolean hasCheated = game.detectCheat(session, username, cheater);
+        gameBoardManager.informClientsAboutDetectedCheat( game.getPlayers(), username, hasCheated);
+        return hasCheated;
     }
 }

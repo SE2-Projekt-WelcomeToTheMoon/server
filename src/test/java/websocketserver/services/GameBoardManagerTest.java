@@ -150,6 +150,28 @@ class GameBoardManagerTest {
         }
         System.out.println(message);
     }
+
+    @Test
+    void testInformClientsAboutCheat() {
+        List<CreateUserService> players = new ArrayList<>();
+        players.add(player);
+
+        gameBoardManager.setLogger(logger);
+        gameBoardManager.informClientsAboutCheat(players, "player1");
+
+        verify(logger).info("Player: {} wird über cheat informiert", player.getUsername());
+    }
+
+    @Test
+    void testInformClientsAboutDetectedCheat() {
+        List<CreateUserService> players = new ArrayList<>();
+        players.add(player);
+
+        gameBoardManager.setLogger(logger);
+        gameBoardManager.informClientsAboutDetectedCheat(players, "player1", true);
+
+        verify(logger).info("Player: {} wird über detect cheat informiert", player.getUsername());
+    }
 }
 
 
