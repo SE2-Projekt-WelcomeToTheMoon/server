@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import websocketserver.game.enums.EndType;
 import websocketserver.game.model.Game;
 import websocketserver.game.model.MissionCard;
+import websocketserver.services.json.GenerateJSONObjectService;
 import websocketserver.services.user.CreateUserService;
 
 import org.json.JSONException;
@@ -63,7 +64,10 @@ public class GameService {
 
     public void informPlayersAboutEndOfGame(List<CreateUserService> winners, EndType endType) {
         logger.info("GameService informPlayersAboutEndOfGame");
-        //TODO: If Player has won, game will call this Method to send information to players.
+        for(CreateUserService player: winners){
+            JSONObject msg = GenerateJSONObjectService.generateJSONObject("endGame", player.getUsername(), true, "Game is finished", "");
+            SendMessageService.sendSingleMessage(player.getSession(), msg);
+        }
     }
 
     public void sendUserAndRocketCount(WebSocketSession session, JSONObject message) {
