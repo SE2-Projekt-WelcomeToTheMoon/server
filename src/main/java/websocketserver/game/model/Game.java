@@ -36,7 +36,6 @@ public class Game {
     GameBoardManager gameBoardManager;
     HashMap<CreateUserService, ChosenCardCombination> currentPlayerChoices;
     HashMap<CreateUserService, String> currentPlayerDraw;
-    HashMap<ChosenCardCombination, CardCombination> currentCardCombination;
 
     private final AtomicInteger clientResponseReceived = new AtomicInteger(0);
     private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
@@ -51,7 +50,6 @@ public class Game {
         this.gameService = gameService;
         this.gameBoardManager = new GameBoardManager();
         this.currentPlayerDraw = new HashMap<>();
-        this.currentCardCombination = new HashMap<>();
     }
 
     public void startGame() {
@@ -122,6 +120,7 @@ public class Game {
             logger.info("Player {} combination was incorrect or invalid, removing from Current Draw", player.getUsername());
             currentPlayerDraw.remove(player);
             gameService.notifySingleClient("invalidCombination", player);
+            return;
         }
 
         currentPlayerChoices.put(player, chosenCardCombination);
@@ -276,18 +275,16 @@ public class Game {
 
         FieldUpdateMessage fieldUpdateMessage = returnFieldUpdateMessage(message);
         if (fieldUpdateMessage == null) {
+            logger.error("FieldUpdateMessage is null");
             return;
         }
 
         logger.info("Received Move from {}", username);
         currentPlayerDraw.put(getUserByUsername(username), message);
 
-        //check if the choosen combination exists
+        //check if the chosen combination exists
         logger.info("Checking if the chosen combination exists");
         ChosenCardCombination chosenCardCombination = findCorrectCombination(fieldUpdateMessage.cardCombination());
-        if (chosenCardCombination == null) {
-            logger.error("Chosen combination does not exist");
-        }
         receiveSelectedCombinationOfPlayer(getUserByUsername(username), chosenCardCombination);
 
         // modify coords and check if we can set them (logically)
