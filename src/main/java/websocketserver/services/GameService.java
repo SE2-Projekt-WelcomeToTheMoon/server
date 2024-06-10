@@ -134,21 +134,50 @@ public class GameService {
         }
     }
 
-    public void notifyPlayersMissionFlipped(MissionCard card) {
-    JSONObject message = new JSONObject();
-    try {
-        message.put("action", "missionFlipped");
-        message.put("missionDescription", card.getMissionDescription());
-        message.put("newReward", card.getReward().getNumberRockets());
-        message.put("flipped", true);
-    } catch (JSONException e) {
-        logger.error(e.getMessage());
+    public void notifyPlayersInitialMissionCards(List<MissionCard> missionCards) {
+        JSONObject message = new JSONObject();
+        try {
+            message.put("action", "initialMissionCards");
+            JSONArray missionCardsArray = new JSONArray();
+            for (MissionCard card : missionCards) {
+                JSONObject cardJson = new JSONObject();
+                cardJson.put("missionDescription", card.getMissionDescription());
+                cardJson.put("newReward", card.getReward().getNumberRockets());
+                cardJson.put("flipped", card.isFlipped());
+                missionCardsArray.put(cardJson);
+            }
+            message.put("missionCards", missionCardsArray);
+        } catch (JSONException e) {
+            logger.error("Error creating JSON message for initial mission cards: {}", e.getMessage());
+            return;
+        }
+
+        for (CreateUserService player : players) {
+            try {
+                sendMessageToPlayer(player.getSession(), message);
+            } catch (Exception e) {
+                logger.error("Failed to send initial mission cards message to player {}: {}", player.getUsername(), e.getMessage());
+            }
+        }
+
+        logger.info("Notified all players about initial mission cards: {}", message);
     }
 
-    for (CreateUserService player : players) {
-        SendMessageService.sendSingleMessage(player.getSession(), message);
+    public void notifyPlayersMissionFlipped(MissionCard card) {
+        JSONObject message = new JSONObject();
+        try {
+            message.put("action", "missionFlipped");
+            message.put("missionDescription", card.getMissionDescription());
+            message.put("newReward", card.getReward().getNumberRockets());
+            message.put("flipped", true);
+        } catch (JSONException e) {
+            logger.error(e.getMessage());
+        }
+
+        for (CreateUserService player : players) {
+            SendMessageService.sendSingleMessage(player.getSession(), message);
+        }
     }
-}
 
     public void cheat(WebSocketSession session, String username) {
         game.cheat(session, username);
