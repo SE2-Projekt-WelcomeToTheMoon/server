@@ -6,10 +6,14 @@ import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.mockito.Mock;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+import websocketserver.game.enums.EndType;
 import websocketserver.game.model.Game;
 import websocketserver.services.user.CreateUserService;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -38,6 +42,8 @@ class GameServiceTest {
         this.gameServiceObject.setLogger(loggerObject);
         when(player.getUsername()).thenReturn("player1");
         when(cheater.getUsername()).thenReturn("player2");
+        when(player.getSession()).thenReturn(session);
+        when(cheater.getSession()).thenReturn(session);
     }
 
     @Test
@@ -53,9 +59,19 @@ class GameServiceTest {
     }
 
     @Test
-    void testInformPlayersAboutEndOfGame() {
-        gameServiceObject.informPlayersAboutEndOfGame(null, null);
+    void testInformPlayersAboutEndOfGame() throws IOException {
+        // Arrange
+        List<CreateUserService> winners = new ArrayList<>();
+        winners.add(player);
+        winners.add(cheater);
+        EndType endType = EndType.ROCKETS_COMPLETED; // Replace with an actual EndType value if needed
+
+        // Act
+        gameServiceObject.informPlayersAboutEndOfGame(winners, endType);
+
+        // Assert
         verify(loggerObject).info("GameService informPlayersAboutEndOfGame");
+        verify(session, times(2)).sendMessage(any(TextMessage.class));
     }
 
     @Test
