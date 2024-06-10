@@ -60,16 +60,14 @@ class GameServiceTest {
 
     @Test
     void testInformPlayersAboutEndOfGame() throws IOException {
-        // Arrange
+
         List<CreateUserService> winners = new ArrayList<>();
         winners.add(player);
         winners.add(cheater);
-        EndType endType = EndType.ROCKETS_COMPLETED; // Replace with an actual EndType value if needed
+        EndType endType = EndType.ROCKETS_COMPLETED;
 
-        // Act
         gameServiceObject.informPlayersAboutEndOfGame(winners, endType);
 
-        // Assert
         verify(loggerObject).info("GameService informPlayersAboutEndOfGame");
         verify(session, times(2)).sendMessage(any(TextMessage.class));
     }
