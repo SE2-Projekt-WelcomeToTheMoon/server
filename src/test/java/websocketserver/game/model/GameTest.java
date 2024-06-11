@@ -23,7 +23,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,16 +42,6 @@ class GameTest {
     @Autowired
     Game gameObject;
     @Mock
-    Game mockedGame;
-    @Mock
-    GameService mockedGameService;
-    @Mock
-    CardManager mockedCardManager;
-    @Mock
-    GameBoard mockedGameBoard1;
-    @Mock
-    GameBoard mockedGameBoard2;
-    @Mock
     GameBoardManager mockedGameBoardManager;
 
 
@@ -66,12 +55,6 @@ class GameTest {
 
     @InjectMocks
     private Game game;
-
-    @Mock
-    private GameService gameService;
-
-    @Mock
-    private GameBoardManager gameBoardManager;
 
     @Mock
     private WebSocketSession session;
