@@ -173,11 +173,10 @@ public class Game {
                             gameBoardManager.updateClientGameBoardFromGame(otherPlayer, currentPlayerDraw.get(player));
                         }
                     }else{
-                        logger.info("Move was not valid, notifying client");
-                        gameService.notifySingleClient("invalidMove",currentPlayer);
+                        logger.info("Player {} move was incorrect or invalid, removing from Current Draw", player.getUsername());
+                        currentPlayerDraw.remove(player);
+                        gameService.notifySingleClient("invalidMove", player);
                     }
-
-
                 } catch (FloorSequenceException e) {
                     logger.info("Player {} move was incorrect or invalid, removing from Current Draw", player.getUsername());
                     currentPlayerDraw.remove(player);
@@ -189,6 +188,7 @@ public class Game {
         if (clientResponseReceived.incrementAndGet() == players.size()) {
             allClientResponseReceivedFuture.complete(null);
         }
+
     }
 
     protected void doRoundFour() {
@@ -291,7 +291,6 @@ public class Game {
 
         logger.info("Received Move from {}", username);
         currentPlayerDraw.put(getUserByUsername(username), message);
-
         //check if the chosen combination exists
         logger.info("Checking if the chosen combination exists");
         ChosenCardCombination chosenCardCombination = findCorrectCombination(fieldUpdateMessage.cardCombination());
