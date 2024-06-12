@@ -58,8 +58,14 @@ public class Floor {
         }
     }
 
-    //add check on fieldcategory via currentcombination
-    public void setFieldAtIndex(int index, FieldValue value) {
+
+    /***
+     * Checks if setting the field at that index is legal and then sets it if it is
+     * @param index index where value is to be set
+     * @param value Value to set into the index
+     * @return true is setting is legal, false otherwise
+     */
+    public boolean setFieldAtIndex(int index, FieldValue value) {
         if (!isFinalized) {
             throw new FinalizedException(TAG_FINALIZED);
         }
@@ -74,7 +80,10 @@ public class Floor {
             count += chamber.getSize();
             currentMax = Math.max(chamber.getHighestValueInChamber(), currentMax);
         }
-        if(!fieldChanged)throw new FloorSequenceException("Values within Floor must be in ascending order");
+        if(!fieldChanged){
+            throw new FloorSequenceException("Values within Floor must be in ascending order");
+        }
+        return true;
     }
 
     public boolean canInsertValue(FieldValue value) {

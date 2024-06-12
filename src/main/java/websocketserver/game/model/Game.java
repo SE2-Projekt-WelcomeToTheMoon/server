@@ -6,7 +6,6 @@ import org.springframework.web.socket.WebSocketSession;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import websocketserver.game.enums.ChosenCardCombination;
 import websocketserver.game.enums.EndType;
-import websocketserver.game.enums.FieldValue;
 import websocketserver.game.enums.GameState;
 import websocketserver.game.exceptions.FloorSequenceException;
 import websocketserver.game.exceptions.GameStateException;
@@ -157,7 +156,7 @@ public class Game {
         });
     }
 
-    protected void receiveValueAtPositionOfPlayer(CreateUserService player, int floor, int field, FieldValue fieldValue) {
+    protected void receiveValueAtPositionOfPlayer(CreateUserService player, int floor, int field, CardCombination combination) {
         if (this.gameState != GameState.ROUND_THREE) {
             throw new GameStateException("Invalid game state for setting field values");
         }
@@ -165,13 +164,20 @@ public class Game {
         for (CreateUserService currentPlayer : players) {
             if (currentPlayer.equals(player)) {
                 try {
-                    currentPlayer.getGameBoard().setValueWithinFloorAtIndex(floor, field, fieldValue);
-                    logger.info("Move was valid, rerouting move to other Players {}", player.getUsername());
-                    gameService.notifySingleClient("alreadyMoved", currentPlayer);
-                    for (CreateUserService otherPlayer : players) {
-                        logger.info("Sending validMove from Player {} to {}", player.getUsername(), otherPlayer.getUsername());
-                        gameBoardManager.updateClientGameBoardFromGame(otherPlayer, currentPlayerDraw.get(player));
+
+                    if(currentPlayer.getGameBoard().setValueWithinFloorAtIndex(floor, field, combination)){
+                        logger.info("Move was valid, rerouting move to other Players {}", player.getUsername());
+                        gameService.notifySingleClient("alreadyMoved", currentPlayer);
+                        for (CreateUserService otherPlayer : players) {
+                            logger.info("Sending validMove from Player {} to {}", player.getUsername(), otherPlayer.getUsername());
+                            gameBoardManager.updateClientGameBoardFromGame(otherPlayer, currentPlayerDraw.get(player));
+                        }
+                    }else{
+                        logger.info("Move was not valid, notifying client");
+                        gameService.notifySingleClient("invalidMove",currentPlayer);
                     }
+
+
                 } catch (FloorSequenceException e) {
                     logger.info("Player {} move was incorrect or invalid, removing from Current Draw", player.getUsername());
                     currentPlayerDraw.remove(player);
@@ -294,7 +300,7 @@ public class Game {
         // modify coords and check if we can set them (logically)
         logger.info("Checking if the chosen field is valid");
         int[] coords = getServerCoordinates(fieldUpdateMessage);
-        receiveValueAtPositionOfPlayer(getUserByUsername(username), coords[0], coords[1], fieldUpdateMessage.fieldValue());
+        receiveValueAtPositionOfPlayer(getUserByUsername(username), coords[0], coords[1], fieldUpdateMessage.cardCombination());
     }
 
     public ChosenCardCombination findCorrectCombination(CardCombination cardCombination) {
