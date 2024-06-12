@@ -155,7 +155,7 @@ class GameBoardTest {
 
         gameBoard.finalizeGameBoard();
 
-        assertDoesNotThrow(() -> gameBoard.setValueWithinFloorAtIndex(0, 1, FieldValue.TWO));
+        assertDoesNotThrow(() -> gameBoard.setValueWithinFloorAtIndex(0, 1, new CardCombination(floor.getFieldCategory(),floor.getFieldCategory(),FieldValue.TWO)));
         assertEquals(FieldValue.TWO, gameBoard.getFloorAtIndex(0).getFieldAtIndex(1).getFieldValue());
     }
 
@@ -172,7 +172,7 @@ class GameBoardTest {
         gameBoard.finalizeGameBoard();
 
         assertThrows(FloorSequenceException.class, () ->
-                gameBoard.setValueWithinFloorAtIndex(0, 0, FieldValue.FOUR));
+                gameBoard.setValueWithinFloorAtIndex(0, 0, new CardCombination(floor.getFieldCategory(),floor.getFieldCategory(),FieldValue.FOUR)));
 
     }
 
@@ -226,7 +226,7 @@ class GameBoardTest {
         chamber.addField(new Field(FieldCategory.ROBOTER));
         floor.addChamber(chamber);
         gameBoard.addFloor(floor);
-        assertThrows(FinalizedException.class, () -> gameBoard.setValueWithinFloorAtIndex(0, 0, FieldValue.ONE));
+        assertThrows(FinalizedException.class, () -> gameBoard.setValueWithinFloorAtIndex(0, 0, new CardCombination(floor.getFieldCategory(),floor.getFieldCategory(),FieldValue.ONE)));
     }
 
     @Test

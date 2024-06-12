@@ -383,4 +383,32 @@ class FloorTest {
         floor.finalizeFloor();
         assertEquals(chamberCompatible, floor.getChamber(0));
     }
+    @Test
+    void testCanInsertIntoChamberValid() {
+        Floor floor = new Floor(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER,rewards, 5);
+
+
+        Chamber chamber2 = new Chamber(FieldCategory.ROBOTER,rewards,3);
+        floor.addChamber(chamber1);
+        floor.addChamber(chamber2);
+        floor.finalizeFloor();
+        floor.setFieldAtIndex(4,FieldValue.FIVE);
+
+        assertTrue(floor.setFieldAtIndex(5,FieldValue.SIX));
+    }
+    @Test
+    void testCanInsertIntoChamberInvalid() {
+        Floor floor = new Floor(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER,rewards, 5);
+
+
+        Chamber chamber2 = new Chamber(FieldCategory.ROBOTER,rewards,3);
+        floor.addChamber(chamber1);
+        floor.addChamber(chamber2);
+        floor.finalizeFloor();
+        floor.setFieldAtIndex(4,FieldValue.FIVE);
+
+        assertThrows(FloorSequenceException.class, ()->floor.setFieldAtIndex(5,FieldValue.FOUR));
+    }
 }
