@@ -101,7 +101,9 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     logger.info("Case detect cheat: {} with messageValue: {} ", username, messageValue);
                     gameService.detectCheat(session, username, messageValue);
                     break;
-
+                case "updateCurrentCards":
+                    logger.info("Case detect updateCurrentCards: {} ",username);
+                    gameService.updateCurrentCards(username);
                 case "reconnect":
                     logger.info("Case reconnect: {} ", username);
                     reconnTry++;

@@ -51,5 +51,16 @@ public class CardManager {
         return true;
     }
 
+    public void updateUserAboutCurrentCards(CreateUserService player){
+        if (player == null) {
+            logger.error("Player is null");
+            return;
+        }
+        String cardData = CardController.getCurrentCardMessage(this.cardController.getCurrentCombinations());
+        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("nextCardDraw", player.getUsername(), true, cardData, "");
+        SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
+        logger.info("Sending current card draw to player: {}", player.getUsername());
+
+    }
 
 }

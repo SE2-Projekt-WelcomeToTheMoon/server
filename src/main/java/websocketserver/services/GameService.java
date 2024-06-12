@@ -170,4 +170,8 @@ public class GameService {
         gameBoardManager.informClientsAboutDetectedCheat( game.getPlayers(), username, hasCheated);
         return hasCheated;
     }
+
+    public void updateCurrentCards( String username) {
+        cardManager.updateUserAboutCurrentCards(game.getUserByUsername(username));
+    }
 }
