@@ -411,4 +411,90 @@ class FloorTest {
 
         assertThrows(FloorSequenceException.class, ()->floor.setFieldAtIndex(5,FieldValue.FOUR));
     }
+    @Test
+    void testIsValidMoveValid(){
+        Floor floor = new Floor(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER,rewards, 0);
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.FOUR));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+        Chamber chamber2 = new Chamber(FieldCategory.ROBOTER,rewards,0);
+        chamber2.addField(new Field(FieldCategory.ROBOTER, FieldValue.TEN));
+        chamber2.addField(new Field(FieldCategory.ROBOTER, FieldValue.ELEVEN));
+
+        floor.addChamber(chamber1);
+        floor.addChamber(chamber2);
+        floor.finalizeFloor();
+        assertTrue(floor.isValidMove(new CardCombination(FieldCategory.ROBOTER,FieldCategory.ROBOTER,FieldValue.NINE),3));
+    }
+    @Test
+    void testIsValidMoveInValidValue(){
+        Floor floor = new Floor(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER,rewards, 0);
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.FOUR));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+        Chamber chamber2 = new Chamber(FieldCategory.ROBOTER,rewards,0);
+        chamber2.addField(new Field(FieldCategory.ROBOTER, FieldValue.TEN));
+        chamber2.addField(new Field(FieldCategory.ROBOTER, FieldValue.ELEVEN));
+
+        floor.addChamber(chamber1);
+        floor.addChamber(chamber2);
+        floor.finalizeFloor();
+        assertFalse(floor.isValidMove(new CardCombination(FieldCategory.ROBOTER,FieldCategory.ROBOTER,FieldValue.TWELVE),3));
+    }
+    @Test
+    void testIsValidMoveValidAllEmptyFields(){
+        Floor floor = new Floor(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER,rewards, 0);
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+        Chamber chamber2 = new Chamber(FieldCategory.ROBOTER,rewards,0);
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+
+
+        floor.addChamber(chamber1);
+        floor.addChamber(chamber2);
+        floor.finalizeFloor();
+        assertTrue(floor.isValidMove(new CardCombination(FieldCategory.ROBOTER,FieldCategory.ROBOTER,FieldValue.TWELVE),0));
+    }
+    @Test
+    void testIsValidMoveInValidCategory(){
+        Floor floor = new Floor(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER,rewards, 0);
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.FOUR));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+        Chamber chamber2 = new Chamber(FieldCategory.ROBOTER,rewards,0);
+        chamber2.addField(new Field(FieldCategory.ROBOTER, FieldValue.TEN));
+        chamber2.addField(new Field(FieldCategory.ROBOTER, FieldValue.ELEVEN));
+
+        floor.addChamber(chamber1);
+        floor.addChamber(chamber2);
+        floor.finalizeFloor();
+        assertFalse(floor.isValidMove(new CardCombination(FieldCategory.PLANUNG,FieldCategory.ROBOTER,FieldValue.NINE),3));
+    }
+    @Test
+    void testIsValidMoveInValidNumberAfterSmaller(){
+        Floor floor = new Floor(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER,rewards, 0);
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.FOUR));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+        Chamber chamber2 = new Chamber(FieldCategory.ROBOTER,rewards,0);
+        chamber2.addField(new Field(FieldCategory.ROBOTER, FieldValue.EIGHT));
+        chamber2.addField(new Field(FieldCategory.ROBOTER, FieldValue.ELEVEN));
+
+        floor.addChamber(chamber1);
+        floor.addChamber(chamber2);
+        floor.finalizeFloor();
+        assertFalse(floor.isValidMove(new CardCombination(FieldCategory.ROBOTER,FieldCategory.ROBOTER,FieldValue.NINE),3));
+    }
 }

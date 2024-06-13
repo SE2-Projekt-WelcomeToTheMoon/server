@@ -196,4 +196,39 @@ public class Floor {
         return new ArrayList<>(chambers);
     }
 
+
+    /***
+     * checks if entering a combination at a specific index is a legal move
+     * @param combination The Combination to check for
+     * @param index The Index where it wants to be inserted
+     * @return true if legal false if not
+     */
+    public boolean isValidMove(CardCombination combination, int index){
+
+        int biggestBefore=0;
+        int smallestAfter=16;
+
+       ArrayList<Field> allFields=getAllFieldsAsList();
+        int pointerLeft=0;
+        int pointerRight=allFields.size() - 1;
+       if(allFields.get(index).getFieldValue()!=FieldValue.NONE||combination.getCurrentSymbol()!=fieldCategory)return false;
+       for (int i = 0; i < allFields.size(); i++){
+           if(pointerRight>index&&allFields.get(allFields.size()-i-1).getFieldValue()!=FieldValue.NONE){
+               smallestAfter=Math.min(allFields.get(allFields.size()-i-1).getFieldValue().getValue(),smallestAfter);
+               pointerRight--;
+           }
+           if(pointerLeft<index){
+               biggestBefore= Math.max(allFields.get(i).getFieldValue().getValue(), biggestBefore);
+               pointerLeft++;
+           }
+       }
+        return combination.getCurrentNumber() > biggestBefore && combination.getCurrentNumber() < smallestAfter;
+    }
+    private ArrayList<Field> getAllFieldsAsList(){
+        ArrayList<Field> allFields=new ArrayList<>();
+        for (Chamber chamber:chambers ) {
+            allFields.addAll(chamber.getFields());
+        }
+        return allFields;
+    }
 }
