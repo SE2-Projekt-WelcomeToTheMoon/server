@@ -109,7 +109,7 @@ public class GameService {
         SendMessageService.sendSingleMessage(createUserService.getSession(), msg);
         logger.info("Systemerror sent to player: {}", msg);
     }
-    public void mapStringToCreateUserService(String username){
+   /* public void mapStringToCreateUserService(String username){
         this.players = game.getPlayers();
         for(CreateUserService createUserService : players){
             if(createUserService.getUsername().equals(username)){
@@ -117,7 +117,7 @@ public class GameService {
                 return;
             }
         }
-    }
+    }*/
     public void updateUser(String username, String message) {
         logger.info("GameService updateUser");
         game.updateUser(username, message);
