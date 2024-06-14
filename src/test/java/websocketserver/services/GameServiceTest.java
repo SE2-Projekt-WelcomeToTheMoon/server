@@ -85,7 +85,6 @@ class GameServiceTest {
 
     @Test
     void testInformPlayerAboutSystemerror() {
-        // Here we mock the player object to return a valid session and GameBoard
         when(player.getSession()).thenReturn(session);
         when(player.getGameBoard()).thenReturn(mock(GameBoard.class));
 
