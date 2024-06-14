@@ -102,9 +102,22 @@ public class GameService {
 
     public void informPlayerAboutSystemerror(CreateUserService createUserService) {
         logger.info("GameService informPlayerAboutSystemerror");
-        //TODO: If new card combination and player can't find a spot
+        
+        int errors = createUserService.getGameBoard().getSystemErrors();
+        JSONObject msg = GenerateJSONObjectService.generateJSONObject("systemError", createUserService.getUsername(), true, "system error informplayer", "");
+        msg.put("points", errors);
+        SendMessageService.sendSingleMessage(createUserService.getSession(), msg);
+        logger.info("Systemerror sent to player: {}", msg);
     }
-
+    public void mapStringToCreateUserService(String username){
+        this.players = game.getPlayers();
+        for(CreateUserService createUserService : players){
+            if(createUserService.getUsername().equals(username)){
+                informPlayerAboutSystemerror(createUserService);
+                return;
+            }
+        }
+    }
     public void updateUser(String username, String message) {
         logger.info("GameService updateUser");
         game.updateUser(username, message);
