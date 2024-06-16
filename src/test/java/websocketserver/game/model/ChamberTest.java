@@ -202,4 +202,11 @@ class ChamberTest {
 
         assertEquals(rewardsTest, chamber.getRewards());
     }
+    @Test
+    void testSetFieldAtIndexThrowsException() {
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        chamber.finalizeChamber();
+        assertThrows(IllegalArgumentException.class,()->chamber.setFieldAtIndex(2,new CardCombination(FieldCategory.ROBOTER,FieldCategory.ROBOTER,FieldValue.TWO)));
+    }
 }
