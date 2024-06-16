@@ -86,6 +86,21 @@ public class Floor {
         return true;
     }
 
+    public void setFieldAtIndex(int index, CardCombination value) {
+        if (!isFinalized) {
+            throw new FinalizedException(TAG_FINALIZED);
+        }
+        int count=0;
+        for (Chamber chamber : chambers) {
+            if (index >= count && index <= count + chamber.getSize()) {
+                chamber.setFieldAtIndex(index - count, value);
+
+            }
+            count += chamber.getSize();
+
+        }
+
+    }
     public boolean canInsertValue(FieldValue value) {
         if (!isFinalized) {
             throw new FinalizedException(TAG_FINALIZED);
@@ -196,4 +211,42 @@ public class Floor {
         return new ArrayList<>(chambers);
     }
 
+
+    /***
+     * checks if entering a combination at a specific index is a legal move
+     * @param combination The Combination to check for
+     * @param index The Index where it wants to be inserted
+     * @return true if legal false if not
+     */
+    public boolean isValidMove(CardCombination combination, int index){
+
+        int biggestBefore=0;
+        int smallestAfter=16;
+
+       ArrayList<Field> allFields=getAllFieldsAsList();
+        int pointerLeft=0;
+        int pointerRight=allFields.size() - 1;
+       if(allFields.get(index).getFieldValue()!=FieldValue.NONE||(fieldCategory!=FieldCategory.ANYTHING&&combination.getCurrentSymbol()!=fieldCategory))return false;
+       for (int i = 0; i < allFields.size(); i++){
+           if(pointerRight>index){
+               if(allFields.get(pointerRight).getFieldValue()!=FieldValue.NONE){
+                   smallestAfter=Math.min(allFields.get(allFields.size()-i-1).getFieldValue().getValue(),smallestAfter);
+               }
+               pointerRight--;
+           }
+           if(pointerLeft<index){
+               biggestBefore= Math.max(allFields.get(i).getFieldValue().getValue(), biggestBefore);
+               pointerLeft++;
+           }
+           System.out.printf("BiggestBefore: %d PointerLeft %d SmallestAfter %d PointerRight %d i %d\n",biggestBefore,pointerLeft,smallestAfter,pointerRight,i);
+       }
+        return combination.getCurrentNumber() > biggestBefore && combination.getCurrentNumber() < smallestAfter;
+    }
+    private ArrayList<Field> getAllFieldsAsList(){
+        ArrayList<Field> allFields=new ArrayList<>();
+        for (Chamber chamber:chambers ) {
+            allFields.addAll(chamber.getFields());
+        }
+        return allFields;
+    }
 }

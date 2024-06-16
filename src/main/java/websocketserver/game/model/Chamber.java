@@ -112,6 +112,20 @@ public class Chamber {
             if(index==count&&value.getValue()>currentMax){
                 if(field.getFieldValue()!=FieldValue.NONE)throw new FloorSequenceException("Values within Floor must be in ascending order");
                 field.setFieldValue(value);
+                return;
+            }
+            count++;
+
+        }
+    }
+    public void setFieldAtIndex(int index, CardCombination value){
+        int count=0;
+        for (Field field: fields) {
+
+            if(index==count){
+
+                field.setFieldValue(FieldValue.fromWeight(value.getCurrentNumber()));
+                return;
             }
             count++;
 
