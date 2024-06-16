@@ -153,12 +153,12 @@ public class Game {
                         for (CreateUserService otherPlayer : players) {
                             logger.info("Sending validMove from Player {} to {}", player.getUsername(), otherPlayer.getUsername());
                             gameBoardManager.updateClientGameBoardFromGame(otherPlayer, currentPlayerDraw.get(player));
-                    }
+                        }
                     }else{
                         logger.error("Player {} move was invalid, removing from currentDraw", player.getUsername());
                         currentPlayerDraw.remove(player);
                         gameService.notifySingleClient("invalidMove", player);
-                        return;
+                        throw new FloorSequenceException("Illegal Move");
                     }
                 } catch (FloorSequenceException e) {
                     logger.info("Player {} move was incorrect or invalid, removing from Current Draw", player.getUsername());

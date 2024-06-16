@@ -118,15 +118,15 @@ public class Chamber {
 
         }
     }
+
+    /***
+     * Inserts new Value into field at index. Does not check if it is a legal move
+     * @param index The index where it should be inserted
+     * @param value The Combination to inset
+     */
     public void setFieldAtIndex(int index, CardCombination value){
-        int count=0;
-        for (Field field: fields) {
-            if(index==count){
-                field.setFieldValue(FieldValue.fromWeight(value.getCurrentNumber()));
-                return;
-            }
-            count++;
-        }
+        if(index>=fields.size())throw new IllegalArgumentException("Cannot set index> Chamber Size");
+        getField(index).setFieldValue(FieldValue.fromWeight(value.getCurrentNumber()));
     }
 
     public List<Field> getFields(){

@@ -9,12 +9,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 
 public class Floor {
-    private final Logger logger = LogManager.getLogger(Floor.class);
+
     private final List<Chamber> chambers;
     @Getter
     @JsonProperty("fieldCategory")
@@ -89,17 +87,25 @@ public class Floor {
         return true;
     }
 
+    /***
+     * Sets the value of the Combination at the index in the floor. Does not check if it is a valid move
+     * @param index The index to put the value at
+     * @param value The value to be put
+     */
     public void setFieldAtIndex(int index, CardCombination value) {
         if (!isFinalized) {
             throw new FinalizedException(TAG_FINALIZED);
         }
+        if(index>=getFloorSize())throw new IllegalArgumentException("Index cannot be bigger than floor size");
         int count=0;
         for (Chamber chamber : chambers) {
             if (index >= count && index <= count + chamber.getSize()) {
                 chamber.setFieldAtIndex(index - count, value);
+                return;
             }
             count += chamber.getSize();
         }
+
     }
 
     public boolean canInsertValue(FieldValue value) {
@@ -237,7 +243,6 @@ public class Floor {
                biggestBefore= Math.max(allFields.get(i).getFieldValue().getValue(), biggestBefore);
                pointerLeft++;
            }
-           logger.info("BiggestBefore: {} PointerLeft {} SmallestAfter {} PointerRight {} i {}",biggestBefore,pointerLeft,smallestAfter,pointerRight,i);
        }
         return combination.getCurrentNumber() > biggestBefore && combination.getCurrentNumber() < smallestAfter;
     }
