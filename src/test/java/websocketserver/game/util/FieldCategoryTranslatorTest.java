@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import websocketserver.game.enums.FieldCategory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class FieldCategoryTranslatorTest {
 
@@ -45,6 +46,6 @@ class FieldCategoryTranslatorTest {
 
     @Test
     void testTranslateUnknown() {
-        assertEquals(null, FieldCategoryTranslator.translate("UNKNOWN"));
+        assertNull(FieldCategoryTranslator.translate("UNKNOWN"));
     }
 }

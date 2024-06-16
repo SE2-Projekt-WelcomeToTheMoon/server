@@ -14,7 +14,9 @@ import websocketserver.game.enums.FieldValue;
 import websocketserver.game.enums.GameState;
 import websocketserver.game.exceptions.GameStateException;
 import websocketserver.game.services.GameBoardService;
+import websocketserver.game.util.FieldUpdateMessage;
 import websocketserver.services.CardManager;
+import websocketserver.services.GameService;
 import websocketserver.services.user.CreateUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,10 +77,12 @@ class GameTest {
     private CardManager mockCardManager;
 
     CardCombination[] combinations = {
-            new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.ENERGIE, FieldValue.ONE),
+            new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.RAUMANZUG, FieldValue.ONE),
             new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.ENERGIE, FieldValue.TWO),
             new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.ENERGIE, FieldValue.THREE)
     };
+    @Autowired
+    private GameService gameService;
 
     @BeforeEach
     public void setUp() {
@@ -100,6 +104,8 @@ class GameTest {
 
         when(player1.getSession()).thenReturn(session);
         when(player2.getSession()).thenReturn(session);
+
+        when(mockCardManager.getCurrentCombination()).thenReturn(combinations);
 
         when(player.getUsername()).thenReturn("player1");
         when(cheater.getUsername()).thenReturn("player2");
@@ -221,7 +227,7 @@ class GameTest {
     void testFindCorrectCombinationOne() {
         game = new Game(mockCardManager, null);
         when(mockCardManager.getCurrentCombination()).thenReturn(combinations);
-        CardCombination cardCombination = new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.ENERGIE, FieldValue.ONE);
+        CardCombination cardCombination = new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.RAUMANZUG, FieldValue.ONE);
         assertEquals(ChosenCardCombination.ONE, game.findCorrectCombination(cardCombination));
     }
 

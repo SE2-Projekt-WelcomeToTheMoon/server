@@ -9,6 +9,7 @@ import websocketserver.game.enums.EndType;
 import websocketserver.game.enums.GameState;
 import websocketserver.game.exceptions.FloorSequenceException;
 import websocketserver.game.exceptions.GameStateException;
+import websocketserver.game.util.FieldUpdateMessage;
 import websocketserver.services.CardManager;
 import websocketserver.services.GameBoardManager;
 import websocketserver.services.GameService;
@@ -334,6 +335,7 @@ public class Game {
         ObjectMapper mapper = new ObjectMapper();
         FieldUpdateMessage fieldUpdateMessage;
         try {
+            mapper.findAndRegisterModules();
             fieldUpdateMessage = mapper.readValue(message, FieldUpdateMessage.class);
         } catch (Exception e) {
             logger.error("JSON deserialization error", e);
@@ -341,6 +343,7 @@ public class Game {
         }
         return fieldUpdateMessage;
     }
+
 
     public void cheat(WebSocketSession session, String username) {
         for(CreateUserService player : players){

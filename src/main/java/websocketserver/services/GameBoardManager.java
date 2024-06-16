@@ -2,6 +2,7 @@ package websocketserver.services;
 
 import websocketserver.game.model.*;
 import websocketserver.game.services.GameBoardService;
+import websocketserver.game.util.FieldUpdateMessage;
 import websocketserver.services.json.GenerateJSONObjectService;
 import websocketserver.services.user.CreateUserService;
 import com.fasterxml.jackson.core.JsonProcessingException;

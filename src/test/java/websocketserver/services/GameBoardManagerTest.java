@@ -5,7 +5,7 @@ import static org.mockito.Mockito.*;
 
 import websocketserver.game.enums.FieldValue;
 import websocketserver.game.enums.GameState;
-import websocketserver.game.model.FieldUpdateMessage;
+import websocketserver.game.util.FieldUpdateMessage;
 import websocketserver.game.model.GameBoard;
 import websocketserver.game.services.GameBoardService;
 import websocketserver.services.user.CreateUserService;
