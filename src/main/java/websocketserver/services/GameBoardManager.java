@@ -111,8 +111,9 @@ public class GameBoardManager {
     }
 
     public void notifyAllClients(List<CreateUserService> players, String action) {
+        logger.info("Notifying multiple player about {}", "DingDong");
         for (CreateUserService player : players) {
-            logger.info("Notify all Players about {}", action);
+            logger.info("Notify Player {} about {}", player.getUsername(), action);
             JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject(action, player.getUsername(), true, "", "");
             SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         }
