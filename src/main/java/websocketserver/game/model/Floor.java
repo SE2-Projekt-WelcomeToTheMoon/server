@@ -9,9 +9,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public class Floor {
+    private final Logger logger = LogManager.getLogger(Floor.class);
     private final List<Chamber> chambers;
     @Getter
     @JsonProperty("fieldCategory")
@@ -94,20 +97,18 @@ public class Floor {
         for (Chamber chamber : chambers) {
             if (index >= count && index <= count + chamber.getSize()) {
                 chamber.setFieldAtIndex(index - count, value);
-
             }
             count += chamber.getSize();
-
         }
-
     }
+
     public boolean canInsertValue(FieldValue value) {
         if (!isFinalized) {
             throw new FinalizedException(TAG_FINALIZED);
         }
 
         int currentMax = 0;
-        FieldValue nextValue = null;
+        FieldValue nextValue;
 
         for (int i = 0; i < chambers.size(); i++) {
             Chamber chamber = chambers.get(i);
@@ -205,12 +206,10 @@ public class Floor {
     /**
      * maybe change later?
      * return the original reference, which would allow to change the object itself
-     * @return
      */
     public List<Chamber> getChambers() {
         return new ArrayList<>(chambers);
     }
-
 
     /***
      * checks if entering a combination at a specific index is a legal move
@@ -238,7 +237,7 @@ public class Floor {
                biggestBefore= Math.max(allFields.get(i).getFieldValue().getValue(), biggestBefore);
                pointerLeft++;
            }
-           System.out.printf("BiggestBefore: %d PointerLeft %d SmallestAfter %d PointerRight %d i %d\n",biggestBefore,pointerLeft,smallestAfter,pointerRight,i);
+           logger.info("BiggestBefore: {} PointerLeft {} SmallestAfter {} PointerRight {} i {}",biggestBefore,pointerLeft,smallestAfter,pointerRight,i);
        }
         return combination.getCurrentNumber() > biggestBefore && combination.getCurrentNumber() < smallestAfter;
     }
