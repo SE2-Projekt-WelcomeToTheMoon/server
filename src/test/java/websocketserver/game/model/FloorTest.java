@@ -525,6 +525,7 @@ class FloorTest {
 
     @Test
     void testIsValidMoveCanInsertIntoWildCardValid() {
+        Floor floor=new Floor(FieldCategory.ANYTHING);
         Chamber chamber1 = new Chamber(FieldCategory.ANYTHING, rewards, 0);
         chamber1.addField(new Field(FieldCategory.ANYTHING, FieldValue.ONE));
         chamber1.addField(new Field(FieldCategory.ANYTHING, FieldValue.TWO));
