@@ -142,6 +142,13 @@ private GameService gameService;
         return rocketBarometer.getRocketCount();
     }
 
+    public int getSystemErrors() {
+        if (!isFinalized) {
+            throw new FinalizedException(ERRORMESSAGE);
+        }
+        return systemErrors.getCurrentErrors();
+    }
+
     public boolean addSystemError() {
         if (!isFinalized) {
             throw new FinalizedException(ERRORMESSAGE);

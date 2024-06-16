@@ -12,9 +12,7 @@ import websocketserver.game.enums.FieldValue;
 import websocketserver.game.enums.GameState;
 import websocketserver.game.exceptions.GameStateException;
 import websocketserver.game.services.GameBoardService;
-import websocketserver.services.CardManager;
 import websocketserver.services.GameBoardManager;
-import websocketserver.services.GameService;
 import websocketserver.services.user.CreateUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +21,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,16 +40,6 @@ class GameTest {
     @Autowired
     Game gameObject;
     @Mock
-    Game mockedGame;
-    @Mock
-    GameService mockedGameService;
-    @Mock
-    CardManager mockedCardManager;
-    @Mock
-    GameBoard mockedGameBoard1;
-    @Mock
-    GameBoard mockedGameBoard2;
-    @Mock
     GameBoardManager mockedGameBoardManager;
 
 
@@ -66,12 +53,6 @@ class GameTest {
 
     @InjectMocks
     private Game game;
-
-    @Mock
-    private GameService gameService;
-
-    @Mock
-    private GameBoardManager gameBoardManager;
 
     @Mock
     private WebSocketSession session;
@@ -159,32 +140,11 @@ class GameTest {
     void testWrongStateForRound() {
         assertThrows(GameStateException.class, () -> gameObject.receiveSelectedCombinationOfPlayer(player1, ChosenCardCombination.ONE));
     }
-
     @Test
     void testDoRoundOneWrongGameState() {
-        // Set game state to something other than ROUND_ONE
-        GameBoardService gameBoardService1 = new GameBoardService();
-        GameBoard gameBoard = gameBoardService1.createGameBoard();
+        Game game1 = new Game(null, null);
 
-
-        // Attempt to run doRoundOne and expect a GameStateException
-        ReflectionTestUtils.setField(mockedGame, "cardManager", mockedCardManager);
-        ReflectionTestUtils.setField(mockedGame, "gameService", mockedGameService);
-        when(mockedGame.getGameState()).thenReturn(GameState.ROUND_ONE);
-
-        mockedGame.addPlayer(player1);
-        mockedGame.addPlayer(player2);
-
-        doNothing().when(mockedCardManager).drawNextCard();
-
-        when(player1.getGameBoard()).thenReturn(mockedGameBoard1);
-        when(player2.getGameBoard()).thenReturn(mockedGameBoard2);
-        when(mockedGameBoard1.addSystemError()).thenReturn(true);
-        when(mockedGameBoard2.addSystemError()).thenReturn(false);
-        when(mockedGameBoard1.checkCardCombination(any())).thenReturn(true);
-        when(mockedGameBoard2.checkCardCombination(any())).thenReturn(true);
-
-        mockedGame.doRoundOne();
+        assertThrows(GameStateException.class, game1::doRoundOne);
     }
 
     @Test
