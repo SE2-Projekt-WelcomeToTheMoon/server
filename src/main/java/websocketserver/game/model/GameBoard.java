@@ -182,17 +182,23 @@ private GameService gameService;
     public List<Floor> getFloors() {
         return new ArrayList<>(floors);
     }
+    
     public List<MissionCard> initializeMissionCards() {
         List<MissionCard> cards = new ArrayList<>();
         Random random = new Random();
 
         // Initialize mission cards randomly as A1 or A2, B1 or B2, C1 or C2
-        cards.add(new MissionCard("Mission A" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
-        cards.add(new MissionCard("Mission B" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
-        cards.add(new MissionCard("Mission C" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
+        cards.add(new MissionCard("a" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
+        cards.add(new MissionCard("b" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
+        cards.add(new MissionCard("c" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
 
         return cards;
     }
+    
+    public void notifyPlayersInitialMissionCards() {
+        gameService.notifyPlayersInitialMissionCards(missionCards);
+    }
+    
 
     public void checkAndFlipMissionCards(String missionDescription) {
         for (MissionCard card : missionCards) {
@@ -205,36 +211,36 @@ private GameService gameService;
 
     public void checkMissions() {
         for (MissionCard missionCard : missionCards) {
-                switch (missionCard.getMissionDescription()) {
-                    case "Mission A1":
-                if (areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER)) {
-                    checkAndFlipMissionCards("Mission A1");
-                }
-                break;
-            case "Mission A2":
-                if (areAllFieldsNumbered(FieldCategory.ROBOTER, FieldCategory.PLANUNG)) {
-                    checkAndFlipMissionCards("Mission A2");
-                }
-                break;
-            case "Mission B1":
-                if (areAllFieldsNumbered(FieldCategory.ENERGIE)) {
-                    checkAndFlipMissionCards("Mission B1");
-                }
-                break;
-            case "Mission B2":
-                if (areAllFieldsNumbered(FieldCategory.PFLANZE)) {
-                    checkAndFlipMissionCards("Mission B2");
-                }
-                break;
-            case "Mission C1":
-                if (systemErrors.getCurrentErrors() >= 5) {
-                    checkAndFlipMissionCards("Mission C1");
-                }
-                break;
-            case "Mission C2":
-                //TODO: Implement Mission Card, if 10 X are entered
-                break;
-            default:
+            switch (missionCard.getMissionDescription()) {
+                case "a1":
+                    if (areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER)) {
+                        checkAndFlipMissionCards("a1");
+                    }
+                    break;
+                case "a2":
+                    if (areAllFieldsNumbered(FieldCategory.ROBOTER, FieldCategory.PLANUNG)) {
+                        checkAndFlipMissionCards("a2");
+                    }
+                    break;
+                case "b1":
+                    if (areAllFieldsNumbered(FieldCategory.ENERGIE)) {
+                        checkAndFlipMissionCards("b1");
+                    }
+                    break;
+                case "b2":
+                    if (areAllFieldsNumbered(FieldCategory.PFLANZE)) {
+                        checkAndFlipMissionCards("b2");
+                    }
+                    break;
+                case "c1":
+                    if (systemErrors.getCurrentErrors() >= 5) {
+                        checkAndFlipMissionCards("c1");
+                    }
+                    break;
+                case "c2":
+                    //TODO: Implement Mission Card, if 10 X are entered
+                    break;
+                default:
             }
         }
     }
