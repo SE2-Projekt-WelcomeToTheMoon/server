@@ -74,7 +74,7 @@ public class Floor {
         int currentMax=0;
         boolean fieldChanged=false;
         for (Chamber chamber : chambers) {
-            if (index >= count && index <= count + chamber.getSize()) {
+            if (index >= count && index <= count + chamber.getSize()&&chamber.getField(index-count).getFieldValue()==FieldValue.NONE) {
                 chamber.setFieldAtIndex(index - count, value, currentMax);
                 fieldChanged = true;
             }
@@ -105,7 +105,6 @@ public class Floor {
             }
             count += chamber.getSize();
         }
-
     }
 
     public boolean canInsertValue(FieldValue value) {
