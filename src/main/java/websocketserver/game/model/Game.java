@@ -3,14 +3,14 @@ package websocketserver.game.model;
 import org.json.JSONObject;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import websocketserver.game.enums.ChosenCardCombination;
 import websocketserver.game.enums.EndType;
-import websocketserver.game.enums.FieldValue;
 import websocketserver.game.enums.GameState;
 import websocketserver.game.exceptions.FloorSequenceException;
 import websocketserver.game.exceptions.GameStateException;
+import websocketserver.game.util.FieldUpdateMessage;
 import websocketserver.services.CardManager;
-import websocketserver.game.services.CardController;
 import websocketserver.services.GameBoardManager;
 import websocketserver.services.GameService;
 import websocketserver.services.json.GenerateJSONObjectService;
@@ -42,21 +42,23 @@ public class Game {
     CardManager cardManager;
     @Setter
     GameBoardManager gameBoardManager;
-    CardController cardController;
     HashMap<CreateUserService, ChosenCardCombination> currentPlayerChoices;
+    HashMap<CreateUserService, String> currentPlayerDraw;
 
     private final AtomicInteger clientResponseReceived = new AtomicInteger(0);
     private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
 
-    private final Logger logger = LogManager.getLogger(Game.class);
+    @Setter
+    private Logger logger = LogManager.getLogger(Game.class);
 
     public Game(CardManager cardManager, GameService gameService) {
         this.gameState = GameState.INITIAL;
         this.cardManager = cardManager;
         this.players = new ArrayList<>();
-        currentPlayerChoices = new HashMap<>();
+        this.currentPlayerChoices = new HashMap<>();
         this.gameService = gameService;
         this.gameBoardManager = new GameBoardManager();
+        this.currentPlayerDraw = new HashMap<>();
     }
 
     public void startGame() {
@@ -65,8 +67,8 @@ public class Game {
         }
 
         gameState = GameState.ROUND_ONE;
-
         gameService.informClientsAboutStart();
+        logger.info("Now in state ROUND_ONE");
 
         doRoundOne();
     }
@@ -81,13 +83,13 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_ONE");
         }
 
-        cardManager.drawNextCard();
+        currentPlayerDraw.clear();
 
-        for(CreateUserService createUserService : players){
-            if(!createUserService.getGameBoard().checkCardCombination(cardManager.getCurrentCombination())) {
-                if(createUserService.getGameBoard().addSystemError()){
-                    gameService.informPlayersAboutEndOfGame(null, EndType.SYSTEM_ERROR_EXCEEDED);
-                }else{
+        for (CreateUserService createUserService : players) {
+            if (!createUserService.getGameBoard().checkCardCombination(cardManager.getCurrentCombination())) {
+                if (createUserService.getGameBoard().addSystemError()) {
+                    gameService.informPlayersAboutEndOfGame(new ArrayList<>(), EndType.SYSTEM_ERROR_EXCEEDED);
+                } else {
                     gameService.informPlayerAboutSystemerror(createUserService);
                 }
             }
@@ -97,6 +99,7 @@ public class Game {
 
         gameState = GameState.ROUND_TWO;
         doRoundTwo();
+        logger.info("Now in state ROUND_TWO");
     }
 
     private void sendNewCardCombinationToPlayer() {
@@ -108,31 +111,11 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_TWO");
         }
 
-        //Logic for round two where player choose their combination
-        clientResponseReceived.set(0);
-        allClientResponseReceivedFuture = new CompletableFuture<>();
+        gameService.informClientsAboutGameState();
 
-        allClientResponseReceivedFuture.thenRunAsync(() -> {
-            gameState = GameState.ROUND_THREE;
-            doRoundThree();
-        });
-    }
-
-    protected void receiveSelectedCombinationOfPlayer(CreateUserService player, ChosenCardCombination chosenCardCombination) {
-        if (this.gameState != GameState.ROUND_TWO) {
-            throw new GameStateException("Invalid game state for selecting card combinations");
-        }
-
-        //TODO: Insert check if combination is valid
-        if(player.getGameBoard().checkCardCombination(new CardCombination[]{cardManager.getCurrentCombination()[chosenCardCombination.ordinal()]})){
-            currentPlayerChoices.put(player, chosenCardCombination);
-        }else {
-            //TODO: Return failure to client as there is no spot for the chosen combination
-        }
-
-        if (clientResponseReceived.incrementAndGet() == players.size()) {
-            allClientResponseReceivedFuture.complete(null);
-        }
+        gameState = GameState.ROUND_THREE;
+        doRoundThree();
+        logger.info("Now in state ROUND_THREE");
     }
 
     protected void doRoundThree() {
@@ -140,27 +123,47 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_THREE");
         }
 
+        gameService.informClientsAboutGameState();
+
         //Logic for round three where player enter their number
         clientResponseReceived.set(0);
         allClientResponseReceivedFuture = new CompletableFuture<>();
 
-        allClientResponseReceivedFuture.thenRunAsync(() -> {
-            gameState = GameState.ROUND_FOUR;
-            doRoundFour();
+        allClientResponseReceivedFuture.thenRun(() -> {
+            synchronized (this) {
+                gameState = GameState.ROUND_FOUR;
+                doRoundFour();
+                logger.info("Now in state ROUND_FOUR");
+            }
         });
     }
 
-    protected void receiveValueAtPositionOfPlayer(CreateUserService player, int floor, int field, FieldValue fieldValue) {
+    protected void receiveValueAtPositionOfPlayer(CreateUserService player, int floor, int field, CardCombination combination) {
         if (this.gameState != GameState.ROUND_THREE) {
             throw new GameStateException("Invalid game state for setting field values");
         }
 
-        for(CreateUserService currentPlayer : players){
-            if(currentPlayer.equals(player)){
-                try{
-                    currentPlayer.getGameBoard().setValueWithinFloorAtIndex(floor, field, fieldValue);
-                }catch (FloorSequenceException e){
-                    gameService.sendInvalidCombination(player);
+        for (CreateUserService currentPlayer : players) {
+            if (currentPlayer.equals(player)) {
+                try {
+                    if(currentPlayer.getGameBoard().getFloorAtIndex(floor).isValidMove(combination,field)){
+                        currentPlayer.getGameBoard().setFieldWithinFloor(floor, field, combination);
+                        logger.info("Move was valid, rerouting move to other Players {}", player.getUsername());
+                        gameService.notifySingleClient("alreadyMoved", currentPlayer);
+                        for (CreateUserService otherPlayer : players) {
+                            logger.info("Sending validMove from Player {} to {}", player.getUsername(), otherPlayer.getUsername());
+                            gameBoardManager.updateClientGameBoardFromGame(otherPlayer, currentPlayerDraw.get(player));
+                        }
+                    }else{
+                        logger.error("Player {} move was invalid, removing from currentDraw", player.getUsername());
+                        currentPlayerDraw.remove(player);
+                        gameService.notifySingleClient("invalidMove", player);
+                        throw new FloorSequenceException("Illegal Move");
+                    }
+                } catch (FloorSequenceException e) {
+                    logger.info("Player {} move was incorrect or invalid, removing from Current Draw", player.getUsername());
+                    currentPlayerDraw.remove(player);
+                    gameService.notifySingleClient("invalidMove", player);
                 }
             }
         }
@@ -168,6 +171,7 @@ public class Game {
         if (clientResponseReceived.incrementAndGet() == players.size()) {
             allClientResponseReceivedFuture.complete(null);
         }
+
     }
 
     protected void doRoundFour() {
@@ -175,9 +179,12 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_FOUR");
         }
 
+        gameService.informClientsAboutGameState();
+
         //Logic for round four where player optional do their action
 
         gameState = GameState.ROUND_FIVE;
+        logger.info("Now in state ROUND_FIVE");
         doRoundFive();
     }
 
@@ -186,16 +193,21 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_FIVE");
         }
 
+        gameService.informClientsAboutGameState();
+
         //Logic for round two where affects of player moves are calculated
 
         gameState = GameState.ROUND_SIX;
         doRoundSix();
+        logger.info("Now in state ROUND_SIX");
     }
 
     protected void doRoundSix() {
         if (gameState != GameState.ROUND_SIX) {
             throw new GameStateException("Game must be in state ROUND_SIX");
         }
+
+        gameService.informClientsAboutGameState();
 
         //Logic for round six where missions can be completed, and it will be
         //checked whether the game is finished or not.
@@ -204,9 +216,10 @@ public class Game {
 
         if (!winners.isEmpty()) {
             gameState = GameState.FINISHED;
-            gameService.informPlayersAboutEndOfGame(winners, EndType.ROCKETS_COMPLETED);
+            gameService.informPlayersAboutEndOfGame(this.players, EndType.ROCKETS_COMPLETED);
         } else {
             gameState = GameState.ROUND_ONE;
+            logger.info("Round SIX finished, starting new round");
             doRoundOne();
         }
     }
@@ -215,8 +228,8 @@ public class Game {
         //Check if game is finished
         List<CreateUserService> winners = new ArrayList<>();
 
-        for(CreateUserService createUserService : players){
-            if(createUserService.getGameBoard().hasWon()){
+        for (CreateUserService createUserService : players) {
+            if (createUserService.getGameBoard().hasWon()) {
                 winners.add(createUserService);
             }
         }
@@ -231,6 +244,7 @@ public class Game {
     public void addPlayer(CreateUserService player) {
         players.add(player);
     }
+
     public CreateUserService getUserByUsername(String username) {
         for (CreateUserService player : players) {
             if (player.getUsername().equals(username)) {
@@ -242,19 +256,94 @@ public class Game {
 
     /**
      * when client sends update to server, and it gets approved, also reroutes the message to all other clients
-     * @param username
-     * @param message
      */
     public void updateUser(String username, String message) {
-        logger.info("Game updateUser for {}", username);
-        gameBoardManager.updateUser(getUserByUsername(username), message);
-        for (CreateUserService player : players) {
-            if (!player.getUsername().equals(username)) {
-                logger.info("Rerouting GameBoard Update from {} to {}", username, player.getUsername());
-                gameBoardManager.updateClientGameBoardFromGame(player, message);
+        logger.info("Game makeMove for {}", username);
+
+        if (currentPlayerDraw.containsKey(getUserByUsername(username))) {
+            logger.error("Player {} already made a move this Round", username);
+            gameService.notifySingleClient("alreadyMoved", getUserByUsername(username));
+            return;
+        }
+
+        FieldUpdateMessage fieldUpdateMessage = returnFieldUpdateMessage(message);
+        if (fieldUpdateMessage == null) {
+            logger.error("FieldUpdateMessage is null");
+            return;
+        }
+
+        logger.info("Received Move from {}", username);
+        currentPlayerDraw.put(getUserByUsername(username), message);
+
+        if (findCorrectCombination(fieldUpdateMessage.cardCombination()) == null){
+            logger.error("CardCombination is not valid");
+            return;
+        }
+
+        // modify coords and check if we can set them (logically)
+        logger.info("Checking if the chosen field is valid");
+        int[] coords = getServerCoordinates(fieldUpdateMessage);
+
+        receiveValueAtPositionOfPlayer(getUserByUsername(username), coords[0], coords[1], fieldUpdateMessage.cardCombination());
+    }
+
+    public ChosenCardCombination findCorrectCombination(CardCombination cardCombination) {
+        CardCombination[] combinations = cardManager.getCurrentCombination();
+        for (int i = 0; i < combinations.length; i++) {
+            if (combinations[i].getCurrentSymbol().equals(cardCombination.getCurrentSymbol()) &&
+                    combinations[i].getCurrentNumber() == cardCombination.getCurrentNumber() &&
+                    combinations[i].getNextSymbol().equals(cardCombination.getNextSymbol())) {
+
+                return switch (i) {
+                    case 0 -> ChosenCardCombination.ONE;
+                    case 1 -> ChosenCardCombination.TWO;
+                    case 2 -> ChosenCardCombination.THREE;
+                    default -> null;
+                };
             }
         }
+        return null;
     }
+
+    /**
+     * Converts Client Coordinates to Server Coordinates
+     * Client uses index floor, chamber, field
+     * Server uses index floor, field meaning just indexing on the whole floor
+     */
+    public int[] getServerCoordinates(FieldUpdateMessage fieldUpdateMessage) {
+        int floor = fieldUpdateMessage.floor();
+        int field = fieldUpdateMessage.field();
+        int chamber = fieldUpdateMessage.chamber();
+
+        return switch (floor) {
+            case 0, 1, 4 -> new int[]{floor, field};
+            case 2, 3, 6, 7 -> new int[]{floor, field + (2 * chamber)};
+            case 5 -> {
+                int fieldOffset = switch (chamber) {
+                    case 0 -> 0;
+                    case 1 -> 5;
+                    default -> 7;
+                };
+                yield new int[]{floor, field + fieldOffset};
+            }
+            default -> new int[]{0, 0};
+        };
+    }
+
+
+    private FieldUpdateMessage returnFieldUpdateMessage(String message) {
+        ObjectMapper mapper = new ObjectMapper();
+        FieldUpdateMessage fieldUpdateMessage;
+        try {
+            mapper.findAndRegisterModules();
+            fieldUpdateMessage = mapper.readValue(message, FieldUpdateMessage.class);
+        } catch (Exception e) {
+            logger.error("JSON deserialization error", e);
+            return null;
+        }
+        return fieldUpdateMessage;
+    }
+
 
     public void cheat(WebSocketSession session, String username) {
         for(CreateUserService player : players){

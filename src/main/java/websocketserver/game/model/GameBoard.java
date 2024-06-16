@@ -79,17 +79,27 @@ private GameService gameService;
         }
     }
 
-    public void setValueWithinFloorAtIndex(int floor, int index, FieldValue value) throws FloorSequenceException {
+    public boolean setValueWithinFloorAtIndex(int floor, int index, CardCombination value) throws FloorSequenceException {
         if (!isFinalized) {
             throw new FinalizedException(ERRORMESSAGE);
         }
 
         try {
             Floor currentFloor = getFloorAtIndex(floor);
-            currentFloor.setFieldAtIndex(index, value);
+            if(currentFloor.getFieldCategory()!=value.getCurrentSymbol()&& currentFloor.getFieldCategory() != FieldCategory.ANYTHING)return false;
+            if(currentFloor.setFieldAtIndex(index, FieldValue.fromWeight(value.getCurrentNumber())))return true;
+
         } catch (FloorSequenceException e) {
             throw new FloorSequenceException(e.getMessage());
         }
+        return false;
+    }
+    public void setFieldWithinFloor(int floor, int index, CardCombination value){
+        if (!isFinalized) {
+            throw new FinalizedException(ERRORMESSAGE);
+        }
+        getFloorAtIndex(floor).setFieldAtIndex(index,value);
+
     }
 
     public void addFloor(Floor floor) {
@@ -99,6 +109,7 @@ private GameService gameService;
 
         floors.add(floor);
     }
+
 
     public boolean addRockets(int rockets) {
         if (!isFinalized) {
@@ -251,4 +262,6 @@ private GameService gameService;
         addRockets(1);
         hasCheated = true;
     }
+
+
 }
