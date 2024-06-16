@@ -43,6 +43,10 @@ public class GameService {
             game.addPlayers(players);
             game.startGame();
 
+            for (CreateUserService player : players.values()) {
+                player.getGameBoard().notifyPlayersInitialMissionCards();
+            }
+
             gameStarted = true;
         }
     }
@@ -171,7 +175,7 @@ public class GameService {
 
         logger.info("Notified all players about initial mission cards: {}", message);
     }
-
+    
     public void notifyPlayersMissionFlipped(MissionCard card) {
         JSONObject message = new JSONObject();
         try {
@@ -182,7 +186,7 @@ public class GameService {
         } catch (JSONException e) {
             logger.error(e.getMessage());
         }
-
+    
         for (CreateUserService player : players) {
             SendMessageService.sendSingleMessage(player.getSession(), message);
         }
