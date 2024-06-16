@@ -121,16 +121,14 @@ public class Chamber {
     public void setFieldAtIndex(int index, CardCombination value){
         int count=0;
         for (Field field: fields) {
-
             if(index==count){
-
                 field.setFieldValue(FieldValue.fromWeight(value.getCurrentNumber()));
                 return;
             }
             count++;
-
         }
     }
+
     public List<Field> getFields(){
         return new ArrayList<>(fields);
     }
