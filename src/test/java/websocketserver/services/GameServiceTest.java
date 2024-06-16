@@ -41,7 +41,7 @@ class GameServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         mockPlayer = mock(CreateUserService.class);
-        ;
+
         loggerObject = mock(Logger.class);
         this.gameServiceObject = new GameService();
         this.gameServiceObject.setLogger(loggerObject);
@@ -87,7 +87,6 @@ class GameServiceTest {
     void testInformPlayerAboutSystemerror() {
         when(player.getSession()).thenReturn(session);
         when(player.getGameBoard()).thenReturn(mock(GameBoard.class));
-
         gameServiceObject.informPlayerAboutSystemerror(player);
         verify(loggerObject).info("GameService informPlayerAboutSystemerror");
     }
@@ -156,5 +155,10 @@ class GameServiceTest {
     void testInformClientsAboutGameState() {
         gameServiceObject.informClientsAboutGameState();
         verify(loggerObject).info("GameService informClientsAboutGameState");
+    }
+    @Test
+    void testUpdateUserAboutCurrentCards() {
+        gameServiceObject.updateCurrentCards(player.getUsername());
+        verify(loggerObject).info("GameService updateCurrentCards");
     }
 }

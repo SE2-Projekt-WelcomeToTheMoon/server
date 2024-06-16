@@ -437,6 +437,22 @@ class FloorTest {
         floor.finalizeFloor();
         assertTrue(floor.isValidMove(new CardCombination(FieldCategory.ROBOTER, FieldCategory.ROBOTER, FieldValue.NINE), 3));
     }
+    @Test
+    void testIsValidMoveInValidBeforeBigger() {
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER, rewards, 0);
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.TEN));
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE));
+        Chamber chamber2 = new Chamber(FieldCategory.ROBOTER, rewards, 0);
+        chamber2.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWELVE));
+        chamber2.addField(new Field(FieldCategory.ROBOTER, FieldValue.FIFTEEN));
+
+        floor.addChamber(chamber1);
+        floor.addChamber(chamber2);
+        floor.finalizeFloor();
+        assertFalse(floor.isValidMove(new CardCombination(FieldCategory.ROBOTER, FieldCategory.ROBOTER, FieldValue.NINE), 3));
+    }
 
     @Test
     void testIsValidMoveInValidValue() {
@@ -644,4 +660,13 @@ class FloorTest {
         assertEquals(FieldValue.ONE, floor.getFieldAtIndex(4).getFieldValue());
 
     }
+    @Test
+    void testSetFieldAtIndexNoFieldChanged() {
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER, rewards, 0);
+        chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
+        floor.addChamber(chamber1);
+        floor.finalizeFloor();
+        assertThrows(FloorSequenceException.class,()->floor.setFieldAtIndex(0,FieldValue.TWO));
+    }
+
 }

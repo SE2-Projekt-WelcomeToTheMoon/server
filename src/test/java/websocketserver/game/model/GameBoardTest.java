@@ -325,4 +325,12 @@ class GameBoardTest {
         gameBoard.cheat();
         assertEquals(1, gameBoard.getRocketCount());
     }
+    @Test
+    void testSetFieldWithinFloorBeforeGameBoardFinalizationThrowsException() {
+        Chamber chamber = new Chamber(FieldCategory.ROBOTER,rewards,0);
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        floor.addChamber(chamber);
+        gameBoard.addFloor(floor);
+        assertThrows(FinalizedException.class, () -> gameBoard.setFieldWithinFloor(0, 0, new CardCombination(floor.getFieldCategory(),floor.getFieldCategory(),FieldValue.ONE)));
+    }
 }
