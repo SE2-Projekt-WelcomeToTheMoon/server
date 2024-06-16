@@ -74,7 +74,7 @@ public class Floor {
         int currentMax=0;
         boolean fieldChanged=false;
         for (Chamber chamber : chambers) {
-            if (index >= count && index <= count + chamber.getSize()&&chamber.getField(index-count).getFieldValue()==FieldValue.NONE) {
+            if (index >= count && index <= count + chamber.getSize()){
                 chamber.setFieldAtIndex(index - count, value, currentMax);
                 fieldChanged = true;
             }

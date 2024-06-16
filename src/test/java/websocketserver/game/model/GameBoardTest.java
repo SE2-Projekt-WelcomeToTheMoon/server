@@ -333,4 +333,22 @@ class GameBoardTest {
         gameBoard.addFloor(floor);
         assertThrows(FinalizedException.class, () -> gameBoard.setFieldWithinFloor(0, 0, new CardCombination(floor.getFieldCategory(),floor.getFieldCategory(),FieldValue.ONE)));
     }
+    @Test
+    void testSetValueWithinFloorAtIndexWrongCategory() {
+        Chamber chamber = new Chamber(FieldCategory.ROBOTER,rewards,3);
+        floor.addChamber(chamber);
+        gameBoard.addFloor(floor);
+        gameBoard.finalizeGameBoard();
+        assertFalse(gameBoard.setValueWithinFloorAtIndex(0,0,new CardCombination(FieldCategory.WASSER,FieldCategory.WASSER,FieldValue.TWO)));
+    }
+    @Test
+    void testSetValueWithinFloorAtIndexAnything() {
+        Chamber chamber = new Chamber(FieldCategory.ANYTHING,rewards,3);
+        Floor anythingFloor=new Floor(FieldCategory.ANYTHING);
+        anythingFloor.addChamber(chamber);
+        gameBoard.addFloor(anythingFloor);
+        gameBoard.finalizeGameBoard();
+        assertTrue(gameBoard.setValueWithinFloorAtIndex(0,0,new CardCombination(FieldCategory.WASSER,FieldCategory.WASSER,FieldValue.TWO)));
+    }
+
 }
