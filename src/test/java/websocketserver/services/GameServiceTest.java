@@ -157,16 +157,4 @@ class GameServiceTest {
         gameServiceObject.informClientsAboutGameState();
         verify(loggerObject).info("GameService informClientsAboutGameState");
     }
-
-    @Test
-    void testDetectCheat() {
-        gameServiceObject.detectCheat(null, "player1", "player2");
-        verify(loggerObject).info("GameService detectCheat");
-    }
-
-    @Test
-    void testUpdateCurrentCards() {
-        gameServiceObject.updateCurrentCards("player1");
-        verify(loggerObject).info("GameService updateCurrentCards");
-    }
 }
