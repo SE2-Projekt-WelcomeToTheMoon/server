@@ -1,5 +1,6 @@
 package websocketserver.services;
 
+import lombok.Setter;
 import websocketserver.game.model.CardCombination;
 import websocketserver.game.services.CardController;
 import websocketserver.services.json.GenerateJSONObjectService;
@@ -16,7 +17,8 @@ public class CardManager {
 
     private final CardController cardController;
 
-    private final Logger logger = LogManager.getLogger(CardManager.class);
+    @Setter
+    private Logger logger = LogManager.getLogger(CardManager.class);
 
     public CardManager() {
 
