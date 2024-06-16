@@ -117,26 +117,6 @@ public class Game {
         logger.info("Now in state ROUND_THREE");
     }
 
-    protected void receiveSelectedCombinationOfPlayer(CreateUserService player, ChosenCardCombination chosenCardCombination) {
-        if (this.gameState != GameState.ROUND_THREE) {
-            throw new GameStateException("Invalid game state for selecting card combinations");
-        }
-
-        // if not null means it found a combination in currentdraw
-        if(chosenCardCombination == null) {
-            logger.info("Player {} combination was incorrect or invalid, removing from Current Draw", player.getUsername());
-            currentPlayerDraw.remove(player);
-            gameService.notifySingleClient("invalidCombination", player);
-            return;
-        }
-
-        currentPlayerChoices.put(player, chosenCardCombination);
-
-        if (clientResponseReceived.incrementAndGet() == players.size()) {
-            allClientResponseReceivedFuture.complete(null);
-        }
-    }
-
     protected void doRoundThree() {
         if (gameState != GameState.ROUND_THREE) {
             throw new GameStateException("Game must be in state ROUND_THREE");
@@ -293,14 +273,16 @@ public class Game {
 
         logger.info("Received Move from {}", username);
         currentPlayerDraw.put(getUserByUsername(username), message);
-        //check if the chosen combination exists
-        logger.info("Checking if the chosen combination exists");
-        ChosenCardCombination chosenCardCombination = findCorrectCombination(fieldUpdateMessage.cardCombination());
-        //receiveSelectedCombinationOfPlayer(getUserByUsername(username), chosenCardCombination);
+
+        if (findCorrectCombination(fieldUpdateMessage.cardCombination()) == null){
+            logger.error("CardCombination is not valid");
+            return;
+        }
 
         // modify coords and check if we can set them (logically)
         logger.info("Checking if the chosen field is valid");
         int[] coords = getServerCoordinates(fieldUpdateMessage);
+
         receiveValueAtPositionOfPlayer(getUserByUsername(username), coords[0], coords[1], fieldUpdateMessage.cardCombination());
     }
 

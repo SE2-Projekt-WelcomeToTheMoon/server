@@ -15,7 +15,6 @@ import websocketserver.game.enums.GameState;
 import websocketserver.game.exceptions.GameStateException;
 import websocketserver.game.services.GameBoardService;
 import websocketserver.services.CardManager;
-import websocketserver.services.GameBoardManager;
 import websocketserver.services.user.CreateUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -141,14 +140,8 @@ class GameTest {
     }
 
     @Test
-    void testWrongStateForRound() {
-        assertThrows(GameStateException.class, () -> gameObject.receiveSelectedCombinationOfPlayer(player1, ChosenCardCombination.ONE));
-    }
-
-    @Test
     void testDoRoundOneWrongGameState() {
         Game game1 = new Game(null, null);
-
         assertThrows(GameStateException.class, game1::doRoundOne);
     }
 
