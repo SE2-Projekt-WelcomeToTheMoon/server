@@ -1,5 +1,6 @@
 package websocketserver.services;
 
+import lombok.Setter;
 import org.json.JSONArray;
 import websocketserver.game.enums.EndType;
 import websocketserver.game.model.Game;
@@ -12,7 +13,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
@@ -26,8 +26,9 @@ public class GameService {
     private final CardManager cardManager;
     boolean gameStarted = false;
 
-    private static Logger logger = LoggerFactory.getLogger(GameService.class);
-    public List<CreateUserService> players;
+    @Setter
+    private Logger logger = LoggerFactory.getLogger(GameService.class);
+    private List<CreateUserService> players;
 
     public GameService() {
         cardManager = new CardManager();
@@ -52,6 +53,7 @@ public class GameService {
     }
 
     public void sendNewCardCombinationToPlayer() {
+        logger.info("GameService sendNewCardCombinationToPlayer");
         cardManager.drawNextCard();
         if (!cardManager.sendCurrentCardsToPlayers(game.getPlayers())) logger.error("Error sending cards to players");
     }
@@ -68,27 +70,26 @@ public class GameService {
     }
 
     public void notifySingleClient(String action, CreateUserService player) {
-        // this is crashing app lol
         logger.info("GameService notifyClients about {}", action);
         gameBoardManager.notifySingleClient(player, action);
     }
 
     public void informPlayersAboutEndOfGame(List<CreateUserService> winners, EndType endType) {
         logger.info("GameService informPlayersAboutEndOfGame");
-        for(CreateUserService player: winners){
-            JSONObject msg = GenerateJSONObjectService.generateJSONObject("endGame", player.getUsername(), true, "Game is finished", "");
+        for (CreateUserService player : winners) {
+            JSONObject msg = GenerateJSONObjectService.generateJSONObject("endGame", player.getUsername(), true, "Game is finished"+ endType.toString(), "");
             SendMessageService.sendSingleMessage(player.getSession(), msg);
         }
     }
 
     public void sendUserAndRocketCount(WebSocketSession session, JSONObject message) {
-        logger.info("Case winnerScreen(sendUserAndRocketCount): {}{} ", session.getId(), message.toString());
+        logger.info("Case winnerScreen(sendUserAndRocketCount): {}{} ", session.getId(), message);
 
-        List<CreateUserService> players = game.getPlayers();
-        logger.info("players im aktuellen Spiel: {}", players.size());
+        List<CreateUserService> gamePlayers = game.getPlayers();
+        logger.info("players im aktuellen Spiel: {}", gamePlayers.size());
 
         JSONArray playersInfoArr = new JSONArray();
-        for (CreateUserService player : players) {
+        for (CreateUserService player : gamePlayers) {
             JSONObject playerinfo = new JSONObject();
             playerinfo.put("username", player.getUsername());
             playerinfo.put("points", player.getGameBoard().getRocketCount());
@@ -102,60 +103,23 @@ public class GameService {
         response.put("success", true);
 
         logger.info("response: {}", response);
-
-        try {
-            SendMessageService.sendSingleMessage(session, response);
-            logger.info("Users in lobby sent: {} {}", session.getId(), playersInfoArr);
-        } catch (Exception e) {
-            logger.error("Error sending message: {}", e.getMessage());
-        }
+        SendMessageService.sendSingleMessage(session, response);
+        logger.info("Users in lobby sent: {} {}", session.getId(), playersInfoArr);
     }
 
     public void informPlayerAboutSystemerror(CreateUserService createUserService) {
         logger.info("GameService informPlayerAboutSystemerror");
-        
+
         int errors = createUserService.getGameBoard().getSystemErrors();
         JSONObject msg = GenerateJSONObjectService.generateJSONObject("systemError", createUserService.getUsername(), true, "system error informplayer", "");
         msg.put("points", errors);
         SendMessageService.sendSingleMessage(createUserService.getSession(), msg);
         logger.info("Systemerror sent to player: {}", msg);
     }
-   /* public void mapStringToCreateUserService(String username){
-        this.players = game.getPlayers();
-        for(CreateUserService createUserService : players){
-            if(createUserService.getUsername().equals(username)){
-                informPlayerAboutSystemerror(createUserService);
-                return;
-            }
-        }
-    }*/
+
     public void updateUser(String username, String message) {
         logger.info("GameService makeMove");
         game.updateUser(username, message);
-    }
-
-    // for testing purposes
-    public void setLogger(Logger logger) {
-        GameService.logger = logger;
-    }
-
-    public void notifyAllPlayers(String message) {
-        JSONObject jsonMessage = new JSONObject();
-        jsonMessage.put("type", "notification");
-        jsonMessage.put("message", message);
-
-        players.forEach(player -> sendMessageToPlayer(player.getSession(), jsonMessage));
-    }
-
-    private void sendMessageToPlayer(WebSocketSession session, JSONObject message) {
-        try {
-            if (session.isOpen()) {
-                session.sendMessage(new TextMessage(message.toString()));
-                logger.info("Message sent to player: {}", message);
-            }
-        } catch (Exception e) {
-            logger.error("Failed to send message to player: {}", e.getMessage());
-        }
     }
 
     public void notifyPlayersMissionFlipped(MissionCard card) {
@@ -173,18 +137,22 @@ public class GameService {
             SendMessageService.sendSingleMessage(player.getSession(), message);
         }
     }
+
     public void cheat(WebSocketSession session, String username) {
+        logger.info("GameService cheat");
         game.cheat(session, username);
-        gameBoardManager.informClientsAboutCheat( game.getPlayers(), username);
+        gameBoardManager.informClientsAboutCheat(game.getPlayers(), username);
     }
 
     public boolean detectCheat(WebSocketSession session, String username, String cheater) {
+        logger.info("GameService detectCheat");
         boolean hasCheated = game.detectCheat(session, username, cheater);
-        gameBoardManager.informClientsAboutDetectedCheat( game.getPlayers(), username, hasCheated);
+        gameBoardManager.informClientsAboutDetectedCheat(game.getPlayers(), username, hasCheated);
         return hasCheated;
     }
 
-    public void updateCurrentCards( String username) {
+    public void updateCurrentCards(String username) {
+        logger.info("GameService updateCurrentCards");
         cardManager.updateUserAboutCurrentCards(game.getUserByUsername(username));
     }
 }
