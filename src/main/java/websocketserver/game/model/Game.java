@@ -47,7 +47,8 @@ public class Game {
     private final AtomicInteger clientResponseReceived = new AtomicInteger(0);
     private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
 
-    private final Logger logger = LogManager.getLogger(Game.class);
+    @Setter
+    private Logger logger = LogManager.getLogger(Game.class);
 
     public Game(CardManager cardManager, GameService gameService) {
         this.gameState = GameState.INITIAL;
@@ -86,7 +87,7 @@ public class Game {
         for (CreateUserService createUserService : players) {
             if (!createUserService.getGameBoard().checkCardCombination(cardManager.getCurrentCombination())) {
                 if (createUserService.getGameBoard().addSystemError()) {
-                    gameService.informPlayersAboutEndOfGame(null, EndType.SYSTEM_ERROR_EXCEEDED);
+                    gameService.informPlayersAboutEndOfGame(new ArrayList<>(), EndType.SYSTEM_ERROR_EXCEEDED);
                 } else {
                     gameService.informPlayerAboutSystemerror(createUserService);
                 }
