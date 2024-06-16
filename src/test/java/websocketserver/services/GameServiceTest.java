@@ -85,7 +85,10 @@ class GameServiceTest {
 
     @Test
     void testInformPlayerAboutSystemerror() {
-        gameServiceObject.informPlayerAboutSystemerror(null);
+        when(player.getSession()).thenReturn(session);
+        when(player.getGameBoard()).thenReturn(mock(GameBoard.class));
+
+        gameServiceObject.informPlayerAboutSystemerror(player);
         verify(loggerObject).info("GameService informPlayerAboutSystemerror");
     }
 

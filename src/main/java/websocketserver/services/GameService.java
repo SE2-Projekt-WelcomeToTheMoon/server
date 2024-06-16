@@ -102,9 +102,22 @@ public class GameService {
 
     public void informPlayerAboutSystemerror(CreateUserService createUserService) {
         logger.info("GameService informPlayerAboutSystemerror");
-        //TODO: If new card combination and player can't find a spot
+        
+        int errors = createUserService.getGameBoard().getSystemErrors();
+        JSONObject msg = GenerateJSONObjectService.generateJSONObject("systemError", createUserService.getUsername(), true, "system error informplayer", "");
+        msg.put("points", errors);
+        SendMessageService.sendSingleMessage(createUserService.getSession(), msg);
+        logger.info("Systemerror sent to player: {}", msg);
     }
-
+   /* public void mapStringToCreateUserService(String username){
+        this.players = game.getPlayers();
+        for(CreateUserService createUserService : players){
+            if(createUserService.getUsername().equals(username)){
+                informPlayerAboutSystemerror(createUserService);
+                return;
+            }
+        }
+    }*/
     public void updateUser(String username, String message) {
         logger.info("GameService updateUser");
         game.updateUser(username, message);
@@ -140,11 +153,7 @@ public class GameService {
             message.put("action", "initialMissionCards");
             JSONArray missionCardsArray = new JSONArray();
             for (MissionCard card : missionCards) {
-                JSONObject cardJson = new JSONObject();
-                cardJson.put("missionDescription", card.getMissionDescription());
-                cardJson.put("newReward", card.getReward().getNumberRockets());
-                cardJson.put("flipped", card.isFlipped());
-                missionCardsArray.put(cardJson);
+                missionCardsArray.put(card.toJson());
             }
             message.put("missionCards", missionCardsArray);
         } catch (JSONException e) {
