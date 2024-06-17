@@ -658,7 +658,21 @@ class FloorTest {
         CardCombination cardCombination = new CardCombination(FieldCategory.ROBOTER, FieldCategory.ROBOTER, FieldValue.ONE);
         assertDoesNotThrow(()->floor.setFieldAtIndex(4,cardCombination));
         assertEquals(FieldValue.ONE, floor.getFieldAtIndex(4).getFieldValue());
-
+    }
+    @Test
+    void testSetFieldAtIndexMultipleChambers2(){
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER, rewards, 2);
+        Chamber chamber2 = new Chamber(FieldCategory.ROBOTER, rewards, 2);
+        Chamber chamber3 = new Chamber(FieldCategory.ROBOTER, rewards, 2);
+        Chamber chamber4 = new Chamber(FieldCategory.ROBOTER, rewards, 2);
+        floor.addChamber(chamber1);
+        floor.addChamber(chamber2);
+        floor.addChamber(chamber3);
+        floor.addChamber(chamber4);
+        floor.finalizeFloor();
+        CardCombination cardCombination = new CardCombination(FieldCategory.ROBOTER, FieldCategory.ROBOTER, FieldValue.ONE);
+        assertDoesNotThrow(()->floor.setFieldAtIndex(4,cardCombination));
+        assertEquals(FieldValue.ONE, floor.getFieldAtIndex(4).getFieldValue());
     }
     @Test
     void testSetFieldAtIndexNoFieldChanged() {

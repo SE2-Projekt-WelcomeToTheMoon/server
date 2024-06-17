@@ -99,7 +99,7 @@ public class Floor {
         if(index>=getFloorSize())throw new IllegalArgumentException("Index cannot be bigger than floor size");
         int count=0;
         for (Chamber chamber : chambers) {
-            if (index >= count && index <= count + chamber.getSize()) {
+            if (index >= count && index < count + chamber.getSize()) {
                 chamber.setFieldAtIndex(index - count, value);
                 return;
             }

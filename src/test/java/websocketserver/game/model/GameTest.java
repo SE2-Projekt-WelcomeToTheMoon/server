@@ -308,7 +308,7 @@ class GameTest {
     void testGetServerCoordinatesFloorOther() {
         game = new Game(null, null);
         FieldUpdateMessage mockMessage = mock(FieldUpdateMessage.class);
-        when(mockMessage.floor()).thenReturn(8);
+        when(mockMessage.floor()).thenReturn(9);
         assertArrayEquals(new int[]{0, 0}, game.getServerCoordinates(mockMessage));
     }
 }

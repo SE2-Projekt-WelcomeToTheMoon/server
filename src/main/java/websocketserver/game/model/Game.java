@@ -318,7 +318,7 @@ public class Game {
 
         return switch (floor) {
             case 0, 1, 4 -> new int[]{floor, field};
-            case 2, 3, 6, 7 -> new int[]{floor, field + (2 * chamber)};
+            case 2, 3, 6, 7, 8 -> new int[]{floor, field + (2 * chamber)};
             case 5 -> {
                 int fieldOffset = switch (chamber) {
                     case 0 -> 0;
