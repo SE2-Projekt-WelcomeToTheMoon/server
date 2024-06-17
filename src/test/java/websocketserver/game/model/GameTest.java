@@ -27,6 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -308,8 +309,23 @@ class GameTest {
     void testGetServerCoordinatesFloorOther() {
         game = new Game(null, null);
         FieldUpdateMessage mockMessage = mock(FieldUpdateMessage.class);
-        when(mockMessage.floor()).thenReturn(8);
+        when(mockMessage.floor()).thenReturn(9);
         assertArrayEquals(new int[]{0, 0}, game.getServerCoordinates(mockMessage));
+    }
+    @Test
+    void testReceiveValueAtPositionInvalidMove() throws InterruptedException, ExecutionException, NoSuchFieldException, IllegalAccessException {
+
+        Field field = gameObject.getClass().getDeclaredField("gameState");
+        field.setAccessible(true);
+        field.set(gameObject, GameState.INITIAL);
+
+        gameObject.addPlayer(player2);
+        gameObject.startGame();
+        CardCombination cardCombination = new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.RAUMANZUG, FieldValue.ONE);
+
+        gameObject.receiveValueAtPositionOfPlayer(player2, 5, 1, cardCombination);
+        assertFalse(gameObject.currentPlayerDraw.containsKey(player2));
+
     }
 }
 
