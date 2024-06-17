@@ -149,7 +149,7 @@ public class Game {
                     if(currentPlayer.getGameBoard().getFloorAtIndex(floor).isValidMove(combination,field)){
                         currentPlayer.getGameBoard().setFieldWithinFloor(floor, field, combination);
                         logger.info("Move was valid, rerouting move to other Players {}", player.getUsername());
-                        gameService.notifySingleClient("alreadyMoved", currentPlayer);
+                        gameService.notifySingleClient("validMove", currentPlayer);
                         // if move was valid, check if the chamber is complete
                         checkChamberCompletion(currentPlayer, floor);
                         for (CreateUserService otherPlayer : players) {
@@ -216,8 +216,6 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_FOUR");
         }
 
-        gameService.informClientsAboutGameState();
-
         //Logic for round four where player optional do their action
 
         gameState = GameState.ROUND_FIVE;
@@ -230,8 +228,6 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_FIVE");
         }
 
-        gameService.informClientsAboutGameState();
-
         //Logic for round two where affects of player moves are calculated
 
         gameState = GameState.ROUND_SIX;
@@ -243,8 +239,6 @@ public class Game {
         if (gameState != GameState.ROUND_SIX) {
             throw new GameStateException("Game must be in state ROUND_SIX");
         }
-
-        gameService.informClientsAboutGameState();
 
         //Logic for round six where missions can be completed, and it will be
         //checked whether the game is finished or not.
