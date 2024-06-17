@@ -46,7 +46,7 @@ public class CardManager {
                 logger.warn("Player is null");
                 return false;
             }
-            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("nextCardDraw", player.getUsername(), true, cardData, "");
+            JSONObject jsonObject = new GenerateJSONObjectService("nextCardDraw", player.getUsername(), true, cardData, "").generateJSONObject();
             SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
             logger.info("Sent next card draw to player: {}", player.getUsername());
         }
@@ -59,7 +59,7 @@ public class CardManager {
             return;
         }
         String cardData = CardController.getCurrentCardMessage(this.cardController.getCurrentCombinations());
-        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("nextCardDraw", player.getUsername(), true, cardData, "");
+        JSONObject jsonObject = new GenerateJSONObjectService("nextCardDraw", player.getUsername(), true, cardData, "").generateJSONObject();
         SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         logger.info("Sending current card draw to player: {}", player.getUsername());
 
