@@ -164,6 +164,7 @@ public class Game {
                     logger.info("Player {} move was incorrect or invalid, removing from Current Draw", player.getUsername());
                     currentPlayerDraw.remove(player);
                     gameService.notifySingleClient("invalidMove", player);
+                    return;
                 }
             }
         }
