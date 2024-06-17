@@ -72,9 +72,12 @@ jobs:
           USER_NAME: ${{ secrets.USERNAME }}
 
         run: |
-          ssh -i ${{ env.SSH_PRIVATE_KEY }} -p ${{env.SERVER_PORT}} ${{env.SSH_USER}}@${{ env.SERVER_IP }}
+          ssh -o StrictHostKeyChecking=no -i key.pem -p ${{ env.SERVER_PORT }} ${{ env.SERVER_USER }}@${{ env.SERVER_IP }} << 'EOF'
           echo ${{ env.DOCKER_PAT }} | docker login ghcr.io -u ${{ env.USER_NAME }} --password-stdin
           docker stop ${{ env.DOCKER_NAME }} || true
           docker rm ${{ env.DOCKER_NAME }} || true
           docker pull ${{ env.IMAGE_PATH }}
           docker run -d --name ${{ env.DOCKER_NAME }} -p ${{env.DOCKER_PORT}}:${{env.DOCKER_PORT}} ${{ env.IMAGE_PATH }}
+
+      - name: Clean up SSH key file
+        run: rm key.pem
