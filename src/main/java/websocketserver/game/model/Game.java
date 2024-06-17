@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import websocketserver.game.enums.ChosenCardCombination;
 import websocketserver.game.enums.EndType;
 import websocketserver.game.enums.GameState;
+import websocketserver.game.enums.RewardCategory;
 import websocketserver.game.exceptions.FloorSequenceException;
 import websocketserver.game.exceptions.GameStateException;
 import websocketserver.game.util.FieldUpdateMessage;
@@ -22,10 +23,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -67,11 +65,47 @@ public class Game {
             throw new GameStateException("Game must be in state INITIAL to be started");
         }
 
+        randomizeFilledRockets(5);
+
         gameState = GameState.ROUND_ONE;
         gameService.informClientsAboutStart();
         logger.info("Now in state ROUND_ONE");
 
         doRoundOne();
+    }
+
+    private void randomizeFilledRockets(int amount){
+        List<Map.Entry<Integer, Integer>> possibleChambers = new ArrayList<>();
+
+        possibleChambers.add(new AbstractMap.SimpleEntry<>(1, 0));
+        possibleChambers.add(new AbstractMap.SimpleEntry<>(2, 1));
+        possibleChambers.add(new AbstractMap.SimpleEntry<>(3, 1));
+        possibleChambers.add(new AbstractMap.SimpleEntry<>(4, 0));
+        possibleChambers.add(new AbstractMap.SimpleEntry<>(5, 0));
+        possibleChambers.add(new AbstractMap.SimpleEntry<>(6, 0));
+        possibleChambers.add(new AbstractMap.SimpleEntry<>(7, 0));
+        possibleChambers.add(new AbstractMap.SimpleEntry<>(7, 2));
+
+        Random rand = new Random();
+
+        for (int i = 0; i < amount; i++) {
+            int randomIndex = rand.nextInt(possibleChambers.size());
+            Map.Entry<Integer, Integer> selectedEntry = possibleChambers.get(randomIndex);
+
+            int floorIndex = selectedEntry.getKey();
+            int chamberIndex = selectedEntry.getValue();
+
+            for (CreateUserService player : players) {
+                List<Reward> rewards = player.getGameBoard().getFloorAtIndex(floorIndex).getChamber(chamberIndex).getRewards();
+                for (Reward reward : rewards) {
+                    if (reward.getCategory().equals(RewardCategory.UNFILLEDROCKET)) {
+                        rewards.add(new Reward(RewardCategory.ROCKET, reward.getUnfilledRockets()));
+                        rewards.remove(reward);
+                    }
+                }
+            }
+
+        }
     }
 
 
