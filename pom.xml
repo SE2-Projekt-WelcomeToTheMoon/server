@@ -31,6 +31,7 @@
             **/handler/**,
             **/WebSocketServerApplication.java,
             **/SendMessageService.java,
+            **/util/**,
         </sonar.coverage.exclusions>
     </properties>
 

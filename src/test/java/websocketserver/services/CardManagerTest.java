@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.logging.log4j.Logger;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -27,11 +29,15 @@ class CardManagerTest {
     private WebSocketSession session;
     @Mock
     private CardController cardController;
+    @Mock
+    private Logger mockLogger;
 
     @BeforeEach
     void setUp() throws IllegalAccessException, NoSuchFieldException {
         MockitoAnnotations.openMocks(this);
+        mockLogger = mock(Logger.class);
         cardManager = new CardManager();
+        cardManager.setLogger(mockLogger);
 
 
         CardCombination[] combinations = new CardCombination[]{
@@ -43,29 +49,27 @@ class CardManagerTest {
         Field field = cardManager.getClass().getDeclaredField("cardController");
         field.setAccessible(true);
         field.set(cardManager, cardController);
-
-
-
-        //when(CardController.getCurrentCardMessage(combinations)).thenReturn("");
+        
         when(cardController.getCurrentCombinations()).thenReturn(combinations);
         when(createUserService.getSession()).thenReturn(session);
         when(createUserService.getUsername()).thenReturn(UUID.randomUUID().toString());
     }
 
     @Test
-    void shouldReturnFalseWhenUsersAreIsNull(){
+    void shouldReturnFalseWhenUsersAreIsNull() {
         assertFalse(cardManager.sendCurrentCardsToPlayers(null));
     }
 
     @Test
-    void getCurrentCombinationDoesNotThrowError(){
-        assertDoesNotThrow(()->cardManager.getCurrentCombination());
+    void getCurrentCombinationDoesNotThrowError() {
+        assertDoesNotThrow(() -> cardManager.getCurrentCombination());
     }
+
     @Test
-    void drawNextCardWorking(){
-        CardCombination[] currentCombination=cardManager.getCurrentCombination().clone();
+    void drawNextCardWorking() {
+        CardCombination[] currentCombination = cardManager.getCurrentCombination().clone();
         cardManager.drawNextCard();
-        assertNotEquals(currentCombination,cardManager.getCurrentCombination());
+        assertNotEquals(currentCombination, cardManager.getCurrentCombination());
     }
 
     @Test
@@ -76,6 +80,27 @@ class CardManagerTest {
         boolean result = cardManager.sendCurrentCardsToPlayers(players);
         assertTrue(result);
         verify(cardController, times(1)).getCurrentCombinations();
+    }
+
+    @Test
+    void testSendCurrentCardsToPlayersWhenPlayersAreNull() {
+        List<CreateUserService> players = new ArrayList<>();
+        players.add(null);
+
+        boolean result = cardManager.sendCurrentCardsToPlayers(players);
+        assertFalse(result);
+    }
+
+    @Test
+    void testUpdateUserAboutCurrentCardsNULL() {
+        cardManager.updateUserAboutCurrentCards(null);
+        verify(mockLogger).error("Player is null");
+    }
+
+    @Test
+    void testUpdateUserAboutCurrentCards() {
+        cardManager.updateUserAboutCurrentCards(createUserService);
+        verify(mockLogger).info("Sending current card draw to player: {}", createUserService.getUsername());
     }
 
 }

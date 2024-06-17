@@ -22,15 +22,7 @@ public class Chamber {
     @JsonIgnore
     private List<Reward> rewards;
 
-    /***
-     * This constructor solely exists for test cases and should not be used in Code as it does not have any rewards
-     * @param fieldCategory Category of the chamber
-     */
-    public Chamber(FieldCategory fieldCategory) {
-        this.fieldCategory = fieldCategory;
-        fields = new ArrayList<>();
 
-    }
 
 
     public Chamber(FieldCategory fieldCategory, List<Reward> rewards, int fieldAmount) {
@@ -120,11 +112,23 @@ public class Chamber {
             if(index==count&&value.getValue()>currentMax){
                 if(field.getFieldValue()!=FieldValue.NONE)throw new FloorSequenceException("Values within Floor must be in ascending order");
                 field.setFieldValue(value);
+                return;
             }
             count++;
 
         }
     }
+
+    /***
+     * Inserts new Value into field at index. Does not check if it is a legal move
+     * @param index The index where it should be inserted
+     * @param value The Combination to inset
+     */
+    public void setFieldAtIndex(int index, CardCombination value){
+        if(index>=fields.size())throw new IllegalArgumentException("Cannot set index> Chamber Size");
+        getField(index).setFieldValue(FieldValue.fromWeight(value.getCurrentNumber()));
+    }
+
     public List<Field> getFields(){
         return new ArrayList<>(fields);
     }

@@ -18,9 +18,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 
@@ -29,8 +27,10 @@ class GameBoardTest {
     private GameBoard gameBoard;
     private Floor floor;
 
+    private List<Reward> rewards;
     @BeforeEach
     void setUp() {
+        rewards= List.of(new Reward[]{new Reward(RewardCategory.PLANING), new Reward(RewardCategory.ROCKET, 5)});
         gameBoard = new GameBoard();
         floor = new Floor(FieldCategory.ROBOTER);
     }
@@ -145,7 +145,7 @@ class GameBoardTest {
 
     @Test
     void testSetAndGetFieldValueWithinFloorAtIndex() {
-        Chamber chamber = new Chamber(FieldCategory.ROBOTER);
+        Chamber chamber = new Chamber(FieldCategory.ROBOTER,rewards,0);
         Field field = new Field(FieldCategory.ROBOTER, FieldValue.ONE);
         Field field2 = new Field(FieldCategory.ROBOTER);
         chamber.addField(field);
@@ -155,13 +155,13 @@ class GameBoardTest {
 
         gameBoard.finalizeGameBoard();
 
-        assertDoesNotThrow(() -> gameBoard.setValueWithinFloorAtIndex(0, 1, FieldValue.TWO));
+        assertDoesNotThrow(() -> gameBoard.setValueWithinFloorAtIndex(0, 1, new CardCombination(floor.getFieldCategory(),floor.getFieldCategory(),FieldValue.TWO)));
         assertEquals(FieldValue.TWO, gameBoard.getFloorAtIndex(0).getFieldAtIndex(1).getFieldValue());
     }
 
     @Test
     void testSetInvalidValueWithinFloorAtIndex() {
-        Chamber chamber = new Chamber(FieldCategory.ROBOTER);
+        Chamber chamber = new Chamber(FieldCategory.ROBOTER,rewards,0);
         Field field1 = new Field(FieldCategory.ROBOTER, FieldValue.ONE);
         Field field2 = new Field(FieldCategory.ROBOTER, FieldValue.THREE);
         chamber.addField(field1);
@@ -172,7 +172,7 @@ class GameBoardTest {
         gameBoard.finalizeGameBoard();
 
         assertThrows(FloorSequenceException.class, () ->
-                gameBoard.setValueWithinFloorAtIndex(0, 0, FieldValue.FOUR));
+                gameBoard.setValueWithinFloorAtIndex(0, 0, new CardCombination(floor.getFieldCategory(),floor.getFieldCategory(),FieldValue.FOUR)));
 
     }
 
@@ -222,11 +222,11 @@ class GameBoardTest {
 
     @Test
     void testSetValueWithinFloorAtIndexBeforeGameBoardFinalizationThrowsException() {
-        Chamber chamber = new Chamber(FieldCategory.ROBOTER);
+        Chamber chamber = new Chamber(FieldCategory.ROBOTER,rewards,0);
         chamber.addField(new Field(FieldCategory.ROBOTER));
         floor.addChamber(chamber);
         gameBoard.addFloor(floor);
-        assertThrows(FinalizedException.class, () -> gameBoard.setValueWithinFloorAtIndex(0, 0, FieldValue.ONE));
+        assertThrows(FinalizedException.class, () -> gameBoard.setValueWithinFloorAtIndex(0, 0, new CardCombination(floor.getFieldCategory(),floor.getFieldCategory(),FieldValue.ONE)));
     }
 
     @Test
@@ -257,7 +257,7 @@ class GameBoardTest {
     void testAreAllFieldsNumberedAllNumbered() {
         GameBoard gameBoard = new GameBoard();
         Floor floor1 = new Floor(FieldCategory.ROBOTER);
-        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER,rewards,0);
         chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
         chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.TWO));
         floor1.addChamber(chamber1);
@@ -272,7 +272,7 @@ class GameBoardTest {
     void testAreAllFieldsNumberedSomeUnnumbered() {
         GameBoard gameBoard = new GameBoard();
         Floor floor1 = new Floor(FieldCategory.ROBOTER);
-        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER);
+        Chamber chamber1 = new Chamber(FieldCategory.ROBOTER,rewards,0);
         chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.ONE));
         chamber1.addField(new Field(FieldCategory.ROBOTER, FieldValue.NONE)); 
         floor1.addChamber(chamber1);
@@ -287,7 +287,7 @@ class GameBoardTest {
     void testAreAllFieldsNumberedNoRelevantFloors() {
         GameBoard gameBoard = new GameBoard();
         Floor floor1 = new Floor(FieldCategory.PLANUNG);
-        Chamber chamber1 = new Chamber(FieldCategory.PLANUNG);
+        Chamber chamber1 = new Chamber(FieldCategory.PLANUNG,rewards,0);
         chamber1.addField(new Field(FieldCategory.PLANUNG, FieldValue.ONE));
         floor1.addChamber(chamber1);
 
@@ -317,4 +317,38 @@ class GameBoardTest {
         verify(mockGameService, times(1)).notifyPlayersMissionFlipped(any(MissionCard.class));
         verify(mockGameService, never()).notifyPlayersMissionFlipped(new MissionCard("Mission B1", new Reward(RewardCategory.ROCKET, 3)));
     }
+
+    @Test
+    void testCheat(){
+        gameBoard.finalizeGameBoard();
+        assertEquals(0, gameBoard.getRocketCount());
+        gameBoard.cheat();
+        assertEquals(1, gameBoard.getRocketCount());
+    }
+    @Test
+    void testSetFieldWithinFloorBeforeGameBoardFinalizationThrowsException() {
+        Chamber chamber = new Chamber(FieldCategory.ROBOTER,rewards,0);
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        floor.addChamber(chamber);
+        gameBoard.addFloor(floor);
+        assertThrows(FinalizedException.class, () -> gameBoard.setFieldWithinFloor(0, 0, new CardCombination(floor.getFieldCategory(),floor.getFieldCategory(),FieldValue.ONE)));
+    }
+    @Test
+    void testSetValueWithinFloorAtIndexWrongCategory() {
+        Chamber chamber = new Chamber(FieldCategory.ROBOTER,rewards,3);
+        floor.addChamber(chamber);
+        gameBoard.addFloor(floor);
+        gameBoard.finalizeGameBoard();
+        assertFalse(gameBoard.setValueWithinFloorAtIndex(0,0,new CardCombination(FieldCategory.WASSER,FieldCategory.WASSER,FieldValue.TWO)));
+    }
+    @Test
+    void testSetValueWithinFloorAtIndexAnything() {
+        Chamber chamber = new Chamber(FieldCategory.ANYTHING,rewards,3);
+        Floor anythingFloor=new Floor(FieldCategory.ANYTHING);
+        anythingFloor.addChamber(chamber);
+        gameBoard.addFloor(anythingFloor);
+        gameBoard.finalizeGameBoard();
+        assertTrue(gameBoard.setValueWithinFloorAtIndex(0,0,new CardCombination(FieldCategory.WASSER,FieldCategory.WASSER,FieldValue.TWO)));
+    }
+
 }

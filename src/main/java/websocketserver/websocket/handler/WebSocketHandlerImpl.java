@@ -52,6 +52,10 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
             }
             String action = messageJson.getString("action");
 
+            String messageValue = null;
+            if (messageJson.has("message")) {
+                messageValue = messageJson.getString("message");
+            }
             //Checks which action was requested by client.
             switch (action) {
                 case "registerUser":
@@ -61,44 +65,52 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     SendMessageService.sendSingleMessage(session, responseMessage);
                     responseMessage = null;
                     break;
-
                 case "joinLobby":
                     logger.info("Case joinLobby: {} ", username);
                     lobbyService.handleJoinLobby(session, messageJson);
                     break;
-
                 case "leaveLobby":
                     logger.info("Case leaveLobby: {} ", username);
                     lobbyService.handleLeaveLobby(session, messageJson);
                     break;
-
                 case "requestLobbyUser":
                     logger.info("Case requestLobbyUser.");
                     lobbyService.handleRequestLobbyUser(session, messageJson);
                     break;
-                case "requestUsersForWinningScreen":
-                    logger.info("Case requestUsersForWinningScreen: {} ", username);
-                    lobbyService.handleRequestLobbyUser(session, messageJson);
+                case "winnerScreen":
+                    logger.info("Case winnerScreen: {} ", username);
+                    gameService.sendUserAndRocketCount(session, messageJson);
                     break;
                 case "startGame":
                     logger.info("Case startGame: {} ", username);
                     Map<String, CreateUserService> players = lobbyService.handleStartGame(session, messageJson);
                     gameService.handleStartGame(players);
                     break;
-
                 case "updateUser":
                     logger.info("Case updateGameBoard: {} ", username);
+
+                case "makeMove":
+                    logger.info("Case makeMove: {} ", username);
                     gameService.updateUser(username, messageJson.getString("message"));
                     break;
-
+                case "cheat":
+                    logger.info("Case cheat: {} ", username);
+                    gameService.cheat(session, username);
+                    break;
+                case "detectCheat":
+                    logger.info("Case detect cheat: {} with messageValue: {} ", username, messageValue);
+                    gameService.detectCheat(session, username, messageValue);
+                    break;
+                case "updateCurrentCards":
+                    logger.info("Case detect updateCurrentCards: {} ",username);
+                    gameService.updateCurrentCards(username);
                 case "reconnect":
                     logger.info("Case reconnect: {} ", username);
                     reconnTry++;
-                    if(reconnectUser(session, username)) {
+                    if (reconnectUser(session, username)) {
                         logger.info("User {} reconnected.", username);
-                    }
-                    else logger.error("User {} not reconnected.", username);
-                    if(reconnTry == 5){
+                    } else logger.error("User {} not reconnected.", username);
+                    if (reconnTry == 5) {
                         logger.error("User {} reconnect timed out.", username);
                         break;
                     }
@@ -106,12 +118,15 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
                 case "disconnect":
                     logger.info("User {} is disconnecting from server.", username);
-                    if(disconnectUser(session, username)){
+                    if (disconnectUser(session, username)) {
                         logger.info("User {} disconnected from server.", username);
-                    }
-                    else logger.error("User {} not disconnected.", username);
+                    } else logger.error("User {} not disconnected.", username);
                     break;
 
+                case "sendGameState":
+                    logger.info("Case sendGameState: {} ", username);
+                    gameService.informClientsAboutGameState();
+                    break;
                 default:
                     JSONObject response = new JSONObject();
                     response.put("error", "Unbekannte Aktion");
@@ -146,12 +161,12 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
         return false;
     }
 
-    private boolean reconnectUser(WebSocketSession session, String username){
-        if(UserListService.userList.getUserByUsername(username) != null &&
-                UserListService.userList.getUserByUsername(username).getUsername().equals(username)){
+    private boolean reconnectUser(WebSocketSession session, String username) {
+        if (UserListService.userList.getUserByUsername(username) != null &&
+                UserListService.userList.getUserByUsername(username).getUsername().equals(username)) {
             UserListService.userList.getUserByUsername(username).updateSession(session);
-            responseMessage = new GenerateJSONObjectService(ActionValues.RECONNECT.getValue(), username,
-                    true, "", "").generateJSONObject();
+            responseMessage = GenerateJSONObjectService.generateJSONObject(ActionValues.RECONNECT.getValue(), username,
+                    true, "", "");
             SendMessageService.sendSingleMessage(session, responseMessage);
             return true;
 
@@ -160,34 +175,34 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     }
 
     @SneakyThrows
-    private boolean disconnectUser(WebSocketSession session, String username){
-        if(removeUserFromLobby(session) && removeUserFromServer(session)){
-                responseMessage = new GenerateJSONObjectService(ActionValues.DISCONNECT.getValue(),
-                        username, true, "", "").generateJSONObject();
-                SendMessageService.sendSingleMessage(session, responseMessage);
-                TimeUnit.SECONDS.sleep(2);
-                session.close();
-                return true;
-            }
+    private boolean disconnectUser(WebSocketSession session, String username) {
+        if (removeUserFromLobby(session) && removeUserFromServer(session)) {
+            responseMessage = GenerateJSONObjectService.generateJSONObject(ActionValues.DISCONNECT.getValue(),
+                    username, true, "", "");
+            SendMessageService.sendSingleMessage(session, responseMessage);
+            TimeUnit.SECONDS.sleep(2);
+            session.close();
+            return true;
+        }
 
         return false;
     }
 
-    private boolean removeUserFromLobby(WebSocketSession session){
-        if(lobbyService.gamelobby.getUserListFromLobby().contains(
-                UserListService.userList.getUserBySessionID(session.getId()))){
+    private boolean removeUserFromLobby(WebSocketSession session) {
+        if (lobbyService.gamelobby.getUserListFromLobby().contains(
+                UserListService.userList.getUserBySessionID(session.getId()))) {
             String username = UserListService.userList.getUserBySessionID(session.getId()).getUsername();
             lobbyService.gamelobby.removePlayerFromLobbyByName(username);
             logger.info("User nicht mehr in der Lobby vorhanden(ConnectionCloses).{}", session.getId());
         }
         return true;
     }
-    private boolean removeUserFromServer(WebSocketSession session){
-        if(UserListService.userList.getUserBySessionID(session.getId()) != null){
+
+    private boolean removeUserFromServer(WebSocketSession session) {
+        if (UserListService.userList.getUserBySessionID(session.getId()) != null) {
             UserListService.userList.deleteUser(session.getId());
             logger.info("User gelöscht.");
             return true;
-        }
-        else return false;
+        } else return false;
     }
 }

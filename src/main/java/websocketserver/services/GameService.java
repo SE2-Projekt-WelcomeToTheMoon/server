@@ -1,8 +1,11 @@
 package websocketserver.services;
 
+import lombok.Setter;
+import org.json.JSONArray;
 import websocketserver.game.enums.EndType;
 import websocketserver.game.model.Game;
 import websocketserver.game.model.MissionCard;
+import websocketserver.services.json.GenerateJSONObjectService;
 import websocketserver.services.user.CreateUserService;
 
 import org.json.JSONException;
@@ -10,7 +13,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
@@ -24,14 +26,14 @@ public class GameService {
     private final CardManager cardManager;
     boolean gameStarted = false;
 
-    private static Logger logger = LoggerFactory.getLogger(GameService.class);
+    @Setter
+    private Logger logger = LoggerFactory.getLogger(GameService.class);
     private List<CreateUserService> players;
 
     public GameService() {
         cardManager = new CardManager();
         game = new Game(cardManager, this);
         gameBoardManager = new GameBoardManager();
-        this.players = players;
     }
 
     public void handleStartGame(Map<String, CreateUserService> players) {
@@ -51,67 +53,106 @@ public class GameService {
     }
 
     public void sendNewCardCombinationToPlayer() {
+        logger.info("GameService sendNewCardCombinationToPlayer");
         cardManager.drawNextCard();
         if (!cardManager.sendCurrentCardsToPlayers(game.getPlayers())) logger.error("Error sending cards to players");
     }
 
-    public void sendInvalidCombination(CreateUserService player) {
-        logger.info("GameService sendInvalidCombination");
-        //TODO: If Player sends invalid selection use this method, to return failure.
+    public void informClientsAboutGameState() {
+        logger.info("GameService informClientsAboutGameState");
+        gameBoardManager.informClientsAboutGameState(game.getPlayers(), game.getGameState().toString());
+    }
+
+
+    public void notifyAllClients(String action) {
+        logger.info("GameService notifyClients about {}", action);
+        gameBoardManager.notifyAllClients(game.getPlayers(), action);
+    }
+
+    public void notifySingleClient(String action, CreateUserService player) {
+        logger.info("GameService notifyClients about {}", action);
+        gameBoardManager.notifySingleClient(player, action);
     }
 
     public void informPlayersAboutEndOfGame(List<CreateUserService> winners, EndType endType) {
         logger.info("GameService informPlayersAboutEndOfGame");
-        //TODO: If Player has won, game will call this Method to send information to players.
+        for (CreateUserService player : winners) {
+            JSONObject msg = GenerateJSONObjectService.generateJSONObject("endGame", player.getUsername(), true, "Game is finished"+ endType.toString(), "");
+            SendMessageService.sendSingleMessage(player.getSession(), msg);
+        }
+    }
+
+    public void sendUserAndRocketCount(WebSocketSession session, JSONObject message) {
+        logger.info("Case winnerScreen(sendUserAndRocketCount): {}{} ", session.getId(), message);
+
+        List<CreateUserService> gamePlayers = game.getPlayers();
+        logger.info("players im aktuellen Spiel: {}", gamePlayers.size());
+
+        JSONArray playersInfoArr = new JSONArray();
+        for (CreateUserService player : gamePlayers) {
+            JSONObject playerinfo = new JSONObject();
+            playerinfo.put("username", player.getUsername());
+            playerinfo.put("points", player.getGameBoard().getRocketCount());
+            playersInfoArr.put(playerinfo);
+        }
+        logger.info("playersInfoArr: {}", playersInfoArr);
+
+        JSONObject response = new JSONObject();
+        response.put("action", "winnerScreen");
+        response.put("users", playersInfoArr);
+        response.put("success", true);
+
+        logger.info("response: {}", response);
+        SendMessageService.sendSingleMessage(session, response);
+        logger.info("Users in lobby sent: {} {}", session.getId(), playersInfoArr);
     }
 
     public void informPlayerAboutSystemerror(CreateUserService createUserService) {
         logger.info("GameService informPlayerAboutSystemerror");
-        //TODO: If new card combination and player can't find a spot
+
+        int errors = createUserService.getGameBoard().getSystemErrors();
+        JSONObject msg = GenerateJSONObjectService.generateJSONObject("systemError", createUserService.getUsername(), true, "system error informplayer", "");
+        msg.put("points", errors);
+        SendMessageService.sendSingleMessage(createUserService.getSession(), msg);
+        logger.info("Systemerror sent to player: {}", msg);
     }
 
     public void updateUser(String username, String message) {
-        logger.info("GameService updateUser");
+        logger.info("GameService makeMove");
         game.updateUser(username, message);
     }
 
-    // for testing purposes
-    public void setLogger(Logger logger) {
-        GameService.logger = logger;
-    }
-
-    public void notifyAllPlayers(String message) {
-        JSONObject jsonMessage = new JSONObject();
-        jsonMessage.put("type", "notification");
-        jsonMessage.put("message", message);
-
-        players.forEach(player -> sendMessageToPlayer(player.getSession(), jsonMessage));
-    }
-
-    private void sendMessageToPlayer(WebSocketSession session, JSONObject message) {
+    public void notifyPlayersMissionFlipped(MissionCard card) {
+        JSONObject message = new JSONObject();
         try {
-            if (session.isOpen()) {
-                session.sendMessage(new TextMessage(message.toString()));
-                logger.info("Message sent to player: {}", message);
-            }
-        } catch (Exception e) {
-            logger.error("Failed to send message to player: {}", e.getMessage());
+            message.put("action", "missionFlipped");
+            message.put("missionDescription", card.getMissionDescription());
+            message.put("newReward", card.getReward().getNumberRockets());
+            message.put("flipped", true);
+        } catch (JSONException e) {
+            logger.error(e.getMessage());
+        }
+
+        for (CreateUserService player : players) {
+            SendMessageService.sendSingleMessage(player.getSession(), message);
         }
     }
 
-    public void notifyPlayersMissionFlipped(MissionCard card) {
-    JSONObject message = new JSONObject();
-    try {
-        message.put("action", "missionFlipped");
-        message.put("missionDescription", card.getMissionDescription());
-        message.put("newReward", card.getReward().getNumberRockets());
-        message.put("flipped", true);
-    } catch (JSONException e) {
-        logger.error(e.getMessage());
+    public void cheat(WebSocketSession session, String username) {
+        logger.info("GameService cheat");
+        game.cheat(session, username);
+        gameBoardManager.informClientsAboutCheat(game.getPlayers(), username);
     }
 
-    for (CreateUserService player : players) {
-        SendMessageService.sendSingleMessage(player.getSession(), message);
+    public boolean detectCheat(WebSocketSession session, String username, String cheater) {
+        logger.info("GameService detectCheat");
+        boolean hasCheated = game.detectCheat(session, username, cheater);
+        gameBoardManager.informClientsAboutDetectedCheat(game.getPlayers(), username, hasCheated);
+        return hasCheated;
     }
-}
+
+    public void updateCurrentCards(String username) {
+        logger.info("GameService updateCurrentCards");
+        cardManager.updateUserAboutCurrentCards(game.getUserByUsername(username));
+    }
 }
