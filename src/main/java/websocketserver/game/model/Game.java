@@ -158,7 +158,7 @@ public class Game {
                         logger.error("Player {} move was invalid, removing from currentDraw", player.getUsername());
                         currentPlayerDraw.remove(player);
                         gameService.notifySingleClient("invalidMove", player);
-                        throw new FloorSequenceException("Illegal Move");
+                        return;
                     }
                 } catch (FloorSequenceException e) {
                     logger.info("Player {} move was incorrect or invalid, removing from Current Draw", player.getUsername());
