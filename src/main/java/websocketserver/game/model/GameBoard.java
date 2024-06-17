@@ -198,18 +198,24 @@ private GameService gameService;
         List<MissionCard> cards = new ArrayList<>();
         Random random = new Random();
 
-        // Initialize mission cards randomly as A1 or A2, B1 or B2, C1 or C2
-        cards.add(new MissionCard("a" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
-        cards.add(new MissionCard("b" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
-        cards.add(new MissionCard("c" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
-
+        try {
+            cards.add(new MissionCard("a" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
+            cards.add(new MissionCard("b" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
+            cards.add(new MissionCard("c" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
+        } catch (Exception e) {
+            // If random selection fails, default to a1, b1, and c1
+            cards.clear();
+            cards.add(new MissionCard("a1", new Reward(RewardCategory.ROCKET, 3)));
+            cards.add(new MissionCard("b1", new Reward(RewardCategory.ROCKET, 3)));
+            cards.add(new MissionCard("c1", new Reward(RewardCategory.ROCKET, 3)));
+        }
+    
         return cards;
     }
-    
+
     public void notifyPlayersInitialMissionCards() {
         gameService.notifyPlayersInitialMissionCards(missionCards);
     }
-    
 
     public void checkAndFlipMissionCards(String missionDescription) {
         for (MissionCard card : missionCards) {
@@ -249,7 +255,9 @@ private GameService gameService;
                     }
                     break;
                 case "c2":
-                    //TODO: Implement Mission Card, if 10 X are entered
+                if (systemErrors.getCurrentErrors() >= 6) {
+                    checkAndFlipMissionCards("c2");
+                }
                     break;
                 default:
             }
@@ -268,6 +276,4 @@ private GameService gameService;
         addRockets(1);
         hasCheated = true;
     }
-
-
 }

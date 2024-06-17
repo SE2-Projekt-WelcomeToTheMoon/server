@@ -19,10 +19,6 @@ public class MissionCard {
         this.isFlipped = false;
     }
 
-    public String getMissionDescription() {
-        return missionDescription;
-    }
-
     public boolean isFlipped() {
         return isFlipped;
     }

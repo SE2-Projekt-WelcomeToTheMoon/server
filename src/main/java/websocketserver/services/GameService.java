@@ -144,4 +144,32 @@ public class GameService {
         logger.info("GameService updateCurrentCards");
         cardManager.updateUserAboutCurrentCards(game.getUserByUsername(username));
     }
+
+    public void notifyPlayersInitialMissionCards(List<MissionCard> missionCards) {
+        logger.info("Initialize Mission Cards");
+        JSONArray missionCardsArray = new JSONArray();
+        for (MissionCard card : missionCards) {
+            missionCardsArray.put(card.toJson());
+        }
+
+        JSONObject message = new JSONObject();
+        message.put("action", "initialMissionCards");
+        message.put("missionCards", missionCardsArray);
+
+        for (CreateUserService player : game.getPlayers()) {
+            SendMessageService.sendSingleMessage(player.getSession(), message);
+        }
+    }
+
+    public void notifyPlayersMissionFlipped(MissionCard card) {
+        logger.info("Flip Mission Cards");
+        JSONObject message = new JSONObject();
+        message.put("action", "missionFlipped");
+        message.put("missionDescription", card.getMissionDescription());
+        message.put("flipped", card.isFlipped());
+
+        for (CreateUserService player : game.getPlayers()) {
+            SendMessageService.sendSingleMessage(player.getSession(), message);
+        }
+    }
 }
