@@ -3,10 +3,6 @@ name: Deploy docker image on server
 on:
   pull_request:
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 jobs:
   deploy:
   - name: Deploy to server
