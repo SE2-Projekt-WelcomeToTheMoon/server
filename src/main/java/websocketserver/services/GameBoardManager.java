@@ -2,6 +2,7 @@ package websocketserver.services;
 
 import websocketserver.game.model.*;
 import websocketserver.game.services.GameBoardService;
+import websocketserver.game.util.FieldUpdateMessage;
 import websocketserver.services.json.GenerateJSONObjectService;
 import websocketserver.services.user.CreateUserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -54,16 +55,7 @@ public class GameBoardManager {
     /**
      * gets FieldUpdateMessage from Client
      */
-    public void updateUser(CreateUserService player, String message) {
-        ObjectMapper mapper = new ObjectMapper();
-        FieldUpdateMessage fieldUpdateMessage;
-        try {
-            fieldUpdateMessage = mapper.readValue(message, FieldUpdateMessage.class);
-        } catch (JsonProcessingException e) {
-            logger.error("JSON deserialization error", e);
-            return;
-        }
-        // just for readabilities sake
+    public void updateUser(CreateUserService player, FieldUpdateMessage fieldUpdateMessage) {
         try {
             GameBoard gameBoard = player.getGameBoard();
             Floor floor = gameBoard.getFloorAtIndex(fieldUpdateMessage.floor());
@@ -82,13 +74,13 @@ public class GameBoardManager {
             return;
         }
         String payload = serializeFieldUpdateMessage(fieldUpdateMessage);
-        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("updateUser", player.getUsername(), true, payload, "");
+        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("makeMove", player.getUsername(), true, payload, "");
         SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         logger.info("GameBoard Update sent for {}", player.getUsername());
     }
 
     public void updateClientGameBoardFromGame(CreateUserService player, String payload) {
-        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("updateUser", player.getUsername(), true, payload, "");
+        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("makeMove", player.getUsername(), true, payload, "");
         SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         logger.info("Rerouted GameBoard Update sent for {}", player.getUsername());
     }
@@ -111,7 +103,31 @@ public class GameBoardManager {
         }
     }
 
+    public void informClientsAboutGameState(List<CreateUserService> players, String currentGameState) {
+        for (CreateUserService player : players) {
+            logger.info("Player: {} wird informiert (GameState)", player.getUsername());
+            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("notifyGameState", player.getUsername(), true, currentGameState, "");
+            SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
+        }
+    }
+
+    public void notifyAllClients(List<CreateUserService> players, String action) {
+        logger.info("Notifying multiple player about {}", "DingDong");
+        for (CreateUserService player : players) {
+            logger.info("Notify Player {} about {}", player.getUsername(), action);
+            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject(action, player.getUsername(), true, "", "");
+            SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
+        }
+    }
+
+    public void notifySingleClient(CreateUserService player, String action) {
+        logger.info("Notify Player {} about {}", player.getUsername(), action);
+        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject(action, player.getUsername(), true, "", "");
+        SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
+    }
+
     public void informClientsAboutCheat(List<CreateUserService> players, String username) {
+        logger.info("Player werden über cheat informiert");
         for (CreateUserService player : players) {
             logger.info("Player: {} wird über cheat informiert", player.getUsername());
             JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("playerHasCheated", player.getUsername(), true, username , "");

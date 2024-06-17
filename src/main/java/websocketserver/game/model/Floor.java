@@ -12,6 +12,7 @@ import java.util.List;
 
 
 public class Floor {
+
     private final List<Chamber> chambers;
     @Getter
     @JsonProperty("fieldCategory")
@@ -58,8 +59,14 @@ public class Floor {
         }
     }
 
-    //add check on fieldcategory via currentcombination
-    public void setFieldAtIndex(int index, FieldValue value) {
+
+    /***
+     * Checks if setting the field at that index is legal and then sets it if it is
+     * @param index index where value is to be set
+     * @param value Value to set into the index
+     * @return true is setting is legal, false otherwise
+     */
+    public boolean setFieldAtIndex(int index, FieldValue value) {
         if (!isFinalized) {
             throw new FinalizedException(TAG_FINALIZED);
         }
@@ -67,14 +74,37 @@ public class Floor {
         int currentMax=0;
         boolean fieldChanged=false;
         for (Chamber chamber : chambers) {
-            if (index >= count && index <= count + chamber.getSize()) {
+            if (index >= count && index <= count + chamber.getSize()){
                 chamber.setFieldAtIndex(index - count, value, currentMax);
                 fieldChanged = true;
             }
             count += chamber.getSize();
             currentMax = Math.max(chamber.getHighestValueInChamber(), currentMax);
         }
-        if(!fieldChanged)throw new FloorSequenceException("Values within Floor must be in ascending order");
+        if(!fieldChanged){
+            throw new FloorSequenceException("Values within Floor must be in ascending order");
+        }
+        return true;
+    }
+
+    /***
+     * Sets the value of the Combination at the index in the floor. Does not check if it is a valid move
+     * @param index The index to put the value at
+     * @param value The value to be put
+     */
+    public void setFieldAtIndex(int index, CardCombination value) {
+        if (!isFinalized) {
+            throw new FinalizedException(TAG_FINALIZED);
+        }
+        if(index>=getFloorSize())throw new IllegalArgumentException("Index cannot be bigger than floor size");
+        int count=0;
+        for (Chamber chamber : chambers) {
+            if (index >= count && index < count + chamber.getSize()) {
+                chamber.setFieldAtIndex(index - count, value);
+                return;
+            }
+            count += chamber.getSize();
+        }
     }
 
     public boolean canInsertValue(FieldValue value) {
@@ -83,7 +113,7 @@ public class Floor {
         }
 
         int currentMax = 0;
-        FieldValue nextValue = null;
+        FieldValue nextValue;
 
         for (int i = 0; i < chambers.size(); i++) {
             Chamber chamber = chambers.get(i);
@@ -181,10 +211,45 @@ public class Floor {
     /**
      * maybe change later?
      * return the original reference, which would allow to change the object itself
-     * @return
      */
     public List<Chamber> getChambers() {
         return new ArrayList<>(chambers);
     }
 
+    /***
+     * checks if entering a combination at a specific index is a legal move
+     * @param combination The Combination to check for
+     * @param index The Index where it wants to be inserted
+     * @return true if legal false if not
+     */
+    public boolean isValidMove(CardCombination combination, int index){
+
+        int biggestBefore=0;
+        int smallestAfter=16;
+
+       ArrayList<Field> allFields=getAllFieldsAsList();
+        int pointerLeft=0;
+        int pointerRight=allFields.size() - 1;
+       if(allFields.get(index).getFieldValue()!=FieldValue.NONE||(fieldCategory!=FieldCategory.ANYTHING&&combination.getCurrentSymbol()!=fieldCategory))return false;
+       for (int i = 0; i < allFields.size(); i++){
+           if(pointerRight>index){
+               if(allFields.get(pointerRight).getFieldValue()!=FieldValue.NONE){
+                   smallestAfter=Math.min(allFields.get(allFields.size()-i-1).getFieldValue().getValue(),smallestAfter);
+               }
+               pointerRight--;
+           }
+           if(pointerLeft<index){
+               biggestBefore= Math.max(allFields.get(i).getFieldValue().getValue(), biggestBefore);
+               pointerLeft++;
+           }
+       }
+        return combination.getCurrentNumber() > biggestBefore && combination.getCurrentNumber() < smallestAfter;
+    }
+    private ArrayList<Field> getAllFieldsAsList(){
+        ArrayList<Field> allFields=new ArrayList<>();
+        for (Chamber chamber:chambers ) {
+            allFields.addAll(chamber.getFields());
+        }
+        return allFields;
+    }
 }

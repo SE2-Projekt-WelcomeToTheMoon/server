@@ -3,16 +3,20 @@ package websocketserver.game.model;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+import org.apache.logging.log4j.Logger;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import websocketserver.game.enums.ChosenCardCombination;
+import websocketserver.game.enums.FieldCategory;
 import websocketserver.game.enums.FieldValue;
 import websocketserver.game.enums.GameState;
 import websocketserver.game.exceptions.GameStateException;
 import websocketserver.game.services.GameBoardService;
-import websocketserver.services.GameBoardManager;
+import websocketserver.game.util.FieldUpdateMessage;
+import websocketserver.services.CardManager;
+import websocketserver.services.GameService;
 import websocketserver.services.user.CreateUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -39,9 +44,9 @@ class GameTest {
 
     @Autowired
     Game gameObject;
-    @Mock
-    GameBoardManager mockedGameBoardManager;
 
+    @Mock
+    Logger logger;
 
     @Mock
     CreateUserService player1;
@@ -69,11 +74,24 @@ class GameTest {
     @Mock
     private GameBoard cheaterGameBoard;
 
+    @Mock
+    private CardManager mockCardManager;
+
+    CardCombination[] combinations = {
+            new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.RAUMANZUG, FieldValue.ONE),
+            new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.ENERGIE, FieldValue.TWO),
+            new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.ENERGIE, FieldValue.THREE)
+    };
+    @Autowired
+    private GameService gameService;
+
     @BeforeEach
     public void setUp() {
         // Clearing players list and adding mock players
 
         MockitoAnnotations.openMocks(this);
+
+        gameObject.setLogger(logger);
         gameObject.getPlayers().clear();
         gameObject.addPlayer(player1);
         when(player1.getUsername()).thenReturn("Player1");
@@ -84,6 +102,11 @@ class GameTest {
 
         when(player1.getGameBoard()).thenReturn(gameBoardService.createGameBoard());
         when(player2.getGameBoard()).thenReturn(gameBoardService.createGameBoard());
+
+        when(player1.getSession()).thenReturn(session);
+        when(player2.getSession()).thenReturn(session);
+
+        when(mockCardManager.getCurrentCombination()).thenReturn(combinations);
 
         when(player.getUsername()).thenReturn("player1");
         when(cheater.getUsername()).thenReturn("player2");
@@ -103,47 +126,29 @@ class GameTest {
     }
 
     @Test
-    void testWrongStateForStart(){
-
-
-    }
-    @Test
     void testStartGameSuccess() throws InterruptedException, ExecutionException {
         gameObject.addPlayer(player2);
         gameObject.startGame();
 
         player1.getGameBoard().addRockets(35);
 
-        CompletableFuture<Void> future1 = CompletableFuture.runAsync(() -> {
-            gameObject.receiveSelectedCombinationOfPlayer(player1, ChosenCardCombination.ONE);
-            gameObject.receiveSelectedCombinationOfPlayer(player2, ChosenCardCombination.TWO);
+        CardCombination cardCombination = new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.RAUMANZUG, FieldValue.ONE);
+
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+            gameObject.receiveValueAtPositionOfPlayer(player1, 1, 1, cardCombination);
+            gameObject.receiveValueAtPositionOfPlayer(player2, 1, 1, cardCombination);
         });
 
-        future1.get(); // Wait until all players have made their choice
-
-        CompletableFuture<Void> future2 = CompletableFuture.runAsync(() -> {
-            gameObject.receiveValueAtPositionOfPlayer(player1, 1, 1, FieldValue.ONE);
-            gameObject.receiveValueAtPositionOfPlayer(player2, 1, 1, FieldValue.TWO);
-        });
-
-        future2.get(); // Wait until all players have set their values
-
-        Thread.sleep(100);
+        future.get(); // Wait until all players have set their values
 
         assertEquals(GameState.FINISHED, gameObject.getGameState());
 
         assertThrows(GameStateException.class, () -> gameObject.startGame());
     }
 
-
-    @Test
-    void testWrongStateForRound() {
-        assertThrows(GameStateException.class, () -> gameObject.receiveSelectedCombinationOfPlayer(player1, ChosenCardCombination.ONE));
-    }
     @Test
     void testDoRoundOneWrongGameState() {
         Game game1 = new Game(null, null);
-
         assertThrows(GameStateException.class, game1::doRoundOne);
     }
 
@@ -153,16 +158,6 @@ class GameTest {
         assertNull(gameObject.getUserByUsername("Player3"));
     }
 
-    @Test
-    void testUpdateUser() {
-        gameObject.setGameBoardManager(mockedGameBoardManager);
-        gameObject.addPlayer(player2);
-
-        gameObject.updateUser("Player1", "message");
-
-        verify(mockedGameBoardManager, times(1)).updateUser(any(), any());
-        verify(mockedGameBoardManager, times(1)).updateClientGameBoardFromGame(any(), any());
-    }
     @Test
     void testCheatSuccessful() throws IOException, ParseException {
         when(player.getUsername()).thenReturn("player1");
@@ -228,4 +223,109 @@ class GameTest {
         assertEquals("detectCheat", response.getAsString("action"));
         assertEquals("player1", response.getAsString("username"));
     }
+
+    @Test
+    void testFindCorrectCombinationOne() {
+        game = new Game(mockCardManager, null);
+        when(mockCardManager.getCurrentCombination()).thenReturn(combinations);
+        CardCombination cardCombination = new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.RAUMANZUG, FieldValue.ONE);
+        assertEquals(ChosenCardCombination.ONE, game.findCorrectCombination(cardCombination));
+    }
+
+    @Test
+    void testFindCorrectCombinationTwo() {
+        game = new Game(mockCardManager, null);
+        when(mockCardManager.getCurrentCombination()).thenReturn(combinations);
+        CardCombination cardCombination = new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.ENERGIE, FieldValue.TWO);
+        assertEquals(ChosenCardCombination.TWO, game.findCorrectCombination(cardCombination));
+    }
+
+    @Test
+    void testFindCorrectCombinationThree() {
+        game = new Game(mockCardManager, null);
+        when(mockCardManager.getCurrentCombination()).thenReturn(combinations);
+        CardCombination cardCombination = new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.ENERGIE, FieldValue.THREE);
+        assertEquals(ChosenCardCombination.THREE, game.findCorrectCombination(cardCombination));
+    }
+
+    @Test
+    void testFindCorrectCombinationNone() {
+        game = new Game(mockCardManager, null);
+        when(mockCardManager.getCurrentCombination()).thenReturn(combinations);
+        CardCombination cardCombination = new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.ENERGIE, FieldValue.FIVE);
+        assertNull(game.findCorrectCombination(cardCombination));
+    }
+
+    @Test
+    void testGetServerCoordinatesFloorZeroOneFour() {
+        game = new Game(null, null);
+        FieldUpdateMessage mockMessage = mock(FieldUpdateMessage.class);
+        when(mockMessage.floor()).thenReturn(0);
+        when(mockMessage.field()).thenReturn(5);
+        assertArrayEquals(new int[]{0, 5}, game.getServerCoordinates(mockMessage));
+    }
+
+    @Test
+    void testGetServerCoordinatesFloorTwoThreeSixSeven() {
+        game = new Game(null, null);
+        FieldUpdateMessage mockMessage = mock(FieldUpdateMessage.class);
+        when(mockMessage.floor()).thenReturn(2);
+        when(mockMessage.field()).thenReturn(5);
+        when(mockMessage.chamber()).thenReturn(3);
+        assertArrayEquals(new int[]{2, 11}, game.getServerCoordinates(mockMessage));
+    }
+
+    @Test
+    void testGetServerCoordinatesFloorFiveChamberZero() {
+        game = new Game(null, null);
+        FieldUpdateMessage mockMessage = mock(FieldUpdateMessage.class);
+        when(mockMessage.floor()).thenReturn(5);
+        when(mockMessage.field()).thenReturn(5);
+        when(mockMessage.chamber()).thenReturn(0);
+        assertArrayEquals(new int[]{5, 5}, game.getServerCoordinates(mockMessage));
+    }
+
+    @Test
+    void testGetServerCoordinatesFloorFiveChamberOne() {
+        game = new Game(null, null);
+        FieldUpdateMessage mockMessage = mock(FieldUpdateMessage.class);
+        when(mockMessage.floor()).thenReturn(5);
+        when(mockMessage.field()).thenReturn(5);
+        when(mockMessage.chamber()).thenReturn(1);
+        assertArrayEquals(new int[]{5, 10}, game.getServerCoordinates(mockMessage));
+    }
+
+    @Test
+    void testGetServerCoordinatesFloorFiveChamberOther() {
+        game = new Game(null, null);
+        FieldUpdateMessage mockMessage = mock(FieldUpdateMessage.class);
+        when(mockMessage.floor()).thenReturn(5);
+        when(mockMessage.field()).thenReturn(5);
+        when(mockMessage.chamber()).thenReturn(2);
+        assertArrayEquals(new int[]{5, 12}, game.getServerCoordinates(mockMessage));
+    }
+
+    @Test
+    void testGetServerCoordinatesFloorOther() {
+        game = new Game(null, null);
+        FieldUpdateMessage mockMessage = mock(FieldUpdateMessage.class);
+        when(mockMessage.floor()).thenReturn(9);
+        assertArrayEquals(new int[]{0, 0}, game.getServerCoordinates(mockMessage));
+    }
+    @Test
+    void testReceiveValueAtPositionInvalidMove() throws InterruptedException, ExecutionException, NoSuchFieldException, IllegalAccessException {
+
+        Field field = gameObject.getClass().getDeclaredField("gameState");
+        field.setAccessible(true);
+        field.set(gameObject, GameState.INITIAL);
+
+        gameObject.addPlayer(player2);
+        gameObject.startGame();
+        CardCombination cardCombination = new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.RAUMANZUG, FieldValue.ONE);
+
+        gameObject.receiveValueAtPositionOfPlayer(player2, 5, 1, cardCombination);
+        assertFalse(gameObject.currentPlayerDraw.containsKey(player2));
+
+    }
 }
+

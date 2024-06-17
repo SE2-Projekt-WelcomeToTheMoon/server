@@ -177,7 +177,7 @@ class GameBoardTest {
 
         gameBoard.finalizeGameBoard();
 
-        assertDoesNotThrow(() -> gameBoard.setValueWithinFloorAtIndex(0, 1, FieldValue.TWO));
+        assertDoesNotThrow(() -> gameBoard.setValueWithinFloorAtIndex(0, 1, new CardCombination(floor.getFieldCategory(),floor.getFieldCategory(),FieldValue.TWO)));
         assertEquals(FieldValue.TWO, gameBoard.getFloorAtIndex(0).getFieldAtIndex(1).getFieldValue());
     }
 
@@ -194,7 +194,7 @@ class GameBoardTest {
         gameBoard.finalizeGameBoard();
 
         assertThrows(FloorSequenceException.class, () ->
-                gameBoard.setValueWithinFloorAtIndex(0, 0, FieldValue.FOUR));
+                gameBoard.setValueWithinFloorAtIndex(0, 0, new CardCombination(floor.getFieldCategory(),floor.getFieldCategory(),FieldValue.FOUR)));
 
     }
 
@@ -248,7 +248,7 @@ class GameBoardTest {
         chamber.addField(new Field(FieldCategory.ROBOTER));
         floor.addChamber(chamber);
         gameBoard.addFloor(floor);
-        assertThrows(FinalizedException.class, () -> gameBoard.setValueWithinFloorAtIndex(0, 0, FieldValue.ONE));
+        assertThrows(FinalizedException.class, () -> gameBoard.setValueWithinFloorAtIndex(0, 0, new CardCombination(floor.getFieldCategory(),floor.getFieldCategory(),FieldValue.ONE)));
     }
 
     @Test
@@ -394,4 +394,30 @@ class GameBoardTest {
         // Verify that checkAndFlipMissionCards was not called for Mission C2 since it's not implemented
         verify(gameBoard, never()).checkAndFlipMissionCards("Mission C2");
     }
+    @Test
+    void testSetFieldWithinFloorBeforeGameBoardFinalizationThrowsException() {
+        Chamber chamber = new Chamber(FieldCategory.ROBOTER,rewards,0);
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        floor.addChamber(chamber);
+        gameBoard.addFloor(floor);
+        assertThrows(FinalizedException.class, () -> gameBoard.setFieldWithinFloor(0, 0, new CardCombination(floor.getFieldCategory(),floor.getFieldCategory(),FieldValue.ONE)));
+    }
+    @Test
+    void testSetValueWithinFloorAtIndexWrongCategory() {
+        Chamber chamber = new Chamber(FieldCategory.ROBOTER,rewards,3);
+        floor.addChamber(chamber);
+        gameBoard.addFloor(floor);
+        gameBoard.finalizeGameBoard();
+        assertFalse(gameBoard.setValueWithinFloorAtIndex(0,0,new CardCombination(FieldCategory.WASSER,FieldCategory.WASSER,FieldValue.TWO)));
+    }
+    @Test
+    void testSetValueWithinFloorAtIndexAnything() {
+        Chamber chamber = new Chamber(FieldCategory.ANYTHING,rewards,3);
+        Floor anythingFloor=new Floor(FieldCategory.ANYTHING);
+        anythingFloor.addChamber(chamber);
+        gameBoard.addFloor(anythingFloor);
+        gameBoard.finalizeGameBoard();
+        assertTrue(gameBoard.setValueWithinFloorAtIndex(0,0,new CardCombination(FieldCategory.WASSER,FieldCategory.WASSER,FieldValue.TWO)));
+    }
+
 }

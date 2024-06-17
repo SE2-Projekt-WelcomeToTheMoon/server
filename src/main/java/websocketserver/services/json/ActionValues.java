@@ -15,7 +15,8 @@ public enum ActionValues {
     REQUESTUSERSFORWINNINGSCREEN("requestUsersForWinningScreen"),
     STARTGAME("startGame"),
     RECONNECT("reconnect"),
-    DISCONNECT("disconnect");
+    DISCONNECT("disconnect"),
+    MAKEMOVE("makeMove");
 
     private final String value;
     ActionValues(String action){

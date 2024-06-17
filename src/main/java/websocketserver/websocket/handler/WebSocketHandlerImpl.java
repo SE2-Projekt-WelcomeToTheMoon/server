@@ -88,6 +88,9 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     break;
                 case "updateUser":
                     logger.info("Case updateGameBoard: {} ", username);
+
+                case "makeMove":
+                    logger.info("Case makeMove: {} ", username);
                     gameService.updateUser(username, messageJson.getString("message"));
                     break;
                 case "cheat":
@@ -98,15 +101,16 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     logger.info("Case detect cheat: {} with messageValue: {} ", username, messageValue);
                     gameService.detectCheat(session, username, messageValue);
                     break;
-
+                case "updateCurrentCards":
+                    logger.info("Case detect updateCurrentCards: {} ",username);
+                    gameService.updateCurrentCards(username);
                 case "reconnect":
                     logger.info("Case reconnect: {} ", username);
                     reconnTry++;
-                    if(reconnectUser(session, username)) {
+                    if (reconnectUser(session, username)) {
                         logger.info("User {} reconnected.", username);
-                    }
-                    else logger.error("User {} not reconnected.", username);
-                    if(reconnTry == 5){
+                    } else logger.error("User {} not reconnected.", username);
+                    if (reconnTry == 5) {
                         logger.error("User {} reconnect timed out.", username);
                         break;
                     }
@@ -114,10 +118,14 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
                 case "disconnect":
                     logger.info("User {} is disconnecting from server.", username);
-                    if(disconnectUser(session, username)){
+                    if (disconnectUser(session, username)) {
                         logger.info("User {} disconnected from server.", username);
-                    }
-                    else logger.error("User {} not disconnected.", username);
+                    } else logger.error("User {} not disconnected.", username);
+                    break;
+
+                case "sendGameState":
+                    logger.info("Case sendGameState: {} ", username);
+                    gameService.informClientsAboutGameState();
                     break;
                 default:
                     JSONObject response = new JSONObject();
@@ -153,9 +161,9 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
         return false;
     }
 
-    private boolean reconnectUser(WebSocketSession session, String username){
-        if(UserListService.userList.getUserByUsername(username) != null &&
-                UserListService.userList.getUserByUsername(username).getUsername().equals(username)){
+    private boolean reconnectUser(WebSocketSession session, String username) {
+        if (UserListService.userList.getUserByUsername(username) != null &&
+                UserListService.userList.getUserByUsername(username).getUsername().equals(username)) {
             UserListService.userList.getUserByUsername(username).updateSession(session);
             responseMessage = GenerateJSONObjectService.generateJSONObject(ActionValues.RECONNECT.getValue(), username,
                     true, "", "");
@@ -167,34 +175,34 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     }
 
     @SneakyThrows
-    private boolean disconnectUser(WebSocketSession session, String username){
-        if(removeUserFromLobby(session) && removeUserFromServer(session)){
-                responseMessage = GenerateJSONObjectService.generateJSONObject(ActionValues.DISCONNECT.getValue(),
-                        username, true, "", "");
-                SendMessageService.sendSingleMessage(session, responseMessage);
-                TimeUnit.SECONDS.sleep(2);
-                session.close();
-                return true;
-            }
+    private boolean disconnectUser(WebSocketSession session, String username) {
+        if (removeUserFromLobby(session) && removeUserFromServer(session)) {
+            responseMessage = GenerateJSONObjectService.generateJSONObject(ActionValues.DISCONNECT.getValue(),
+                    username, true, "", "");
+            SendMessageService.sendSingleMessage(session, responseMessage);
+            TimeUnit.SECONDS.sleep(2);
+            session.close();
+            return true;
+        }
 
         return false;
     }
 
-    private boolean removeUserFromLobby(WebSocketSession session){
-        if(lobbyService.gamelobby.getUserListFromLobby().contains(
-                UserListService.userList.getUserBySessionID(session.getId()))){
+    private boolean removeUserFromLobby(WebSocketSession session) {
+        if (lobbyService.gamelobby.getUserListFromLobby().contains(
+                UserListService.userList.getUserBySessionID(session.getId()))) {
             String username = UserListService.userList.getUserBySessionID(session.getId()).getUsername();
             lobbyService.gamelobby.removePlayerFromLobbyByName(username);
             logger.info("User nicht mehr in der Lobby vorhanden(ConnectionCloses).{}", session.getId());
         }
         return true;
     }
-    private boolean removeUserFromServer(WebSocketSession session){
-        if(UserListService.userList.getUserBySessionID(session.getId()) != null){
+
+    private boolean removeUserFromServer(WebSocketSession session) {
+        if (UserListService.userList.getUserBySessionID(session.getId()) != null) {
             UserListService.userList.deleteUser(session.getId());
             logger.info("User gelöscht.");
             return true;
-        }
-        else return false;
+        } else return false;
     }
 }
