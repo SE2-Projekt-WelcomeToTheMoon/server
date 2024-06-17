@@ -164,12 +164,17 @@ public class GameService {
     public void notifyPlayersMissionFlipped(MissionCard card) {
         logger.info("Flip Mission Cards");
         JSONObject message = new JSONObject();
-        message.put("action", "missionFlipped");
-        message.put("missionDescription", card.getMissionDescription());
-        message.put("flipped", card.isFlipped());
-
+        try {
+            message.put("action", "missionFlipped");
+            message.put("missionType", card.getMissionType().name());
+            message.put("flipped", card.isFlipped());
+        } catch (JSONException e) {
+            logger.error("Error creating JSON message for mission flipped", e);
+        }
+    
         for (CreateUserService player : game.getPlayers()) {
             SendMessageService.sendSingleMessage(player.getSession(), message);
         }
     }
+    
 }

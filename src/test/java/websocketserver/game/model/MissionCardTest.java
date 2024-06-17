@@ -1,6 +1,7 @@
 package websocketserver.game.model;
 
 import websocketserver.game.enums.RewardCategory;
+import websocketserver.game.enums.MissionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,12 +14,12 @@ class MissionCardTest {
     @BeforeEach
     void setUp() {
         reward = new Reward(RewardCategory.ROCKET, 3);
-        missionCard = new MissionCard("Mission A1", reward);
+        missionCard = new MissionCard(MissionType.A1, reward);
     }
 
     @Test
-    void testInitialMissionDescription() {
-        assertEquals("Mission A1", missionCard.getMissionDescription(), "The mission description should match the initialized value.");
+    void testInitialMissionType() {
+        assertEquals(MissionType.A1, missionCard.getMissionType(), "The mission type should match the initialized value.");
     }
 
     @Test

@@ -4,17 +4,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import lombok.Getter;
+import websocketserver.game.enums.MissionType;
 import websocketserver.game.enums.RewardCategory;
 
 public class MissionCard {
     @Getter
-    private String missionDescription;
+    private MissionType missionType;
     @Getter
     private Reward reward;
     private boolean isFlipped;
 
-    public MissionCard(String missionDescription, Reward reward) {
-        this.missionDescription = missionDescription;
+    public MissionCard(MissionType missionType, Reward reward) {
+        this.missionType = missionType;
         this.reward = reward;
         this.isFlipped = false;
     }
@@ -30,16 +31,16 @@ public class MissionCard {
 
     public JSONObject toJson() throws JSONException {
         JSONObject json = new JSONObject();
-        json.put("missionDescription", missionDescription);
+        json.put("missionType", missionType.name());
         json.put("newReward", reward.getNumberRockets());
         json.put("flipped", isFlipped);
         return json;
     }
 
     public static MissionCard fromJson(JSONObject json) throws JSONException {
-        String missionDescription = json.getString("missionDescription");
+        MissionType missionType = MissionType.valueOf(json.getString("missionType"));
         Reward reward = new Reward(RewardCategory.ROCKET, json.getInt("newReward"));
-        MissionCard card = new MissionCard(missionDescription, reward);
+        MissionCard card = new MissionCard(missionType, reward);
         if (json.getBoolean("flipped")) {
             card.flipCard();
         }

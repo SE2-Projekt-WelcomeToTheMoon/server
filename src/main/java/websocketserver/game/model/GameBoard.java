@@ -2,6 +2,7 @@ package websocketserver.game.model;
 
 import websocketserver.game.enums.FieldCategory;
 import websocketserver.game.enums.FieldValue;
+import websocketserver.game.enums.MissionType;
 import websocketserver.game.enums.RewardCategory;
 import websocketserver.game.exceptions.FinalizedException;
 import websocketserver.game.exceptions.FloorSequenceException;
@@ -197,17 +198,17 @@ private GameService gameService;
     public List<MissionCard> initializeMissionCards() {
         List<MissionCard> cards = new ArrayList<>();
         Random random = new Random();
-
+    
         try {
-            cards.add(new MissionCard("a" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
-            cards.add(new MissionCard("b" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
-            cards.add(new MissionCard("c" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
+            cards.add(new MissionCard(random.nextBoolean() ? MissionType.A1 : MissionType.A2, new Reward(RewardCategory.ROCKET, 3)));
+            cards.add(new MissionCard(random.nextBoolean() ? MissionType.B1 : MissionType.B2, new Reward(RewardCategory.ROCKET, 3)));
+            cards.add(new MissionCard(random.nextBoolean() ? MissionType.C1 : MissionType.C2, new Reward(RewardCategory.ROCKET, 3)));
         } catch (Exception e) {
-            // If random selection fails, default to a1, b1, and c1
+            // If random selection fails, default to A1, B1, and C1
             cards.clear();
-            cards.add(new MissionCard("a1", new Reward(RewardCategory.ROCKET, 3)));
-            cards.add(new MissionCard("b1", new Reward(RewardCategory.ROCKET, 3)));
-            cards.add(new MissionCard("c1", new Reward(RewardCategory.ROCKET, 3)));
+            cards.add(new MissionCard(MissionType.A1, new Reward(RewardCategory.ROCKET, 3)));
+            cards.add(new MissionCard(MissionType.B1, new Reward(RewardCategory.ROCKET, 3)));
+            cards.add(new MissionCard(MissionType.C1, new Reward(RewardCategory.ROCKET, 3)));
         }
     
         return cards;
@@ -217,9 +218,9 @@ private GameService gameService;
         gameService.notifyPlayersInitialMissionCards(missionCards);
     }
 
-    public void checkAndFlipMissionCards(String missionDescription) {
+    public void checkAndFlipMissionCards(MissionType missionType) {
         for (MissionCard card : missionCards) {
-            if (!card.isFlipped() && card.getMissionDescription().equals(missionDescription)) {
+            if (!card.isFlipped() && card.getMissionType() == missionType) {
                 card.flipCard();
                 gameService.notifyPlayersMissionFlipped(card);
             }
@@ -228,38 +229,39 @@ private GameService gameService;
 
     public void checkMissions() {
         for (MissionCard missionCard : missionCards) {
-            switch (missionCard.getMissionDescription()) {
-                case "a1":
+            switch (missionCard.getMissionType()) {
+                case  A1:
                     if (areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER)) {
-                        checkAndFlipMissionCards("a1");
+                        checkAndFlipMissionCards(MissionType.A1);
                     }
                     break;
-                case "a2":
+                case A2:
                     if (areAllFieldsNumbered(FieldCategory.ROBOTER, FieldCategory.PLANUNG)) {
-                        checkAndFlipMissionCards("a2");
+                        checkAndFlipMissionCards(MissionType.A2);
                     }
                     break;
-                case "b1":
+                case B1:
                     if (areAllFieldsNumbered(FieldCategory.ENERGIE)) {
-                        checkAndFlipMissionCards("b1");
+                        checkAndFlipMissionCards(MissionType.B1);
                     }
                     break;
-                case "b2":
+                case B2:
                     if (areAllFieldsNumbered(FieldCategory.PFLANZE)) {
-                        checkAndFlipMissionCards("b2");
+                        checkAndFlipMissionCards(MissionType.B2);
                     }
                     break;
-                case "c1":
+                case C1:
                     if (systemErrors.getCurrentErrors() >= 5) {
-                        checkAndFlipMissionCards("c1");
+                        checkAndFlipMissionCards(MissionType.C1);
                     }
                     break;
-                case "c2":
-                if (systemErrors.getCurrentErrors() >= 6) {
-                    checkAndFlipMissionCards("c2");
-                }
+                case C2:
+                    if (systemErrors.getCurrentErrors() >= 6) {
+                        checkAndFlipMissionCards(MissionType.C2);
+                    }
                     break;
                 default:
+                throw new IllegalArgumentException("Unexpected value: " + missionCard.getMissionType());
             }
         }
     }

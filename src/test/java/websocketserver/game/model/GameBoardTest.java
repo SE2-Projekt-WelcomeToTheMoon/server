@@ -2,6 +2,7 @@ package websocketserver.game.model;
 
 import websocketserver.game.enums.FieldCategory;
 import websocketserver.game.enums.FieldValue;
+import websocketserver.game.enums.MissionType;
 import websocketserver.game.enums.RewardCategory;
 import websocketserver.game.exceptions.FinalizedException;
 import websocketserver.game.exceptions.FloorSequenceException;
@@ -256,7 +257,7 @@ class GameBoardTest {
         List<MissionCard> cards = gameBoard.initializeMissionCards();
 
         assertEquals(3, cards.size(), "Should initialize exactly three mission cards");
-        assertTrue(cards.stream().allMatch(card -> card.getMissionDescription().startsWith("Mission ")), "Mission descriptions should be correctly set");
+        assertTrue(cards.stream().allMatch(card -> card.getMissionType().name().matches("A[12]|B[12]|C[12]")), "Mission types should be correctly set");
         assertTrue(cards.stream().allMatch(card -> Arrays.asList(2, 3).contains(card.getReward().getNumberRockets())), "Rewards should be correctly set between 2 and 3 rockets");
     }
 
@@ -265,11 +266,11 @@ class GameBoardTest {
         GameService mockGameService = mock(GameService.class);
         gameBoard.setGameService(mockGameService); 
 
-        MissionCard card1 = new MissionCard("Mission A1", new Reward(RewardCategory.ROCKET, 3));
-        MissionCard card2 = new MissionCard("Mission A2", new Reward(RewardCategory.ROCKET, 3));
+        MissionCard card1 = new MissionCard(MissionType.A1, new Reward(RewardCategory.ROCKET, 3));
+        MissionCard card2 = new MissionCard(MissionType.A2, new Reward(RewardCategory.ROCKET, 3));
         gameBoard.setMissionCards(Arrays.asList(card1, card2));
 
-        gameBoard.checkAndFlipMissionCards("Mission A1");
+        gameBoard.checkAndFlipMissionCards(MissionType.A1);
         assertTrue(card1.isFlipped(), "Mission A1 should be flipped");
         assertFalse(card2.isFlipped(), "Mission A2 should not be flipped");
         verify(mockGameService).notifyPlayersMissionFlipped(card1);
@@ -319,12 +320,12 @@ class GameBoardTest {
             "Should return true because there are no floors of the specified category.");
     }
 
-     @Test
+    @Test
     void testCheckMissions() {
         GameBoard gameBoard = new GameBoard();
         gameBoard.setMissionCards(Arrays.asList(
-            new MissionCard("Mission A1", new Reward(RewardCategory.ROCKET, 3)),
-            new MissionCard("Mission B1", new Reward(RewardCategory.ROCKET, 3))
+            new MissionCard(MissionType.A1, new Reward(RewardCategory.ROCKET, 3)),
+            new MissionCard(MissionType.B1, new Reward(RewardCategory.ROCKET, 3))
         ));
 
         GameBoard spyGameBoard = spy(gameBoard);
@@ -337,63 +338,53 @@ class GameBoardTest {
         spyGameBoard.checkMissions();
 
         verify(mockGameService, times(1)).notifyPlayersMissionFlipped(any(MissionCard.class));
-        verify(mockGameService, never()).notifyPlayersMissionFlipped(new MissionCard("Mission B1", new Reward(RewardCategory.ROCKET, 3)));
+        verify(mockGameService, never()).notifyPlayersMissionFlipped(new MissionCard(MissionType.B1, new Reward(RewardCategory.ROCKET, 3)));
     }
 
-     @Test
+    @Test
     public void testMissionA1() {
-        when(missionCard.getMissionDescription()).thenReturn("Mission A1");
+        when(missionCard.getMissionType()).thenReturn(MissionType.A1);
         missionCards.add(missionCard);
         doReturn(true).when(gameBoard).areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER);
 
         gameBoard.checkMissions();
 
-        verify(gameBoard).checkAndFlipMissionCards("Mission A1");
+        verify(gameBoard).checkAndFlipMissionCards(MissionType.A1);
     }
 
     @Test
     public void testMissionA2() {
-        when(missionCard.getMissionDescription()).thenReturn("Mission A2");
+        when(missionCard.getMissionType()).thenReturn(MissionType.A2);
         missionCards.add(missionCard);
         doReturn(true).when(gameBoard).areAllFieldsNumbered(FieldCategory.ROBOTER, FieldCategory.PLANUNG);
 
         gameBoard.checkMissions();
 
-        verify(gameBoard).checkAndFlipMissionCards("Mission A2");
+        verify(gameBoard).checkAndFlipMissionCards(MissionType.A2);
     }
 
     @Test
     public void testMissionB1() {
-        when(missionCard.getMissionDescription()).thenReturn("Mission B1");
+        when(missionCard.getMissionType()).thenReturn(MissionType.B1);
         missionCards.add(missionCard);
         doReturn(true).when(gameBoard).areAllFieldsNumbered(FieldCategory.ENERGIE);
 
         gameBoard.checkMissions();
 
-        verify(gameBoard).checkAndFlipMissionCards("Mission B1");
+        verify(gameBoard).checkAndFlipMissionCards(MissionType.B1);
     }
 
     @Test
     public void testMissionB2() {
-        when(missionCard.getMissionDescription()).thenReturn("Mission B2");
+        when(missionCard.getMissionType()).thenReturn(MissionType.B2);
         missionCards.add(missionCard);
         doReturn(true).when(gameBoard).areAllFieldsNumbered(FieldCategory.PFLANZE);
 
         gameBoard.checkMissions();
 
-        verify(gameBoard).checkAndFlipMissionCards("Mission B2");
+        verify(gameBoard).checkAndFlipMissionCards(MissionType.B2);
     }
-
-    @Test
-    public void testMissionC2() {
-        when(missionCard.getMissionDescription()).thenReturn("Mission C2");
-        missionCards.add(missionCard);
-
-        gameBoard.checkMissions();
-
-        // Verify that checkAndFlipMissionCards was not called for Mission C2 since it's not implemented
-        verify(gameBoard, never()).checkAndFlipMissionCards("Mission C2");
-    }
+    
     @Test
     void testSetFieldWithinFloorBeforeGameBoardFinalizationThrowsException() {
         Chamber chamber = new Chamber(FieldCategory.ROBOTER,rewards,0);
