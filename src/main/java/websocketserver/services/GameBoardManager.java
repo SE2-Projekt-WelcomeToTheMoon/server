@@ -147,4 +147,16 @@ public class GameBoardManager {
             SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         }
     }
+
+    public void addRocketToPlayer(CreateUserService player, int rocketCount) {
+        logger.info("Player: {} gets {} Rockets", player.getUsername(), rocketCount);
+        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("addRocket", player.getUsername(), true, String.valueOf(rocketCount), "");
+        SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
+    }
+
+    public void addSystemErrorToPlayer(CreateUserService player){
+        logger.info("Player: {} gets a SystemError", player.getUsername());
+        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("addSystemError", player.getUsername(), true, "", "");
+        SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
+    }
 }

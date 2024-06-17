@@ -150,6 +150,8 @@ public class Game {
                         currentPlayer.getGameBoard().setFieldWithinFloor(floor, field, combination);
                         logger.info("Move was valid, rerouting move to other Players {}", player.getUsername());
                         gameService.notifySingleClient("alreadyMoved", currentPlayer);
+                        // if move was valid, check if the chamber is complete
+                        checkChamberCompletion(currentPlayer, floor);
                         for (CreateUserService otherPlayer : players) {
                             logger.info("Sending validMove from Player {} to {}", player.getUsername(), otherPlayer.getUsername());
                             gameBoardManager.updateClientGameBoardFromGame(otherPlayer, currentPlayerDraw.get(player));
@@ -172,7 +174,41 @@ public class Game {
         if (clientResponseReceived.incrementAndGet() == players.size()) {
             allClientResponseReceivedFuture.complete(null);
         }
+    }
 
+    private void checkChamberCompletion(CreateUserService player, int floor){
+        for (Chamber chamber : player.getGameBoard().getFloorAtIndex(floor).getChambers()) {
+            if (chamber.checkChamberCompletion(0)) {
+                logger.info("Chamber completed, handling Rewards for {}", player.getUsername());
+                if(chamber.isRewardsDone()){
+                    logger.info("Rewards already handled");
+                    continue;
+                }
+                handleRewards(chamber.getRewards(), player);
+                // sets it to true, so that the rewards are only handled once
+                chamber.setRewardsDone(true);
+            }
+        }
+    }
+
+    private void handleRewards(List<Reward> rewards, CreateUserService player){
+        for (Reward reward : rewards) {
+            switch(reward.getCategory()){
+                case ROCKET -> {
+                    player.getGameBoard().addRockets(reward.getNumberRockets());
+                    gameService.addRocketToPlayer(player, reward.getNumberRockets());
+                }
+                case SYSTEMERROR -> {
+                    for (CreateUserService currentPlayer : players) {
+                        if (!currentPlayer.equals(player)) {
+                            currentPlayer.getGameBoard().addSystemError();
+                            gameService.addSystemErrorToPlayer(currentPlayer);
+                        }
+                    }
+                }
+                default -> logger.error("Reward Category not found");
+            }
+        }
     }
 
     protected void doRoundFour() {
