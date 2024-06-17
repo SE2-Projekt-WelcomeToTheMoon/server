@@ -46,6 +46,7 @@ public class Game {
     HashMap<CreateUserService, String> currentPlayerDraw;
 
     private final AtomicInteger clientResponseReceived = new AtomicInteger(0);
+    private int clientCantMakeResponse = 0;
     private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
 
     @Setter
@@ -85,12 +86,16 @@ public class Game {
 
         currentPlayerDraw.clear();
 
+        clientCantMakeResponse = 0;
+
         for (CreateUserService createUserService : players) {
             if (!createUserService.getGameBoard().checkCardCombination(cardManager.getCurrentCombination())) {
                 if (createUserService.getGameBoard().addSystemError()) {
                     gameService.informPlayersAboutEndOfGame(new ArrayList<>(), EndType.SYSTEM_ERROR_EXCEEDED);
                 } else {
+                    // if a player cant make a move we have to ensure that we don't get stuck on round 3
                     gameService.informPlayerAboutSystemerror(createUserService);
+                    clientCantMakeResponse++;
                 }
             }
         }
@@ -128,6 +133,11 @@ public class Game {
         //Logic for round three where player enter their number
         clientResponseReceived.set(0);
         allClientResponseReceivedFuture = new CompletableFuture<>();
+
+        // increments the future for every user that can't make a move this round, so we can continue
+        for (int i = 0; i < clientCantMakeResponse;i++){
+            clientResponseReceived.incrementAndGet();
+        }
 
         allClientResponseReceivedFuture.thenRun(() -> {
             synchronized (this) {
