@@ -1,7 +1,9 @@
 name: Build and push docker image to GitHub
 
 on:
-  pull_request:
+  push:
+    branches:
+      - main
 
 env:
   REGISTRY: ghcr.io
