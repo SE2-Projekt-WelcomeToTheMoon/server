@@ -1,7 +1,8 @@
 name: Deploy docker image to server
 
 on:
-  pull_request:
+  repository_dispatch:
+    types: [ deploy ]
 
 jobs:
   deploy:
