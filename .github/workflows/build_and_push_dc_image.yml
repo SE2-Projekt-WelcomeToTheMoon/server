@@ -63,6 +63,8 @@ jobs:
           SERVER_IP: ${{ secrets.SERVER_URL }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          SSH_USER: ${{secrets.SSH_USER}}
+          DOCKER_PORT: ${{secrets.DOCKER_PORT}}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCKER_PAT: ${{ secrets.REGISTRY_PAT }}
           IMAGE_PATH: ${{ secrets.IMAGE_PATH }}
@@ -70,11 +72,9 @@ jobs:
           USER_NAME: ${{ secrets.USERNAME }}
 
         run: |
-          echo "${{ env.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add - > /dev/null
-          ssh -o StrictHostKeyChecking=no -p ${{ env.SERVER_PORT }} ${{ env.SERVER_USER }}@${{ env.SERVER_IP }} << 'EOF'
-            echo ${{ env.DOCKER_PAT }} | docker login ghcr.io -u ${{ env.USER_NAME }} --password-stdin
-            docker stop ${{ env.DOCKER_NAME }} || true
-            docker rm ${{ env.DOCKER_NAME }} || true
-            docker pull ${{ env.IMAGE_PATH }}
-            docker run -d --name ${{ env.DOCKER_NAME }} -p ${{ env.SERVER_PORT }}:80 ${{ env.IMAGE_PATH }}
-          EOF
+          ssh -i ${{ env.SSH_PRIVATE_KEY }} -p ${{env.SERVER_PORT}} ${{env.SSH_USER}}@${{ env.SERVER_IP }}
+          echo ${{ env.DOCKER_PAT }} | docker login ghcr.io -u ${{ env.USER_NAME }} --password-stdin
+          docker stop ${{ env.DOCKER_NAME }} || true
+          docker rm ${{ env.DOCKER_NAME }} || true
+          docker pull ${{ env.IMAGE_PATH }}
+          docker run -d --name ${{ env.DOCKER_NAME }} -p ${{env.DOCKER_PORT}}:${{env.DOCKER_PORT}} ${{ env.IMAGE_PATH }}
