@@ -56,28 +56,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Deploy to server
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SECRET }}
-          SERVER_IP: ${{ secrets.SERVER_URL }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_PORT: ${{ secrets.SERVER_PORT }}
-          SSH_USER: ${{secrets.SSH_USER}}
-          DOCKER_PORT: ${{secrets.DOCKER_PORT}}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DOCKER_PAT: ${{ secrets.REGISTRY_PAT }}
-          IMAGE_PATH: ${{ secrets.IMAGE_PATH }}
-          DOCKER_NAME: grp-1-welcome_to_the_moon
-          USER_NAME: ${{ secrets.USERNAME }}
-
-        run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem -p ${{ env.SERVER_PORT }} ${{ env.SERVER_USER }}@${{ env.SERVER_IP }} << 'EOF'
-          echo ${{ env.DOCKER_PAT }} | docker login ghcr.io -u ${{ env.USER_NAME }} --password-stdin
-          docker stop ${{ env.DOCKER_NAME }} || true
-          docker rm ${{ env.DOCKER_NAME }} || true
-          docker pull ${{ env.IMAGE_PATH }}
-          docker run -d --name ${{ env.DOCKER_NAME }} -p ${{env.DOCKER_PORT}}:${{env.DOCKER_PORT}} ${{ env.IMAGE_PATH }}
-
-      - name: Clean up SSH key file
-        run: rm key.pem
