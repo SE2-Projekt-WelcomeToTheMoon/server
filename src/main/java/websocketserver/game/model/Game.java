@@ -212,7 +212,7 @@ public class Game {
                     for (CreateUserService currentPlayer : players) {
                         if (!currentPlayer.equals(player)) {
                             currentPlayer.getGameBoard().addSystemError();
-                            gameService.addSystemErrorToPlayer(currentPlayer);
+                            gameService.informPlayerAboutSystemerror(currentPlayer);
                         }
                     }
                 }

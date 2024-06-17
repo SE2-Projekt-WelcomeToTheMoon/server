@@ -159,10 +159,4 @@ public class GameService {
         logger.info("GameService addRocket");
         gameBoardManager.addRocketToPlayer(player, rocketCount);
     }
-
-    public void addSystemErrorToPlayer(CreateUserService player){
-        logger.info("GameService addSystemError");
-        gameBoardManager.addSystemErrorToPlayer(player);
-
-    }
 }
