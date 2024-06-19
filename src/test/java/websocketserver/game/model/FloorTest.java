@@ -24,7 +24,7 @@ class FloorTest {
 
     @BeforeEach
     void setUp() {
-        rewards = List.of(new Reward[]{new Reward(RewardCategory.PLANING), new Reward(RewardCategory.ROCKET, 5)});
+        rewards = List.of(new Reward[]{new Reward(RewardCategory.SYSTEMERROR), new Reward(RewardCategory.ROCKET, 5)});
         floor = new Floor(FieldCategory.ROBOTER);
         chamberCompatible = new Chamber(FieldCategory.ROBOTER, rewards, 0);
         secondChamberCompatible = new Chamber(FieldCategory.ROBOTER, rewards, 0);

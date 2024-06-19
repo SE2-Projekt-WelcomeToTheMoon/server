@@ -36,21 +36,21 @@ public class ManageUserService {
             if(!(userList.containsKey(sessionID))){
                 userList.put(user.getSessionID(), user);
                 logger.info("User {} now managed.", sessionID);
-                WebSocketHandlerImpl.responseMessage = GenerateJSONObjectService.generateJSONObject(
+                WebSocketHandlerImpl.responseMessage = new GenerateJSONObjectService(
                         ActionValues.REGISTERUSER.getValue(), username, true,
-                        ("User " + username + " now managed."), "");
+                        ("User " + username + " now managed."), "").generateJSONObject();
             }
             else {
                 logger.warn("Username {} is already in use", username);
-                WebSocketHandlerImpl.responseMessage = GenerateJSONObjectService.generateJSONObject(
+                WebSocketHandlerImpl.responseMessage = new GenerateJSONObjectService(
                         ActionValues.REGISTERUSER.getValue(), username, false,
-                        ("Username " + username + " is already in use"), "");
+                        ("Username " + username + " is already in use"), "").generateJSONObject();
             }
         }catch(Exception e){
             logger.error("User {} could not be added. Error: {}", username, e.getMessage());
-            WebSocketHandlerImpl.responseMessage = GenerateJSONObjectService.generateJSONObject(
+            WebSocketHandlerImpl.responseMessage = new GenerateJSONObjectService(
                     ActionValues.REGISTERUSER.getValue(), username, false,
-                    ("User " + username + " could not be added"), e.getMessage());
+                    ("User " + username + " could not be added"), e.getMessage()).generateJSONObject();
         }
     }
 

@@ -424,7 +424,7 @@ public class Game {
         for(CreateUserService player : players){
             if(player.getUsername().equals(username)){
                 player.getGameBoard().cheat();
-                JSONObject response = GenerateJSONObjectService.generateJSONObject("cheat", username, true, "", "");
+                JSONObject response = new GenerateJSONObjectService("cheat", username, true, "", "").generateJSONObject();
                 try {
                     session.sendMessage(new TextMessage(response.toString()));
                 } catch (IOException e) {
@@ -446,7 +446,7 @@ public class Game {
             }
         }
 
-        JSONObject response = GenerateJSONObjectService.generateJSONObject("detectCheat", username, true, "", "");
+        JSONObject response = new GenerateJSONObjectService("detectCheat", username, true, "", "").generateJSONObject();
         try {
             session.sendMessage(new TextMessage(response.toString()));
         } catch (IOException e) {

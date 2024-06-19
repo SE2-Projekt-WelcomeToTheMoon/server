@@ -5,10 +5,8 @@ import lombok.Getter;
 
 @Getter
 public class Reward {
-    private RewardCategory category;
+    private final RewardCategory category;
     private int numberRockets;
-    private boolean rocketsFilled=false;
-    private int unfilledRockets;
     private boolean systemErrorClaimed=false;
 
     public Reward(RewardCategory category) {
@@ -20,12 +18,8 @@ public class Reward {
     public Reward(RewardCategory category,  int numberRockets) {
         if(category==null)throw new IllegalArgumentException("Reward Category may not be null");
         this.category = category;
-        if(category.equals(RewardCategory.ROCKET))this.numberRockets = numberRockets;
-        if(category.equals(RewardCategory.UNFILLEDROCKET))this.unfilledRockets=numberRockets;
+        this.numberRockets = numberRockets;
 
-    }
-    public void fillRockets(){
-        this.rocketsFilled=true;
     }
     public void claimSystemError(){
         this.systemErrorClaimed=true;
