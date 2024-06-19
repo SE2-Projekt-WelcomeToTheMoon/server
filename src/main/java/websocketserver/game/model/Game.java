@@ -178,11 +178,13 @@ public class Game {
             logger.info("Sending validMove from Player {} to {}", player.getUsername(), otherPlayer.getUsername());
             gameBoardManager.updateClientGameBoardFromGame(otherPlayer, currentPlayerDraw.get(player));
         }
-    void checkChamberCompletion(CreateUserService player, int floor){
+    }
+
+    void checkChamberCompletion(CreateUserService player, int floor) {
         for (Chamber chamber : player.getGameBoard().getFloorAtIndex(floor).getChambers()) {
             if (chamber.checkChamberCompletion(0)) {
                 logger.info("Chamber completed, handling Rewards for {}", player.getUsername());
-                if(chamber.isRewardsDone()){
+                if (chamber.isRewardsDone()) {
                     logger.info("Rewards already handled");
                     continue;
                 }
@@ -193,9 +195,9 @@ public class Game {
         }
     }
 
-    private void handleRewards(List<Reward> rewards, CreateUserService player){
+    private void handleRewards(List<Reward> rewards, CreateUserService player) {
         for (Reward reward : rewards) {
-            switch(reward.getCategory()){
+            switch (reward.getCategory()) {
                 case ROCKET -> {
                     player.getGameBoard().addRockets(reward.getNumberRockets());
                     gameService.addRocketToPlayer(player, reward.getNumberRockets());
@@ -308,7 +310,7 @@ public class Game {
         logger.info("Received Move from {}", username);
         currentPlayerDraw.put(getUserByUsername(username), message);
 
-        if (findCorrectCombination(fieldUpdateMessage.cardCombination()) == null){
+        if (findCorrectCombination(fieldUpdateMessage.cardCombination()) == null) {
             logger.error("CardCombination is not valid");
             return;
         }

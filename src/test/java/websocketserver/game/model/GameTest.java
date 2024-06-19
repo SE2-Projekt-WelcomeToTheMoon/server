@@ -397,50 +397,50 @@ class GameTest {
     }
 
     @Test
-    void testReceiveValueNoCombination(){
+    void testReceiveValueNoCombination() {
         game.setGameState(GameState.ROUND_THREE);
         game.receiveValueAtPositionOfPlayer(player, 1, 1, null);
         verify(logger).error("CardCombination is null");
     }
 
     @Test
-    void testRoundOneWrongState(){
+    void testRoundOneWrongState() {
         game.setGameState(GameState.ROUND_TWO);
         assertThrows(GameStateException.class, game::doRoundOne);
     }
 
     @Test
-    void testRoundTwoWrongState(){
+    void testRoundTwoWrongState() {
         game.setGameState(GameState.ROUND_THREE);
         assertThrows(GameStateException.class, game::doRoundTwo);
     }
 
     @Test
-    void testRoundThreeWrongState(){
+    void testRoundThreeWrongState() {
         game.setGameState(GameState.ROUND_FOUR);
         assertThrows(GameStateException.class, game::doRoundThree);
     }
 
     @Test
-    void testRoundFourWrongState(){
+    void testRoundFourWrongState() {
         game.setGameState(GameState.ROUND_FIVE);
         assertThrows(GameStateException.class, game::doRoundFour);
     }
 
     @Test
-    void testRoundFiveWrongState(){
+    void testRoundFiveWrongState() {
         game.setGameState(GameState.ROUND_SIX);
         assertThrows(GameStateException.class, game::doRoundFive);
     }
 
     @Test
-    void testRoundSixWrongState(){
+    void testRoundSixWrongState() {
         game.setGameState(GameState.FINISHED);
         assertThrows(GameStateException.class, game::doRoundSix);
     }
 
     @Test
-    void testAddPlayers(){
+    void testAddPlayers() {
         Map<String, CreateUserService> players = new HashMap<>();
         players.put("player1", player);
         game.addPlayers(players);
