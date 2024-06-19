@@ -31,19 +31,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Game {
 
     @Getter
+    @Setter
     private GameState gameState;
 
     @Getter
     List<CreateUserService> players;
     GameService gameService;
     CardManager cardManager;
+    @Getter
     @Setter
     GameBoardManager gameBoardManager;
     HashMap<CreateUserService, ChosenCardCombination> currentPlayerChoices;
     HashMap<CreateUserService, String> currentPlayerDraw;
 
     private final AtomicInteger clientResponseReceived = new AtomicInteger(0);
-    private int clientCantMakeResponse = 0;
     private CompletableFuture<Void> allClientResponseReceivedFuture = new CompletableFuture<>();
 
     @Setter
@@ -82,8 +83,6 @@ public class Game {
 
         currentPlayerDraw.clear();
 
-        clientCantMakeResponse = 0;
-
         for (CreateUserService createUserService : players) {
             if (!createUserService.getGameBoard().checkCardCombination(cardManager.getCurrentCombination())) {
                 if (createUserService.getGameBoard().addSystemError()) {
@@ -91,7 +90,6 @@ public class Game {
                 } else {
                     // if a player cant make a move we have to ensure that we don't get stuck on round 3
                     gameService.informPlayerAboutSystemerror(createUserService);
-                    clientCantMakeResponse++;
                 }
             }
         }
@@ -130,11 +128,6 @@ public class Game {
         clientResponseReceived.set(0);
         allClientResponseReceivedFuture = new CompletableFuture<>();
 
-        // increments the future for every user that can't make a move this round, so we can continue
-        for (int i = 0; i < clientCantMakeResponse;i++){
-            clientResponseReceived.incrementAndGet();
-        }
-
         allClientResponseReceivedFuture.thenRun(() -> {
             synchronized (this) {
                 gameState = GameState.ROUND_FOUR;
@@ -147,6 +140,11 @@ public class Game {
     protected void receiveValueAtPositionOfPlayer(CreateUserService player, int floor, int field, CardCombination combination) {
         if (this.gameState != GameState.ROUND_THREE) {
             throw new GameStateException("Invalid game state for setting field values");
+        }
+
+        if (combination == null) {
+            logger.error("CardCombination is null");
+            return;
         }
 
         for (CreateUserService currentPlayer : players) {
@@ -172,7 +170,6 @@ public class Game {
                     logger.info("Player {} move was incorrect or invalid, removing from Current Draw", player.getUsername());
                     currentPlayerDraw.remove(player);
                     gameService.notifySingleClient("invalidMove", player);
-
                 }
             }
         }
@@ -182,7 +179,7 @@ public class Game {
         }
     }
 
-    private void checkChamberCompletion(CreateUserService player, int floor){
+    void checkChamberCompletion(CreateUserService player, int floor){
         for (Chamber chamber : player.getGameBoard().getFloorAtIndex(floor).getChambers()) {
             if (chamber.checkChamberCompletion(0)) {
                 logger.info("Chamber completed, handling Rewards for {}", player.getUsername());
@@ -326,21 +323,22 @@ public class Game {
 
     public ChosenCardCombination findCorrectCombination(CardCombination cardCombination) {
         CardCombination[] combinations = cardManager.getCurrentCombination();
-        for (int i = 0; i < combinations.length; i++) {
+        ChosenCardCombination[] chosenCombinations = {
+                ChosenCardCombination.ONE,
+                ChosenCardCombination.TWO,
+                ChosenCardCombination.THREE
+        };
+
+        for (int i = 0; i < combinations.length && i < chosenCombinations.length; i++) {
             if (combinations[i].getCurrentSymbol().equals(cardCombination.getCurrentSymbol()) &&
                     combinations[i].getCurrentNumber() == cardCombination.getCurrentNumber() &&
                     combinations[i].getNextSymbol().equals(cardCombination.getNextSymbol())) {
-
-                return switch (i) {
-                    case 0 -> ChosenCardCombination.ONE;
-                    case 1 -> ChosenCardCombination.TWO;
-                    case 2 -> ChosenCardCombination.THREE;
-                    default -> null;
-                };
+                return chosenCombinations[i];
             }
         }
         return null;
     }
+
 
     /**
      * Converts Client Coordinates to Server Coordinates
@@ -368,7 +366,7 @@ public class Game {
     }
 
 
-    private FieldUpdateMessage returnFieldUpdateMessage(String message) {
+    FieldUpdateMessage returnFieldUpdateMessage(String message) {
         ObjectMapper mapper = new ObjectMapper();
         FieldUpdateMessage fieldUpdateMessage;
         try {

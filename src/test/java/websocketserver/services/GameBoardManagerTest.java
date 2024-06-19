@@ -23,6 +23,8 @@ import org.apache.logging.log4j.Logger;
 
 
 class GameBoardManagerTest {
+    public static final String NOTIFY_PLAYER_ABOUT = "Notify Player {} about {}";
+    public static final String DING_DONG = "DingDong";
     private GameBoardManager gameBoardManager;
     private CreateUserService player;
     private List<CreateUserService> players;
@@ -158,16 +160,23 @@ class GameBoardManagerTest {
 
     @Test
     void testNotifyAllClients() {
-        gameBoardManager.notifyAllClients(players, "DingDong");
+        gameBoardManager.notifyAllClients(players, DING_DONG);
 
-        verify(logger).info("Notifying multiple player about {}", "DingDong");
-        verify(logger).info("Notify Player {} about {}", player.getUsername(), "DingDong");
+        verify(logger).info("Notifying multiple player about {}", DING_DONG);
+        verify(logger).info(NOTIFY_PLAYER_ABOUT, player.getUsername(), DING_DONG);
     }
 
     @Test
     void testNotifySingleClient() {
-        gameBoardManager.notifySingleClient(player, "DingDong");
+        gameBoardManager.notifySingleClient(player, DING_DONG);
 
-        verify(logger).info("Notify Player {} about {}", player.getUsername(), "DingDong");
+        verify(logger).info(NOTIFY_PLAYER_ABOUT, player.getUsername(), DING_DONG);
+    }
+
+    @Test
+    void testAddRocketToPlayer() {
+        gameBoardManager.addRocketToPlayer(player, 1);
+
+        verify(logger).info("Player: {} gets {} Rockets", player.getUsername(), 1);
     }
 }
