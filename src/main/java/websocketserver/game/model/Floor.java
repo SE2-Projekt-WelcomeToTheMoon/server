@@ -113,17 +113,12 @@ public class Floor {
         }
 
         int currentMax = 0;
-        FieldValue nextValue;
 
         for (int i = 0; i < chambers.size(); i++) {
             Chamber chamber = chambers.get(i);
             List<Field> fields = chamber.getFields();
 
-            if (i < chambers.size() - 1) {
-                nextValue = getNextValueInNextChamber(i + 1);
-            } else {
-                nextValue = null;
-            }
+            FieldValue nextValue = getNextValue(i);
 
             for (Field field : fields) {
                 if (field.getFieldValue() == FieldValue.NONE) {
@@ -135,8 +130,15 @@ public class Floor {
                 }
             }
         }
-
         return false;
+    }
+
+    private FieldValue getNextValue(int index) {
+        if (index < chambers.size() - 1) {
+            return getNextValueInNextChamber(index + 1);
+        } else {
+            return null;
+        }
     }
 
     @JsonIgnore
