@@ -14,7 +14,7 @@ import websocketserver.services.user.UserListService;
 import org.json.JSONObject;
 import org.springframework.web.socket.*;
 
-import java.io.IOException;
+
 import java.util.concurrent.TimeUnit;
 
 import java.util.Map;
