@@ -105,6 +105,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                 case "updateCurrentCards":
                     logger.info("Case detect updateCurrentCards: {} ",username);
                     gameService.updateCurrentCards(username);
+                    break;
                 case "reconnect":
                     logger.info("Case reconnect: {} ", username);
                     reconnTry++;
