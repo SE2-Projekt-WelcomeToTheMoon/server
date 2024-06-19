@@ -144,7 +144,7 @@ class GameBoardServiceTest {
         assertEquals(1, floor.getChambers().size());
 
         Chamber chamber = floor.getChambers().get(0);
-        assertEquals(5, chamber.getSize());
+        assertEquals(6, chamber.getSize());
         assertEquals(FieldCategory.PLANUNG, chamber.getFieldCategory());
         assertEquals(2, chamber.getRewards().size());
         assertEquals(RewardCategory.ROCKET, chamber.getRewards().get(0).getCategory());

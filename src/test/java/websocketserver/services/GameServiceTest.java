@@ -13,6 +13,7 @@ import websocketserver.game.enums.EndType;
 import websocketserver.game.model.Game;
 import websocketserver.game.model.GameBoard;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
@@ -61,6 +62,7 @@ class GameServiceTest {
 
         when(game.getPlayers()).thenReturn(players);
         when(game.getGameState()).thenReturn(GameState.INITIAL);
+        when(game.detectCheat(any(WebSocketSession.class), anyString(),anyString())).thenReturn(true);
         setGameInGameService(gameServiceObject, game);
     }
 
@@ -160,5 +162,16 @@ class GameServiceTest {
     void testUpdateUserAboutCurrentCards() {
         gameServiceObject.updateCurrentCards(player.getUsername());
         verify(loggerObject).info("GameService updateCurrentCards");
+    }
+
+    @Test
+    void testDetectCheat(){
+        assertTrue(gameServiceObject.detectCheat(session, "name1", "name2"));
+    }
+
+    @Test
+    void testAddRocketToPlayer(){
+        gameServiceObject.addRocketToPlayer(player, 1);
+        verify(loggerObject).info("GameService addRocket");
     }
 }

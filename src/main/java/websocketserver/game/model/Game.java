@@ -22,10 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,12 +31,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Game {
 
     @Getter
+    @Setter
     private GameState gameState;
 
     @Getter
     List<CreateUserService> players;
     GameService gameService;
     CardManager cardManager;
+    @Getter
     @Setter
     GameBoardManager gameBoardManager;
     HashMap<CreateUserService, ChosenCardCombination> currentPlayerChoices;
@@ -72,7 +71,6 @@ public class Game {
 
         doRoundOne();
     }
-
 
     /**
      * Draw new card and check if players can find place for new value. If not add System error and check whether the
@@ -143,14 +141,20 @@ public class Game {
             throw new GameStateException("Invalid game state for setting field values");
         }
 
+        if (combination == null) {
+            logger.error("CardCombination is null");
+            return;
+        }
+
         for (CreateUserService currentPlayer : players) {
             if (currentPlayer.equals(player)) {
                 try {
                     if(currentPlayer.getGameBoard().getFloorAtIndex(floor).isValidMove(combination,field)){
                         currentPlayer.getGameBoard().setFieldWithinFloor(floor, field, combination);
                         logger.info("Move was valid, rerouting move to other Players {}", player.getUsername());
-                        gameService.notifySingleClient("alreadyMoved", currentPlayer);
+                        gameService.notifySingleClient("validMove", currentPlayer);
                         notifyOtherPlayers(player);
+                        checkChamberCompletion(currentPlayer, floor);
                     }else{
                         logger.error("Player {} move was invalid, removing from currentDraw", player.getUsername());
                         currentPlayerDraw.remove(player);
@@ -161,7 +165,6 @@ public class Game {
                     logger.info("Player {} move was incorrect or invalid, removing from Current Draw", player.getUsername());
                     currentPlayerDraw.remove(player);
                     gameService.notifySingleClient("invalidMove", player);
-
                 }
             }
         }
@@ -177,12 +180,45 @@ public class Game {
         }
     }
 
+    void checkChamberCompletion(CreateUserService player, int floor) {
+        for (Chamber chamber : player.getGameBoard().getFloorAtIndex(floor).getChambers()) {
+            if (chamber.checkChamberCompletion(0)) {
+                logger.info("Chamber completed, handling Rewards for {}", player.getUsername());
+                if (chamber.isRewardsDone()) {
+                    logger.info("Rewards already handled");
+                    continue;
+                }
+                handleRewards(chamber.getRewards(), player);
+                // sets it to true, so that the rewards are only handled once
+                chamber.setRewardsDone(true);
+            }
+        }
+    }
+
+    private void handleRewards(List<Reward> rewards, CreateUserService player) {
+        for (Reward reward : rewards) {
+            switch (reward.getCategory()) {
+                case ROCKET -> {
+                    player.getGameBoard().addRockets(reward.getNumberRockets());
+                    gameService.addRocketToPlayer(player, reward.getNumberRockets());
+                }
+                case SYSTEMERROR -> {
+                    for (CreateUserService currentPlayer : players) {
+                        if (!currentPlayer.equals(player)) {
+                            currentPlayer.getGameBoard().addSystemError();
+                            gameService.informPlayerAboutSystemerror(currentPlayer);
+                        }
+                    }
+                }
+                default -> logger.error("Reward Category not found");
+            }
+        }
+    }
+
     protected void doRoundFour() {
         if (gameState != GameState.ROUND_FOUR) {
             throw new GameStateException("Game must be in state ROUND_FOUR");
         }
-
-        gameService.informClientsAboutGameState();
 
         //Logic for round four where player optional do their action
 
@@ -196,8 +232,6 @@ public class Game {
             throw new GameStateException("Game must be in state ROUND_FIVE");
         }
 
-        gameService.informClientsAboutGameState();
-
         //Logic for round two where affects of player moves are calculated
 
         gameState = GameState.ROUND_SIX;
@@ -209,8 +243,6 @@ public class Game {
         if (gameState != GameState.ROUND_SIX) {
             throw new GameStateException("Game must be in state ROUND_SIX");
         }
-
-        gameService.informClientsAboutGameState();
 
         //Logic for round six where missions can be completed, and it will be
         //checked whether the game is finished or not.
@@ -278,7 +310,7 @@ public class Game {
         logger.info("Received Move from {}", username);
         currentPlayerDraw.put(getUserByUsername(username), message);
 
-        if (findCorrectCombination(fieldUpdateMessage.cardCombination()) == null){
+        if (findCorrectCombination(fieldUpdateMessage.cardCombination()) == null) {
             logger.error("CardCombination is not valid");
             return;
         }
@@ -292,17 +324,17 @@ public class Game {
 
     public ChosenCardCombination findCorrectCombination(CardCombination cardCombination) {
         CardCombination[] combinations = cardManager.getCurrentCombination();
-        for (int i = 0; i < combinations.length; i++) {
+        ChosenCardCombination[] chosenCombinations = {
+                ChosenCardCombination.ONE,
+                ChosenCardCombination.TWO,
+                ChosenCardCombination.THREE
+        };
+
+        for (int i = 0; i < combinations.length && i < chosenCombinations.length; i++) {
             if (combinations[i].getCurrentSymbol().equals(cardCombination.getCurrentSymbol()) &&
                     combinations[i].getCurrentNumber() == cardCombination.getCurrentNumber() &&
                     combinations[i].getNextSymbol().equals(cardCombination.getNextSymbol())) {
-
-                return switch (i) {
-                    case 0 -> ChosenCardCombination.ONE;
-                    case 1 -> ChosenCardCombination.TWO;
-                    case 2 -> ChosenCardCombination.THREE;
-                    default -> null;
-                };
+                return chosenCombinations[i];
             }
         }
         return null;
@@ -319,9 +351,9 @@ public class Game {
         int chamber = fieldUpdateMessage.chamber();
 
         return switch (floor) {
-            case 0, 1, 4 -> new int[]{floor, field};
-            case 2, 3, 6, 7, 8 -> new int[]{floor, field + (2 * chamber)};
-            case 5 -> {
+            case 0, 1, 4, 5 -> new int[]{floor, field};
+            case 2, 3, 7, 8 -> new int[]{floor, field + (2 * chamber)};
+            case 6 -> {
                 int fieldOffset = switch (chamber) {
                     case 0 -> 0;
                     case 1 -> 5;
@@ -334,7 +366,7 @@ public class Game {
     }
 
 
-    private FieldUpdateMessage returnFieldUpdateMessage(String message) {
+    FieldUpdateMessage returnFieldUpdateMessage(String message) {
         ObjectMapper mapper = new ObjectMapper();
         FieldUpdateMessage fieldUpdateMessage;
         try {

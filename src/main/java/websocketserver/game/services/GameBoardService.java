@@ -101,7 +101,7 @@ public class GameBoardService {
     private Floor createSixthFloor(){
         List<Chamber> chambers=new ArrayList<>();
         List<Reward> rewards= List.of(new Reward(RewardCategory.ROCKET,8),new Reward(RewardCategory.SYSTEMERROR));
-        chambers.add(new Chamber(FieldCategory.PLANUNG,rewards,5));
+        chambers.add(new Chamber(FieldCategory.PLANUNG,rewards,6));
         return createFloor(FieldCategory.PLANUNG, chambers);
 
 

@@ -147,4 +147,10 @@ public class GameBoardManager {
             SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         }
     }
+
+    public void addRocketToPlayer(CreateUserService player, int rocketCount) {
+        logger.info("Player: {} gets {} Rockets", player.getUsername(), rocketCount);
+        JSONObject jsonObject = new GenerateJSONObjectService("addRocket", player.getUsername(), true, String.valueOf(rocketCount), "").generateJSONObject();
+        SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
+    }
 }

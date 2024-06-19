@@ -63,7 +63,6 @@ public class GameService {
         gameBoardManager.informClientsAboutGameState(game.getPlayers(), game.getGameState().toString());
     }
 
-
     public void notifyAllClients(String action) {
         logger.info("GameService notifyClients about {}", action);
         gameBoardManager.notifyAllClients(game.getPlayers(), action);
@@ -154,5 +153,10 @@ public class GameService {
     public void updateCurrentCards(String username) {
         logger.info("GameService updateCurrentCards");
         cardManager.updateUserAboutCurrentCards(game.getUserByUsername(username));
+    }
+
+    public void addRocketToPlayer(CreateUserService player, int rocketCount) {
+        logger.info("GameService addRocket");
+        gameBoardManager.addRocketToPlayer(player, rocketCount);
     }
 }
