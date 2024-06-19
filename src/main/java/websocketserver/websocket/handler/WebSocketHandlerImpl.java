@@ -167,7 +167,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
         if (UserListService.userList.getUserByUsername(username) != null &&
                 UserListService.userList.getUserByUsername(username).getUsername().equals(username)) {
             UserListService.userList.getUserByUsername(username).updateSession(session);
-            responseMessage = new GenerateJSONObjectService(ActionValues.RECONNECT.getValue(), username,
+            JSONObject responseMessage = new GenerateJSONObjectService(ActionValues.RECONNECT.getValue(), username,
                     true, "", "").generateJSONObject();
             SendMessageService.sendSingleMessage(session, responseMessage);
             return true;
@@ -179,7 +179,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     @SneakyThrows
     private boolean disconnectUser(WebSocketSession session, String username) {
         if (removeUserFromLobby(session) && removeUserFromServer(session)) {
-            responseMessage = new GenerateJSONObjectService(ActionValues.DISCONNECT.getValue(),
+            JSONObject responseMessage = new GenerateJSONObjectService(ActionValues.DISCONNECT.getValue(),
                     username, true, "", "").generateJSONObject();
             SendMessageService.sendSingleMessage(session, responseMessage);
             TimeUnit.SECONDS.sleep(2);
