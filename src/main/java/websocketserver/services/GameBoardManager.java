@@ -1,10 +1,8 @@
 package websocketserver.services;
 
-import websocketserver.game.enums.RewardCategory;
 import websocketserver.game.model.*;
 import websocketserver.game.services.GameBoardService;
 import websocketserver.game.util.FieldUpdateMessage;
-import websocketserver.services.json.ChamberRewardDTO;
 import websocketserver.services.json.GenerateJSONObjectService;
 import websocketserver.services.user.CreateUserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,7 +15,6 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Manages the GameBoard for all Users in a given Game
@@ -134,7 +131,6 @@ public class GameBoardManager {
         for (CreateUserService player : players) {
             logger.info("Player: {} wird über cheat informiert", player.getUsername());
             JSONObject jsonObject = new GenerateJSONObjectService("playerHasCheated", player.getUsername(), true, username , "").generateJSONObject();
-            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("playerHasCheated", player.getUsername(), true, username, "");
             SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         }
     }
@@ -154,48 +150,7 @@ public class GameBoardManager {
 
     public void addRocketToPlayer(CreateUserService player, int rocketCount) {
         logger.info("Player: {} gets {} Rockets", player.getUsername(), rocketCount);
-        JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("addRocket", player.getUsername(), true, String.valueOf(rocketCount), "");
+        JSONObject jsonObject = new GenerateJSONObjectService("addRocket", player.getUsername(), true, String.valueOf(rocketCount), "").generateJSONObject();
         SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
-    }
-
-    public void sendRewardInfo(List<CreateUserService> players) {
-        for (CreateUserService player : players) {
-            logger.info("Player: {} wird über Belohnung informiert", player.getUsername());
-            JSONObject jsonObject = GenerateJSONObjectService.generateJSONObject("rewardInfo", player.getUsername(), true, "", "");
-            SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
-        }
-    }
-
-    public void getRewardsAsJSON(CreateUserService player) {
-        GameBoard gameBoard = player.getGameBoard();
-        List<Floor> floors = gameBoard.getFloors();
-        for (int i = 0; i < floors.size(); i++) {
-            List<Chamber> chambers = floors.get(i).getChambers();
-            for (int j = 0; j < chambers.size(); j++) {
-                int rocketCount = countRockets(chambers.get(j).getRewards());
-                int errorCount = countErrors(chambers.get(j).getRewards());
-                ChamberRewardDTO chamberRewardDTO = new ChamberRewardDTO(i, j, rocketCount, errorCount);
-            }
-        }
-    }
-
-    public int countRockets(List<Reward> rewards) {
-        int count = 0;
-        for (Reward reward : rewards) {
-            if (Objects.requireNonNull(reward.getCategory()) == RewardCategory.ROCKET) {
-                count += reward.getNumberRockets();
-            }
-        }
-        return count;
-    }
-
-    public int countErrors(List<Reward> rewards) {
-        int count = 0;
-        for (Reward reward : rewards) {
-            if (Objects.requireNonNull(reward.getCategory()) == RewardCategory.SYSTEMERROR) {
-                count++;
-            }
-        }
-        return count;
     }
 }
