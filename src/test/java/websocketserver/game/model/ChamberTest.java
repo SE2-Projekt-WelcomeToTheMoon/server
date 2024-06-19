@@ -198,15 +198,24 @@ class ChamberTest {
         List<Reward> rewardsTest = new ArrayList<>();
         Reward reward = new Reward(RewardCategory.ROCKET);
         rewardsTest.add(reward);
-        Chamber chamber = new Chamber(FieldCategory.ENERGIE, rewardsTest, 1);
+        chamber = new Chamber(FieldCategory.ENERGIE, rewardsTest, 1);
 
         assertEquals(rewardsTest, chamber.getRewards());
     }
+
     @Test
     void testSetFieldAtIndexThrowsException() {
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.addField(new Field(FieldCategory.ROBOTER));
         chamber.finalizeChamber();
-        assertThrows(IllegalArgumentException.class,()->chamber.setFieldAtIndex(2,new CardCombination(FieldCategory.ROBOTER,FieldCategory.ROBOTER,FieldValue.TWO)));
+        CardCombination cardCombination = new CardCombination(FieldCategory.ROBOTER, FieldCategory.ROBOTER, FieldValue.TWO);
+        assertThrows(IllegalArgumentException.class,()-> chamber.setFieldAtIndex(2, cardCombination));
+    }
+
+    @Test
+    void testSetRewardsDone(){
+        assertFalse(chamber.isRewardsDone());
+        chamber.setRewardsDone(true);
+        assertTrue(chamber.isRewardsDone());
     }
 }

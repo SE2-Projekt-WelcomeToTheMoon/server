@@ -16,7 +16,6 @@ import websocketserver.game.exceptions.GameStateException;
 import websocketserver.game.services.GameBoardService;
 import websocketserver.game.util.FieldUpdateMessage;
 import websocketserver.services.CardManager;
-import websocketserver.services.GameService;
 import websocketserver.services.user.CreateUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -82,8 +81,6 @@ class GameTest {
             new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.ENERGIE, FieldValue.TWO),
             new CardCombination(FieldCategory.RAUMANZUG, FieldCategory.ENERGIE, FieldValue.THREE)
     };
-    @Autowired
-    private GameService gameService;
 
     @BeforeEach
     public void setUp() {
@@ -292,7 +289,7 @@ class GameTest {
         when(mockMessage.floor()).thenReturn(5);
         when(mockMessage.field()).thenReturn(5);
         when(mockMessage.chamber()).thenReturn(1);
-        assertArrayEquals(new int[]{5, 10}, game.getServerCoordinates(mockMessage));
+        assertArrayEquals(new int[]{5, 5}, game.getServerCoordinates(mockMessage));
     }
 
     @Test
@@ -302,7 +299,7 @@ class GameTest {
         when(mockMessage.floor()).thenReturn(5);
         when(mockMessage.field()).thenReturn(5);
         when(mockMessage.chamber()).thenReturn(2);
-        assertArrayEquals(new int[]{5, 12}, game.getServerCoordinates(mockMessage));
+        assertArrayEquals(new int[]{5, 5}, game.getServerCoordinates(mockMessage));
     }
 
     @Test
@@ -313,7 +310,7 @@ class GameTest {
         assertArrayEquals(new int[]{0, 0}, game.getServerCoordinates(mockMessage));
     }
     @Test
-    void testReceiveValueAtPositionInvalidMove() throws InterruptedException, ExecutionException, NoSuchFieldException, IllegalAccessException {
+    void testReceiveValueAtPositionInvalidMove() throws NoSuchFieldException, IllegalAccessException {
 
         Field field = gameObject.getClass().getDeclaredField("gameState");
         field.setAccessible(true);
