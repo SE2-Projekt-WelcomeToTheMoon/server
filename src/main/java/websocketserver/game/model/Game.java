@@ -150,10 +150,7 @@ public class Game {
                         currentPlayer.getGameBoard().setFieldWithinFloor(floor, field, combination);
                         logger.info("Move was valid, rerouting move to other Players {}", player.getUsername());
                         gameService.notifySingleClient("alreadyMoved", currentPlayer);
-                        for (CreateUserService otherPlayer : players) {
-                            logger.info("Sending validMove from Player {} to {}", player.getUsername(), otherPlayer.getUsername());
-                            gameBoardManager.updateClientGameBoardFromGame(otherPlayer, currentPlayerDraw.get(player));
-                        }
+                        notifyOtherPlayers(player);
                     }else{
                         logger.error("Player {} move was invalid, removing from currentDraw", player.getUsername());
                         currentPlayerDraw.remove(player);
@@ -168,11 +165,16 @@ public class Game {
                 }
             }
         }
-
         if (clientResponseReceived.incrementAndGet() == players.size()) {
             allClientResponseReceivedFuture.complete(null);
         }
+    }
 
+    private void notifyOtherPlayers(CreateUserService player) {
+        for (CreateUserService otherPlayer : players) {
+            logger.info("Sending validMove from Player {} to {}", player.getUsername(), otherPlayer.getUsername());
+            gameBoardManager.updateClientGameBoardFromGame(otherPlayer, currentPlayerDraw.get(player));
+        }
     }
 
     protected void doRoundFour() {
