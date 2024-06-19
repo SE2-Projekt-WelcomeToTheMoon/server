@@ -89,7 +89,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     break;
                 case "updateUser":
                     logger.info("Case updateGameBoard: {} ", username);
-                        break;
+                    break;
                 case "makeMove":
                     logger.info("Case makeMove: {} ", username);
                     gameService.updateUser(username, messageJson.getString(MESSAGE_KEY));
@@ -154,7 +154,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
         logger.error("Connection to User interrupted.");
     }
 
@@ -196,8 +196,10 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
             String username = UserListService.userList.getUserBySessionID(session.getId()).getUsername();
             lobbyService.gamelobby.removePlayerFromLobbyByName(username);
             logger.info("User nicht mehr in der Lobby vorhanden(ConnectionCloses).{}", session.getId());
+            return true;
         }
-        return true;
+        return false;
+
     }
 
     private boolean removeUserFromServer(WebSocketSession session) {
