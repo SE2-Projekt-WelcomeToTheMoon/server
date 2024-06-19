@@ -88,7 +88,6 @@ public class Game {
                 if (createUserService.getGameBoard().addSystemError()) {
                     gameService.informPlayersAboutEndOfGame(new ArrayList<>(), EndType.SYSTEM_ERROR_EXCEEDED);
                 } else {
-                    // if a player cant make a move we have to ensure that we don't get stuck on round 3
                     gameService.informPlayerAboutSystemerror(createUserService);
                 }
             }
@@ -154,12 +153,8 @@ public class Game {
                         currentPlayer.getGameBoard().setFieldWithinFloor(floor, field, combination);
                         logger.info("Move was valid, rerouting move to other Players {}", player.getUsername());
                         gameService.notifySingleClient("validMove", currentPlayer);
-                        // if move was valid, check if the chamber is complete
+                        notifyOtherPlayers(player);
                         checkChamberCompletion(currentPlayer, floor);
-                        for (CreateUserService otherPlayer : players) {
-                            logger.info("Sending validMove from Player {} to {}", player.getUsername(), otherPlayer.getUsername());
-                            gameBoardManager.updateClientGameBoardFromGame(otherPlayer, currentPlayerDraw.get(player));
-                        }
                     }else{
                         logger.error("Player {} move was invalid, removing from currentDraw", player.getUsername());
                         currentPlayerDraw.remove(player);
@@ -173,12 +168,16 @@ public class Game {
                 }
             }
         }
-
         if (clientResponseReceived.incrementAndGet() == players.size()) {
             allClientResponseReceivedFuture.complete(null);
         }
     }
 
+    private void notifyOtherPlayers(CreateUserService player) {
+        for (CreateUserService otherPlayer : players) {
+            logger.info("Sending validMove from Player {} to {}", player.getUsername(), otherPlayer.getUsername());
+            gameBoardManager.updateClientGameBoardFromGame(otherPlayer, currentPlayerDraw.get(player));
+        }
     void checkChamberCompletion(CreateUserService player, int floor){
         for (Chamber chamber : player.getGameBoard().getFloorAtIndex(floor).getChambers()) {
             if (chamber.checkChamberCompletion(0)) {
@@ -338,7 +337,6 @@ public class Game {
         }
         return null;
     }
-
 
     /**
      * Converts Client Coordinates to Server Coordinates
