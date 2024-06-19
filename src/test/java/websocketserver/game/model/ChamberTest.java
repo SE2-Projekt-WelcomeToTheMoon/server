@@ -19,7 +19,7 @@ class ChamberTest {
 
     @BeforeEach
     void setUp() {
-        rewards= List.of(new Reward[]{new Reward(RewardCategory.PLANING), new Reward(RewardCategory.ROCKET, 5)});
+        rewards= List.of(new Reward[]{new Reward(RewardCategory.SYSTEMERROR), new Reward(RewardCategory.ROCKET, 5)});
         chamber = new Chamber(FieldCategory.ROBOTER,rewards,0);
         validField = new Field(FieldCategory.ROBOTER);
         invalidField = new Field(FieldCategory.WASSER);
