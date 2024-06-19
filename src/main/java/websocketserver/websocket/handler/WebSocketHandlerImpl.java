@@ -13,6 +13,8 @@ import org.apache.logging.log4j.Logger;
 import websocketserver.services.user.UserListService;
 import org.json.JSONObject;
 import org.springframework.web.socket.*;
+
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import java.util.Map;
@@ -26,6 +28,8 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     private static final Logger logger = LogManager.getLogger(WebSocketHandlerImpl.class);
     private CreateUserService user;
     private int reconnTry;
+    private static final String MESSAGE_KEY = "message";
+
 
     public WebSocketHandlerImpl() {
         lobbyService = new LobbyService();
@@ -45,18 +49,15 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
             session.sendMessage(new TextMessage("echo from handler: " + message.getPayload()));
         } else {
             JSONObject messageJson = new JSONObject(message.getPayload().toString());
-
-            String username = null;
-            if (messageJson.has("username")) {
-                username = messageJson.getString("username");
-            }
+            String username = messageJson.optString("username", null);
             String action = messageJson.getString("action");
+            String messageValue = messageJson.optString(MESSAGE_KEY, null);
 
-            String messageValue = null;
-            if (messageJson.has("message")) {
-                messageValue = messageJson.getString("message");
-            }
-            //Checks which action was requested by client.
+            handleAction(session, messageJson, username, action, messageValue);
+        }
+    }
+
+    public void handleAction(WebSocketSession session, JSONObject messageJson, String username, String action, String messageValue) throws Exception {
             switch (action) {
                 case "registerUser":
                     logger.info("Creating user...");
@@ -91,7 +92,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
                 case "makeMove":
                     logger.info("Case makeMove: {} ", username);
-                    gameService.updateUser(username, messageJson.getString("message"));
+                    gameService.updateUser(username, messageJson.getString(MESSAGE_KEY));
                     break;
                 case "cheat":
                     logger.info("Case cheat: {} ", username);
@@ -104,6 +105,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                 case "updateCurrentCards":
                     logger.info("Case detect updateCurrentCards: {} ",username);
                     gameService.updateCurrentCards(username);
+                    break;
                 case "reconnect":
                     logger.info("Case reconnect: {} ", username);
                     reconnTry++;
@@ -136,7 +138,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     break;
             }
         }
-    }
+
 
     @SneakyThrows
     @Override
@@ -165,7 +167,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
         if (UserListService.userList.getUserByUsername(username) != null &&
                 UserListService.userList.getUserByUsername(username).getUsername().equals(username)) {
             UserListService.userList.getUserByUsername(username).updateSession(session);
-            responseMessage = new GenerateJSONObjectService(ActionValues.RECONNECT.getValue(), username,
+            JSONObject responseMessage = new GenerateJSONObjectService(ActionValues.RECONNECT.getValue(), username,
                     true, "", "").generateJSONObject();
             SendMessageService.sendSingleMessage(session, responseMessage);
             return true;
@@ -177,7 +179,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
     @SneakyThrows
     private boolean disconnectUser(WebSocketSession session, String username) {
         if (removeUserFromLobby(session) && removeUserFromServer(session)) {
-            responseMessage = new GenerateJSONObjectService(ActionValues.DISCONNECT.getValue(),
+            JSONObject responseMessage = new GenerateJSONObjectService(ActionValues.DISCONNECT.getValue(),
                     username, true, "", "").generateJSONObject();
             SendMessageService.sendSingleMessage(session, responseMessage);
             TimeUnit.SECONDS.sleep(2);
