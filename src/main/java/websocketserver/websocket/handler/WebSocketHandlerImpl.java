@@ -89,7 +89,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     break;
                 case "updateUser":
                     logger.info("Case updateGameBoard: {} ", username);
-
+                    break;
                 case "makeMove":
                     logger.info("Case makeMove: {} ", username);
                     gameService.updateUser(username, messageJson.getString(MESSAGE_KEY));
