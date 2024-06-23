@@ -160,6 +160,8 @@ public class GameService {
         message.put("action", "initialMissionCards");
         message.put("missionCards", missionCardsArray);
 
+        logger.info("Mission Cards JSON: " + missionCardsArray.toString());
+
         for (CreateUserService player : game.getPlayers()) {
             SendMessageService.sendSingleMessage(player.getSession(), message);
         }
@@ -175,10 +177,9 @@ public class GameService {
         } catch (JSONException e) {
             logger.error("Error creating JSON message for mission flipped", e);
         }
-    
+
         for (CreateUserService player : game.getPlayers()) {
             SendMessageService.sendSingleMessage(player.getSession(), message);
         }
     }
-    
 }
