@@ -149,37 +149,14 @@ public class GameService {
         gameBoardManager.addRocketToPlayer(player, rocketCount);
     }
 
+
     public void notifyPlayersInitialMissionCards(List<MissionCard> missionCards) {
-        logger.info("Initialize Mission Cards");
-        JSONArray missionCardsArray = new JSONArray();
-        for (MissionCard card : missionCards) {
-            missionCardsArray.put(card.toJson());
-        }
-
-        JSONObject message = new JSONObject();
-        message.put("action", "initialMissionCards");
-        message.put("missionCards", missionCardsArray);
-
-        logger.info("Mission Cards JSON: " + missionCardsArray.toString());
-
-        for (CreateUserService player : game.getPlayers()) {
-            SendMessageService.sendSingleMessage(player.getSession(), message);
-        }
+        logger.info("Sending initial mission cards to players");
+        gameBoardManager.notifyPlayersInitialMissionCards(game.getPlayers(), missionCards);
     }
 
-    public void notifyPlayersMissionFlipped(MissionCard card) {
-        logger.info("Flip Mission Cards");
-        JSONObject message = new JSONObject();
-        try {
-            message.put("action", "missionFlipped");
-            message.put("missionType", card.getMissionType().name());
-            message.put("flipped", card.isFlipped());
-        } catch (JSONException e) {
-            logger.error("Error creating JSON message for mission flipped", e);
-        }
-
-        for (CreateUserService player : game.getPlayers()) {
-            SendMessageService.sendSingleMessage(player.getSession(), message);
-        }
+    public void notifyPlayersMissionFlipped(MissionCard missionCard) {
+        logger.info("Mission {} completed. Notifying players.", missionCard.getMissionType());
+        gameBoardManager.notifyPlayersMissionFlipped(game.getPlayers(), missionCard);
     }
 }

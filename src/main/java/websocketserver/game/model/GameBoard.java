@@ -31,7 +31,7 @@ public class GameBoard {
     @Getter
     private boolean hasCheated;
 
-private GameService gameService;
+    private GameService gameService;
 
     public GameBoard() {
         floors = new ArrayList<>();
