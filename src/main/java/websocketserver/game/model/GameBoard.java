@@ -227,16 +227,7 @@ public class GameBoard {
             if (!card.isFlipped() && card.getMissionType() == missionType) {
                 card.flipCard();
                 gameService.notifyPlayersMissionFlipped(card);
-                handleRewards(card.getReward());
             }
-        }
-    }
-
-    private void handleRewards(Reward reward) {
-        if (reward.getCategory() == RewardCategory.ROCKET) {
-            addRockets(reward.getNumberRockets());
-        } else if (reward.getCategory() == RewardCategory.SYSTEMERROR) {
-            addSystemError();
         }
     }
 
