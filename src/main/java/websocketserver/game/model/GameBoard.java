@@ -10,6 +10,8 @@ import websocketserver.services.GameService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +32,8 @@ public class GameBoard {
     private boolean isFinalized = false;
     @Getter
     private boolean hasCheated;
+
+    private static final Logger logger = LoggerFactory.getLogger(GameBoard.class);
 
     private GameService gameService;
 
@@ -223,7 +227,16 @@ public class GameBoard {
             if (!card.isFlipped() && card.getMissionType() == missionType) {
                 card.flipCard();
                 gameService.notifyPlayersMissionFlipped(card);
+                handleRewards(card.getReward());
             }
+        }
+    }
+
+    private void handleRewards(Reward reward) {
+        if (reward.getCategory() == RewardCategory.ROCKET) {
+            addRockets(reward.getNumberRockets());
+        } else if (reward.getCategory() == RewardCategory.SYSTEMERROR) {
+            addSystemError();
         }
     }
 
