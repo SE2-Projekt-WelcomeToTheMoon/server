@@ -4,10 +4,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import websocketserver.game.enums.MissionType;
 import websocketserver.game.enums.RewardCategory;
 
 public class MissionCard {
+
+    private static final Logger logger = LoggerFactory.getLogger(MissionCard.class);
     @Getter
     private MissionType missionType;
     @Getter
@@ -25,8 +29,13 @@ public class MissionCard {
     }
 
     public void flipCard() {
-        this.isFlipped = true;
-        this.reward = new Reward(reward.getCategory(), reward.getNumberRockets() - 1); // Decrease rockets by 1 upon flipping (because all rewards in the first map are decreased by 1)
+        if (!isFlipped) {
+            this.isFlipped = true;
+            this.reward = new Reward(reward.getCategory(), reward.getNumberRockets() - 1); // Decrease rockets by 1 upon flipping (because all rewards in the first map are decreased by 1)
+            logger.info("MissionCard {} flipped. New reward: {}", missionType, reward.getNumberRockets());
+        } else {
+            logger.warn("MissionCard {} already flipped", missionType);
+        }
     }
 
     public JSONObject toJson() throws JSONException {
