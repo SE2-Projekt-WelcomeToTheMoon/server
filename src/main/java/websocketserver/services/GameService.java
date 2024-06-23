@@ -68,7 +68,6 @@ public class GameService {
         gameBoardManager.informClientsAboutGameState(game.getPlayers(), game.getGameState().toString());
     }
 
-
     public void notifyAllClients(String action) {
         logger.info("GameService notifyClients about {}", action);
         gameBoardManager.notifyAllClients(game.getPlayers(), action);
@@ -82,7 +81,7 @@ public class GameService {
     public void informPlayersAboutEndOfGame(List<CreateUserService> winners, EndType endType) {
         logger.info("GameService informPlayersAboutEndOfGame");
         for (CreateUserService player : winners) {
-            JSONObject msg = GenerateJSONObjectService.generateJSONObject("endGame", player.getUsername(), true, "Game is finished"+ endType.toString(), "");
+            JSONObject msg = new GenerateJSONObjectService("endGame", player.getUsername(), true, "Game is finished"+ endType.toString(), "").generateJSONObject();
             SendMessageService.sendSingleMessage(player.getSession(), msg);
         }
     }
@@ -116,7 +115,7 @@ public class GameService {
         logger.info("GameService informPlayerAboutSystemerror");
 
         int errors = createUserService.getGameBoard().getSystemErrors();
-        JSONObject msg = GenerateJSONObjectService.generateJSONObject("systemError", createUserService.getUsername(), true, "system error informplayer", "");
+        JSONObject msg = new GenerateJSONObjectService("systemError", createUserService.getUsername(), true, "system error informplayer", "").generateJSONObject();
         msg.put("points", errors);
         SendMessageService.sendSingleMessage(createUserService.getSession(), msg);
         logger.info("Systemerror sent to player: {}", msg);
@@ -143,6 +142,11 @@ public class GameService {
     public void updateCurrentCards(String username) {
         logger.info("GameService updateCurrentCards");
         cardManager.updateUserAboutCurrentCards(game.getUserByUsername(username));
+    }
+
+    public void addRocketToPlayer(CreateUserService player, int rocketCount) {
+        logger.info("GameService addRocket");
+        gameBoardManager.addRocketToPlayer(player, rocketCount);
     }
 
     public void notifyPlayersInitialMissionCards(List<MissionCard> missionCards) {

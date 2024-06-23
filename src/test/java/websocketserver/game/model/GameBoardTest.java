@@ -47,7 +47,7 @@ class GameBoardTest {
     private List<Reward> rewards;
     @BeforeEach
     void setUp() {
-        rewards= List.of(new Reward[]{new Reward(RewardCategory.PLANING), new Reward(RewardCategory.ROCKET, 5)});
+        rewards= List.of(new Reward[]{new Reward(RewardCategory.SYSTEMERROR), new Reward(RewardCategory.ROCKET, 5)});
         gameBoard = new GameBoard();
         floor = new Floor(FieldCategory.ROBOTER);
 

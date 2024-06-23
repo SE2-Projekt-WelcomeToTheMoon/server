@@ -61,21 +61,21 @@ public class CreateUserService {
                 this.sessionID = sessionId;
                 this.username = username;
                 this.session = session;
-                WebSocketHandlerImpl.responseMessage = GenerateJSONObjectService.generateJSONObject(
+                WebSocketHandlerImpl.responseMessage = new GenerateJSONObjectService(
                         ActionValues.REGISTERUSER.getValue(), username, true,
-                        "", "");
+                        "", "").generateJSONObject();
                 logger.info("SessionID {} and Username {} set. User created.", sessionId, username);
             }
             else{
-                WebSocketHandlerImpl.responseMessage = GenerateJSONObjectService.generateJSONObject(
+                WebSocketHandlerImpl.responseMessage = new GenerateJSONObjectService(
                         ActionValues.REGISTERUSER.getValue(), "null", false,
-                        "Username already exists. Please choose another one.", "");
+                        "Username already exists. Please choose another one.", "").generateJSONObject();
                 logger.warn("Username {} already exists. User not created.", username);
             }
         } else{
-            WebSocketHandlerImpl.responseMessage = GenerateJSONObjectService.generateJSONObject(
+            WebSocketHandlerImpl.responseMessage = new GenerateJSONObjectService(
                     ActionValues.REGISTERUSER.getValue(), "null", false,
-                    "No username has been passed. User not created.", "");
+                    "No username has been passed. User not created.", "").generateJSONObject();
             logger.warn("No username has been passed. User not created.");
         }
     }

@@ -2,34 +2,55 @@ package websocketserver.services.json;
 
 import org.json.JSONObject;
 
-public class GenerateJSONObjectService {
+
+public class GenerateJSONObjectService{
+    private String action;
+    private String username;
+    private Boolean success = false;
+    private String message;
+    private String error;
 
     /**
-     * Methode um ein JSONObject zu generieren
      * @param action    Aktion die ausgeführt werden soll
      * @param username  Benutzername
-     * @param success   Erfolgreich oder nicht
+     * @param success   Aktion erfolgreich oder nicht
      * @param message   Nachricht
      * @param error     Fehlermeldung
-     * @return         JSONObject
      */
-    public static JSONObject generateJSONObject(String action, String username, Boolean success, String message, String error) {
+    public GenerateJSONObjectService(String action, String username, Boolean success, String message, String error){
+        this.action = action;
+        this.username = username;
+        this.success = success;
+        this.message = message;
+        this.error = error;
+    }
+
+    /**
+     * Methode um ein JSONObject zu generieren.
+     * @return JSONObject
+     */
+    public JSONObject generateJSONObject() {
         JSONObject response = new JSONObject();
-        if (action != null) {
-            response.put("action", action);
+
+        if (this.action != null) {
+            response.put("action", this.action);
         }
-        if (username != null) {
-            response.put("username", username);
+
+        if (this.username != null) {
+            response.put("username", this.username);
         }
-        if (success != null) {
-            response.put("success", success);
+
+        if(this.success != null){
+            response.put("success", this.success);
         }
+
         //nur wenn String leer ist
-        if (message != null && !message.isEmpty()) {
-            response.put("message", message);
+        if (this.message != null && !message.isEmpty()) {
+            response.put("message", this.message);
         }
-        if (error != null && !error.isEmpty()) {
-            response.put("error", error);
+
+        if (this.error != null && !error.isEmpty()) {
+            response.put("error", this.error);
         }
 
         return response;

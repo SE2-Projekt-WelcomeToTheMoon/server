@@ -229,40 +229,45 @@ private GameService gameService;
 
     public void checkMissions() {
         for (MissionCard missionCard : missionCards) {
-            switch (missionCard.getMissionType()) {
-                case  A1:
-                    if (areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER)) {
-                        checkAndFlipMissionCards(MissionType.A1);
-                    }
-                    break;
-                case A2:
-                    if (areAllFieldsNumbered(FieldCategory.ROBOTER, FieldCategory.PLANUNG)) {
-                        checkAndFlipMissionCards(MissionType.A2);
-                    }
-                    break;
-                case B1:
-                    if (areAllFieldsNumbered(FieldCategory.ENERGIE)) {
-                        checkAndFlipMissionCards(MissionType.B1);
-                    }
-                    break;
-                case B2:
-                    if (areAllFieldsNumbered(FieldCategory.PFLANZE)) {
-                        checkAndFlipMissionCards(MissionType.B2);
-                    }
-                    break;
-                case C1:
-                    if (systemErrors.getCurrentErrors() >= 5) {
-                        checkAndFlipMissionCards(MissionType.C1);
-                    }
-                    break;
-                case C2:
-                    if (systemErrors.getCurrentErrors() >= 6) {
-                        checkAndFlipMissionCards(MissionType.C2);
-                    }
-                    break;
-                default:
-                throw new IllegalArgumentException("Unexpected value: " + missionCard.getMissionType());
-            }
+            MissionType missionType = missionCard.getMissionType();
+            checkAndFlipMission(missionType);
+        }
+    }
+    
+    private void checkAndFlipMission(MissionType missionType) {
+        switch (missionType) {
+            case A1:
+                if (areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER)) {
+                    checkAndFlipMissionCards(MissionType.A1);
+                }
+                break;
+            case A2:
+                if (areAllFieldsNumbered(FieldCategory.ROBOTER, FieldCategory.PLANUNG)) {
+                    checkAndFlipMissionCards(MissionType.A2);
+                }
+                break;
+            case B1:
+                if (areAllFieldsNumbered(FieldCategory.ENERGIE)) {
+                    checkAndFlipMissionCards(MissionType.B1);
+                }
+                break;
+            case B2:
+                if (areAllFieldsNumbered(FieldCategory.PFLANZE)) {
+                    checkAndFlipMissionCards(MissionType.B2);
+                }
+                break;
+            case C1:
+                if (systemErrors.getCurrentErrors() >= 5) {
+                    checkAndFlipMissionCards(MissionType.C1);
+                }
+                break;
+            case C2:
+                if (systemErrors.getCurrentErrors() >= 6) {
+                    checkAndFlipMissionCards(MissionType.C2);
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Unexpected value: " + missionType);
         }
     }
 

@@ -1,11 +1,13 @@
 package websocketserver.game.model;
 
+import lombok.Setter;
 import websocketserver.game.enums.FieldCategory;
 import websocketserver.game.enums.FieldValue;
 import websocketserver.game.exceptions.FinalizedException;
 import websocketserver.game.exceptions.FloorSequenceException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,15 +23,15 @@ public class Chamber {
     @Getter
     @JsonIgnore
     private List<Reward> rewards;
-
-
-
+    @Getter
+    @Setter
+    private boolean rewardsDone = false;
 
     public Chamber(FieldCategory fieldCategory, List<Reward> rewards, int fieldAmount) {
         this.fieldCategory = fieldCategory;
         fields = new ArrayList<>();
-        this.rewards=rewards;
-        for (int i=0;i<fieldAmount;i++) {
+        this.rewards = rewards;
+        for (int i = 0; i < fieldAmount; i++) {
             addField(new Field(fieldCategory));
         }
     }
@@ -77,22 +79,24 @@ public class Chamber {
             }
         }
     }
-    public boolean checkChamberCompletion(int highestBefore){
-        int previousNumber =highestBefore;
-        for (Field field: fields) {
-            if(field.getFieldValue().getValue()<previousNumber||field.getFieldValue()== FieldValue.NONE)return false;
-            previousNumber=field.getFieldValue().getValue();
+
+    public boolean checkChamberCompletion(int highestBefore) {
+        int previousNumber = highestBefore;
+        for (Field field : fields) {
+            if (field.getFieldValue().getValue() < previousNumber || field.getFieldValue() == FieldValue.NONE)
+                return false;
+            previousNumber = field.getFieldValue().getValue();
         }
 
         return true;
     }
 
     @JsonIgnore
-    public int getHighestValueInChamber(){
-        if(fields.isEmpty())throw new FloorSequenceException();
-        int highest=0;
-        for (Field field: fields) {
-            highest= Math.max(field.getFieldValue().getValue(), highest);
+    public int getHighestValueInChamber() {
+        if (fields.isEmpty()) throw new FloorSequenceException();
+        int highest = 0;
+        for (Field field : fields) {
+            highest = Math.max(field.getFieldValue().getValue(), highest);
         }
         return highest;
     }
@@ -102,15 +106,17 @@ public class Chamber {
      * @param index the index
      * @param value the Fieldvalue
      */
-    public void setFieldAtIndex(int index, FieldValue value, int previousChamberMax){
+    public void setFieldAtIndex(int index, FieldValue value, int previousChamberMax) {
 
-        int currentMax=previousChamberMax;
-        int count=0;
-        for (Field field: fields) {
-            if(field.getFieldValue().getValue()>=value.getValue())throw new FloorSequenceException("Values within Floor must be in ascending order");
-            currentMax=Math.max(field.getFieldValue().getValue(), currentMax);
-            if(index==count&&value.getValue()>currentMax){
-                if(field.getFieldValue()!=FieldValue.NONE)throw new FloorSequenceException("Values within Floor must be in ascending order");
+        int currentMax = previousChamberMax;
+        int count = 0;
+        for (Field field : fields) {
+            if (field.getFieldValue().getValue() >= value.getValue())
+                throw new FloorSequenceException("Values within Floor must be in ascending order");
+            currentMax = Math.max(field.getFieldValue().getValue(), currentMax);
+            if (index == count && value.getValue() > currentMax) {
+                if (field.getFieldValue() != FieldValue.NONE)
+                    throw new FloorSequenceException("Values within Floor must be in ascending order");
                 field.setFieldValue(value);
                 return;
             }
@@ -124,12 +130,12 @@ public class Chamber {
      * @param index The index where it should be inserted
      * @param value The Combination to inset
      */
-    public void setFieldAtIndex(int index, CardCombination value){
-        if(index>=fields.size())throw new IllegalArgumentException("Cannot set index> Chamber Size");
+    public void setFieldAtIndex(int index, CardCombination value) {
+        if (index >= fields.size()) throw new IllegalArgumentException("Cannot set index> Chamber Size");
         getField(index).setFieldValue(FieldValue.fromWeight(value.getCurrentNumber()));
     }
 
-    public List<Field> getFields(){
+    public List<Field> getFields() {
         return new ArrayList<>(fields);
     }
 }
