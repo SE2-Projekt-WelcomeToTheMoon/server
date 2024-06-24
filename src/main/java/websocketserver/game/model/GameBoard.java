@@ -58,6 +58,7 @@ public class GameBoard {
         return this.missionCards;
     }
 
+
     public void finalizeGameBoard() {
         if (isFinalized) {
             throw new FinalizedException("GameBoard already finalized.");
@@ -202,7 +203,7 @@ public class GameBoard {
     
     public List<MissionCard> initializeMissionCards() {
         List<MissionCard> cards = new ArrayList<>();
-        Random random = new Random();
+        Random random = createRandomInstance();
     
         try {
             cards.add(new MissionCard(random.nextBoolean() ? MissionType.A1 : MissionType.A2, new Reward(RewardCategory.ROCKET, 3)));
@@ -315,5 +316,10 @@ public class GameBoard {
     public void cheat() {
         addRockets(1);
         hasCheated = true;
+    }
+
+
+    public Random createRandomInstance() {
+        return new Random();
     }
 }

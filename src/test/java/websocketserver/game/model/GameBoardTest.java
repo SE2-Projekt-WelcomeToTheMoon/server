@@ -1,5 +1,9 @@
 package websocketserver.game.model;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import websocketserver.game.enums.FieldCategory;
 import websocketserver.game.enums.FieldValue;
 import websocketserver.game.enums.MissionType;
@@ -7,26 +11,17 @@ import websocketserver.game.enums.RewardCategory;
 import websocketserver.game.exceptions.FinalizedException;
 import websocketserver.game.exceptions.FloorSequenceException;
 import websocketserver.services.GameService;
+import websocketserver.services.user.CreateUserService;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-
+import static org.mockito.Mockito.*;
 
 
 class GameBoardTest {
@@ -504,5 +499,117 @@ class GameBoardTest {
 
         assertEquals(1, gameBoard.getRocketCount());
         assertTrue(gameBoard.isHasCheated());
+    }
+
+    @Test
+    void testSetValueWithinFloorAtIndexInvalidCategory() {
+        Chamber chamber = new Chamber(FieldCategory.ROBOTER, rewards, 0);
+        chamber.addField(new Field(FieldCategory.ROBOTER));
+        floor.addChamber(chamber);
+        gameBoard.addFloor(floor);
+        gameBoard.finalizeGameBoard();
+
+        assertFalse(gameBoard.setValueWithinFloorAtIndex(0, 0, new CardCombination(FieldCategory.WASSER, FieldCategory.WASSER, FieldValue.ONE)));
+    }
+
+    @Test
+    void testCheckCardCombinationReturnsFalse() {
+        Floor floor1 = new Floor(FieldCategory.ROBOTER);
+        floor1.addChamber(new Chamber(FieldCategory.ROBOTER, rewards, 0));
+        gameBoard.addFloor(floor1);
+        gameBoard.finalizeGameBoard();
+
+        CardCombination[] combinations = {new CardCombination(FieldCategory.WASSER, FieldCategory.WASSER, FieldValue.ONE)};
+        assertFalse(gameBoard.checkCardCombination(combinations));
+    }
+
+    @Test
+    void testInitializeMissionCardsException() {
+        GameBoard spyGameBoard = spy(new GameBoard());
+        Random random = mock(Random.class);
+
+        doThrow(new RuntimeException("Random failed")).when(random).nextBoolean();
+        doReturn(random).when(spyGameBoard).createRandomInstance();
+
+        List<MissionCard> cards = spyGameBoard.initializeMissionCards();
+
+        assertEquals(3, cards.size(), "Should initialize exactly three mission cards in case of exception");
+        assertTrue(cards.stream().allMatch(card -> card.getMissionType().name().matches("A1|B1|C1")), "Mission types should default to A1, B1, and C1");
+    }
+
+    @Test
+    void testCheckMissionsWithIllegalArgumentException() {
+        MissionCard card = mock(MissionCard.class);
+        when(card.getMissionType()).thenThrow(IllegalArgumentException.class);
+
+        gameBoard.setMissionCards(List.of(card));
+        gameBoard.setGameService(gameService);
+
+        assertThrows(IllegalArgumentException.class, () -> gameBoard.checkMissions(gameService, new ArrayList<>()));
+    }
+
+    @Test
+    void testHandleMissionReward() throws Exception {
+        MissionCard missionCard = new MissionCard(MissionType.A1, new Reward(RewardCategory.ROCKET, 3));
+        CreateUserService player1 = mock(CreateUserService.class);
+        CreateUserService player2 = mock(CreateUserService.class);
+
+        GameBoard player1Board = mock(GameBoard.class);
+        GameBoard player2Board = mock(GameBoard.class);
+
+        when(player1Board.isFinalized()).thenReturn(false);
+
+        when(player1.getGameBoard()).thenReturn(player1Board);
+        when(player2.getGameBoard()).thenReturn(player2Board);
+
+        List<CreateUserService> players = List.of(player1, player2);
+
+        Method handleMissionRewardMethod = GameBoard.class.getDeclaredMethod("handleMissionReward", MissionCard.class, GameService.class, List.class);
+        handleMissionRewardMethod.setAccessible(true);
+
+        handleMissionRewardMethod.invoke(gameBoard, missionCard, gameService, players);
+
+        verify(player1Board).addRockets(3);
+        verify(player2Board).addRockets(3);
+        verify(gameService, times(2)).addRocketToPlayer(any(CreateUserService.class), eq(3));
+    }
+
+    @Test
+    void testMissionC1() {
+        gameBoard.addFloor(floor);
+        gameBoard.finalizeGameBoard();
+        when(missionCard.getMissionType()).thenReturn(MissionType.C1);
+        missionCards.add(missionCard);
+        gameBoard.setMissionCards(missionCards);
+        gameBoard.addSystemError();
+        gameBoard.addSystemError();
+        gameBoard.addSystemError();
+        gameBoard.addSystemError();
+        gameBoard.addSystemError();
+
+        gameBoard.checkMissions(gameService, new ArrayList<>());
+
+        verify(missionCard).flipCard();
+        verify(gameService).notifyPlayersMissionFlipped(missionCard);
+    }
+
+    @Test
+    void testMissionC2() {
+        gameBoard.addFloor(floor);
+        gameBoard.finalizeGameBoard();
+        when(missionCard.getMissionType()).thenReturn(MissionType.C2);
+        missionCards.add(missionCard);
+        gameBoard.setMissionCards(missionCards);
+        gameBoard.addSystemError();
+        gameBoard.addSystemError();
+        gameBoard.addSystemError();
+        gameBoard.addSystemError();
+        gameBoard.addSystemError();
+        gameBoard.addSystemError();
+
+        gameBoard.checkMissions(gameService, new ArrayList<>());
+
+        verify(missionCard).flipCard();
+        verify(gameService).notifyPlayersMissionFlipped(missionCard);
     }
 }

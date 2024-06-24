@@ -7,9 +7,7 @@ import org.springframework.web.socket.TextMessage;
 import websocketserver.game.enums.FieldValue;
 import websocketserver.game.enums.GameState;
 import websocketserver.game.enums.MissionType;
-import websocketserver.game.enums.RewardCategory;
 import websocketserver.game.model.MissionCard;
-import websocketserver.game.model.Reward;
 import websocketserver.game.util.FieldUpdateMessage;
 import websocketserver.game.model.GameBoard;
 import websocketserver.game.services.GameBoardService;
@@ -233,5 +231,15 @@ class GameBoardManagerTest {
 
         verify(logger).info("Notifying player {} about completed mission: {}", player.getUsername(), missionCard.getMissionType());
         verify(mockSession).sendMessage(any(TextMessage.class));
+    }
+
+    private void setPrivateField(Object target, String fieldName, Object value) {
+        try {
+            java.lang.reflect.Field field = target.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(target, value);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

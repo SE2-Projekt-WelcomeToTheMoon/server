@@ -36,7 +36,6 @@ public class GameBoardManager {
     private Logger logger = LogManager.getLogger(GameBoardManager.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-
     public GameBoardManager() {
         GameBoardService gameBoardService = new GameBoardService();
         this.gameBoardRocket = gameBoardService.createGameBoard();
