@@ -39,9 +39,33 @@ class MissionCardTest {
     }
 
     @Test
-    void testFlipCardUpdatesReward() {
+    void testFlipCardSetsRewardDecreaseNextRound() {
         missionCard.flipCard();
-        assertNotNull(missionCard.getReward(), "Reward should not be null after flipping.");
-        assertEquals(2, missionCard.getReward().getNumberRockets(), "The number of rockets should decrease by 1 when the card is flipped.");
+        assertTrue(missionCard.isFlipped(), "Flipping the card should set isFlipped to true.");
+        missionCard.applyRewardDecrease();
+        assertEquals(2, missionCard.getReward().getNumberRockets(), "The number of rockets should decrease by 1 when the reward decrease is applied.");
+    }
+
+    @Test
+    void testApplyRewardDecrease() {
+        missionCard.flipCard();
+        missionCard.applyRewardDecrease();
+        assertEquals(2, missionCard.getReward().getNumberRockets(), "The number of rockets should decrease by 1 after applying reward decrease.");
+    }
+
+    @Test
+    void testApplyRewardDecreaseWithoutFlipping() {
+        missionCard.applyRewardDecrease();
+        assertEquals(3, missionCard.getReward().getNumberRockets(), "The number of rockets should not change if reward decrease is applied without flipping.");
+    }
+
+    @Test
+    void testFlipCardOnlyOnce() {
+        missionCard.flipCard();
+        missionCard.applyRewardDecrease();
+        int rocketsAfterFirstDecrease = missionCard.getReward().getNumberRockets();
+        missionCard.applyRewardDecrease();
+        assertEquals(rocketsAfterFirstDecrease, missionCard.getReward().getNumberRockets(), "The number of rockets should only decrease once, subsequent reward decreases should have no effect.");
+        assertTrue(missionCard.isFlipped(), "Card should remain flipped after multiple flip attempts.");
     }
 }

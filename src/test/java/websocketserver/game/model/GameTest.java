@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import websocketserver.game.enums.*;
+import websocketserver.game.exceptions.FloorSequenceException;
 import websocketserver.game.exceptions.GameStateException;
 import websocketserver.game.services.GameBoardService;
 import websocketserver.game.util.FieldUpdateMessage;
@@ -25,6 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -446,6 +448,21 @@ class GameTest {
         game.addPlayers(players);
         assertEquals(3, game.getPlayers().size());
         assertEquals(game.getPlayers().get(2), player);
+    }
+
+    @Test
+    void testDoRoundSix() {
+        game.setGameState(GameState.ROUND_SIX);
+
+        CreateUserService winner = mock(CreateUserService.class);
+        when(winner.getGameBoard()).thenReturn(playerGameBoard);
+        when(playerGameBoard.hasWon()).thenReturn(true);
+        game.addPlayer(winner);
+
+        game.doRoundSix();
+
+        assertEquals(GameState.FINISHED, game.getGameState());
+        verify(mockGameService).informPlayersAboutEndOfGame(game.getPlayers(), EndType.ROCKETS_COMPLETED);
     }
 }
 

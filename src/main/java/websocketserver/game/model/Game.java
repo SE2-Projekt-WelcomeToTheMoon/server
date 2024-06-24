@@ -254,7 +254,7 @@ public class Game {
         List<CreateUserService> winners = checkIfGameIsFinished();
 
         for (CreateUserService player : players) {
-            player.getGameBoard().checkMissions();
+            player.getGameBoard().checkMissions(gameService, players);
         }
 
         if (!winners.isEmpty()) {

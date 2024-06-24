@@ -1,58 +1,43 @@
 package websocketserver.game.model;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import websocketserver.game.enums.MissionType;
-import websocketserver.game.enums.RewardCategory;
 
 public class MissionCard {
-
-    private static final Logger logger = LoggerFactory.getLogger(MissionCard.class);
-    @Getter
-    private MissionType missionType;
-    @Getter
+    private final MissionType missionType;
     private Reward reward;
     private boolean isFlipped;
+    private boolean rewardDecreaseNextRound;
 
     public MissionCard(MissionType missionType, Reward reward) {
         this.missionType = missionType;
         this.reward = reward;
         this.isFlipped = false;
+        this.rewardDecreaseNextRound = false;
     }
 
     public boolean isFlipped() {
         return isFlipped;
     }
 
+    public MissionType getMissionType() {
+        return missionType;
+    }
+
+    public Reward getReward() {
+        return reward;
+    }
+
     public void flipCard() {
         if (!isFlipped) {
             this.isFlipped = true;
-            this.reward = new Reward(reward.getCategory(), reward.getNumberRockets() - 1); // Decrease rockets by 1 upon flipping (because all rewards in the first map are decreased by 1)
-            logger.info("MissionCard {} flipped. New reward: {}", missionType, reward.getNumberRockets());
-        } else {
-            logger.warn("MissionCard {} already flipped", missionType);
+            this.rewardDecreaseNextRound = true;
         }
     }
 
-    public JSONObject toJson() throws JSONException {
-        JSONObject json = new JSONObject();
-        json.put("missionType", missionType.name());
-        json.put("newReward", reward.getNumberRockets());
-        json.put("flipped", isFlipped);
-        return json;
-    }
-
-    public static MissionCard fromJson(JSONObject json) throws JSONException {
-        MissionType missionType = MissionType.valueOf(json.getString("missionType"));
-        Reward reward = new Reward(RewardCategory.ROCKET, json.getInt("newReward"));
-        MissionCard card = new MissionCard(missionType, reward);
-        if (json.getBoolean("flipped")) {
-            card.flipCard();
+    public void applyRewardDecrease() {
+        if (rewardDecreaseNextRound) {
+            this.reward = new Reward(reward.getCategory(), reward.getNumberRockets() - 1);
+            this.rewardDecreaseNextRound = false;
         }
-        return card;
     }
 }

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import websocketserver.services.user.CreateUserService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -231,47 +232,75 @@ public class GameBoard {
         }
     }
 
-    public void checkMissions() {
+    public void checkMissions(GameService gameService, List<CreateUserService> players) {
         for (MissionCard missionCard : missionCards) {
+            if (missionCard.isFlipped()) {
+                missionCard.applyRewardDecrease();
+            }
             MissionType missionType = missionCard.getMissionType();
-            checkAndFlipMission(missionType);
+            if (checkAndFlipMission(missionType)) {
+                handleMissionReward(missionCard, gameService, players);
+            }
         }
     }
-    
-    private void checkAndFlipMission(MissionType missionType) {
+
+    private boolean checkAndFlipMission(MissionType missionType) {
         switch (missionType) {
             case A1:
                 if (areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER)) {
-                    checkAndFlipMissionCards(MissionType.A1);
+                    flipMissionCard(missionType);
+                    return true;
                 }
                 break;
             case A2:
                 if (areAllFieldsNumbered(FieldCategory.ROBOTER, FieldCategory.PLANUNG)) {
-                    checkAndFlipMissionCards(MissionType.A2);
+                    flipMissionCard(missionType);
+                    return true;
                 }
                 break;
             case B1:
                 if (areAllFieldsNumbered(FieldCategory.ENERGIE)) {
-                    checkAndFlipMissionCards(MissionType.B1);
+                    flipMissionCard(missionType);
+                    return true;
                 }
                 break;
             case B2:
-                if (areAllFieldsNumbered(FieldCategory.PFLANZE)) {
-                    checkAndFlipMissionCards(MissionType.B2);
+                if (areAllFieldsNumbered(FieldCategory.PFLANZE, FieldCategory.ANYTHING)) {
+                    flipMissionCard(missionType);
+                    return true;
                 }
                 break;
             case C1:
                 if (systemErrors.getCurrentErrors() >= 5) {
-                    checkAndFlipMissionCards(MissionType.C1);
+                    flipMissionCard(missionType);
+                    return true;
                 }
                 break;
             case C2:
                 if (systemErrors.getCurrentErrors() >= 6) {
-                    checkAndFlipMissionCards(MissionType.C2);
+                    flipMissionCard(missionType);
+                    return true;
                 }
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected value: " + missionType);
+        }
+        return false;
+    }
+
+    private void flipMissionCard(MissionType missionType) {
+        for (MissionCard card : missionCards) {
+            if (!card.isFlipped() && card.getMissionType() == missionType) {
+                card.flipCard();
+                gameService.notifyPlayersMissionFlipped(card);
+            }
+        }
+    }
+
+    private void handleMissionReward(MissionCard missionCard, GameService gameService, List<CreateUserService> players) {
+        for (CreateUserService player : players) {
+            player.getGameBoard().addRockets(missionCard.getReward().getNumberRockets());
+            gameService.addRocketToPlayer(player, missionCard.getReward().getNumberRockets());
         }
     }
 

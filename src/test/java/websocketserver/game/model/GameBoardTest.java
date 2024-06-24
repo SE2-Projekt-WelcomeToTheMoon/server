@@ -301,6 +301,7 @@ class GameBoardTest {
         floor1.addChamber(chamber1);
 
         gameBoard.addFloor(floor1);
+        gameBoard.finalizeGameBoard();
 
         assertFalse(gameBoard.areAllFieldsNumbered(FieldCategory.ROBOTER),
             "Should return false as not all fields in the specified category are numbered.");
@@ -315,6 +316,7 @@ class GameBoardTest {
         floor1.addChamber(chamber1);
 
         gameBoard.addFloor(floor1);
+        gameBoard.finalizeGameBoard();
 
         assertTrue(gameBoard.areAllFieldsNumbered(FieldCategory.ROBOTER),
             "Should return true because there are no floors of the specified category.");
@@ -335,56 +337,60 @@ class GameBoardTest {
         doReturn(true).when(spyGameBoard).areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER);
         doReturn(false).when(spyGameBoard).areAllFieldsNumbered(FieldCategory.ENERGIE);
 
-        spyGameBoard.checkMissions();
+        spyGameBoard.checkMissions(gameService, new ArrayList<>());
 
         verify(mockGameService, times(1)).notifyPlayersMissionFlipped(any(MissionCard.class));
         verify(mockGameService, never()).notifyPlayersMissionFlipped(new MissionCard(MissionType.B1, new Reward(RewardCategory.ROCKET, 3)));
     }
 
     @Test
-    public void testMissionA1() {
+    void testMissionA1() {
         when(missionCard.getMissionType()).thenReturn(MissionType.A1);
         missionCards.add(missionCard);
         doReturn(true).when(gameBoard).areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER);
 
-        gameBoard.checkMissions();
+        gameBoard.checkMissions(gameService, new ArrayList<>());
 
-        verify(gameBoard).checkAndFlipMissionCards(MissionType.A1);
+        verify(missionCard).flipCard();
+        verify(gameService).notifyPlayersMissionFlipped(missionCard);
     }
 
     @Test
-    public void testMissionA2() {
+    void testMissionA2() {
         when(missionCard.getMissionType()).thenReturn(MissionType.A2);
         missionCards.add(missionCard);
         doReturn(true).when(gameBoard).areAllFieldsNumbered(FieldCategory.ROBOTER, FieldCategory.PLANUNG);
 
-        gameBoard.checkMissions();
+        gameBoard.checkMissions(gameService, new ArrayList<>());
 
-        verify(gameBoard).checkAndFlipMissionCards(MissionType.A2);
+        verify(missionCard).flipCard();
+        verify(gameService).notifyPlayersMissionFlipped(missionCard);
     }
 
     @Test
-    public void testMissionB1() {
+    void testMissionB1() {
         when(missionCard.getMissionType()).thenReturn(MissionType.B1);
         missionCards.add(missionCard);
         doReturn(true).when(gameBoard).areAllFieldsNumbered(FieldCategory.ENERGIE);
 
-        gameBoard.checkMissions();
+        gameBoard.checkMissions(gameService, new ArrayList<>());
 
-        verify(gameBoard).checkAndFlipMissionCards(MissionType.B1);
+        verify(missionCard).flipCard();
+        verify(gameService).notifyPlayersMissionFlipped(missionCard);
     }
 
     @Test
-    public void testMissionB2() {
+    void testMissionB2() {
         when(missionCard.getMissionType()).thenReturn(MissionType.B2);
         missionCards.add(missionCard);
         doReturn(true).when(gameBoard).areAllFieldsNumbered(FieldCategory.PFLANZE);
 
-        gameBoard.checkMissions();
+        gameBoard.checkMissions(gameService, new ArrayList<>());
 
-        verify(gameBoard).checkAndFlipMissionCards(MissionType.B2);
+        verify(missionCard).flipCard();
+        verify(gameService).notifyPlayersMissionFlipped(missionCard);
     }
-    
+
     @Test
     void testSetFieldWithinFloorBeforeGameBoardFinalizationThrowsException() {
         Chamber chamber = new Chamber(FieldCategory.ROBOTER,rewards,0);
@@ -411,4 +417,37 @@ class GameBoardTest {
         assertTrue(gameBoard.setValueWithinFloorAtIndex(0,0,new CardCombination(FieldCategory.WASSER,FieldCategory.WASSER,FieldValue.TWO)));
     }
 
+    @Test
+    void testAddMissionCard() {
+        MissionCard card = new MissionCard(MissionType.A1, new Reward(RewardCategory.ROCKET, 3));
+        missionCards.add(card);
+        gameBoard.setMissionCards(missionCards);
+        assertEquals(1, gameBoard.getMissionCards().size(), "Mission card should be added to the game board.");
+    }
+
+    @Test
+    void testGetMissionCards() {
+        assertNotNull(gameBoard.getMissionCards(), "Mission cards should be retrievable from the game board.");
+    }
+
+    @Test
+    void testCheckAndFlipMissionCardsWhenNoMatch() {
+        GameService mockGameService = mock(GameService.class);
+        gameBoard.setGameService(mockGameService);
+
+        MissionCard card1 = new MissionCard(MissionType.A1, new Reward(RewardCategory.ROCKET, 3));
+        gameBoard.setMissionCards(Arrays.asList(card1));
+
+        gameBoard.checkAndFlipMissionCards(MissionType.A2);
+        assertFalse(card1.isFlipped(), "Mission A1 should not be flipped when checking for A2.");
+        verify(mockGameService, never()).notifyPlayersMissionFlipped(card1);
+    }
+
+    @Test
+    void testMissionCardRewardDecrease() {
+        MissionCard card = new MissionCard(MissionType.A1, new Reward(RewardCategory.ROCKET, 3));
+        card.flipCard();
+        card.applyRewardDecrease();
+        assertEquals(2, card.getReward().getNumberRockets(), "The reward should decrease by 1 after the round in which the card is flipped.");
+    }
 }
