@@ -7,7 +7,6 @@ import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.mockito.Mock;
 import websocketserver.game.enums.GameState;
-import websocketserver.game.enums.MissionType;
 import websocketserver.game.model.MissionCard;
 import websocketserver.services.user.CreateUserService;
 import org.springframework.web.socket.WebSocketSession;

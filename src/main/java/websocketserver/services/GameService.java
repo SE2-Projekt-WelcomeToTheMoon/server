@@ -8,7 +8,6 @@ import websocketserver.game.model.MissionCard;
 import websocketserver.services.json.GenerateJSONObjectService;
 import websocketserver.services.user.CreateUserService;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,6 @@ public class GameService {
 
     @Setter
     private Logger logger = LoggerFactory.getLogger(GameService.class);
-    private List<CreateUserService> players;
 
     public GameService() {
         cardManager = new CardManager();

@@ -10,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import websocketserver.game.enums.*;
-import websocketserver.game.exceptions.FloorSequenceException;
 import websocketserver.game.exceptions.GameStateException;
 import websocketserver.game.services.GameBoardService;
 import websocketserver.game.util.FieldUpdateMessage;
@@ -26,7 +25,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -34,8 +34,6 @@ public class GameBoard {
     @Getter
     private boolean hasCheated;
 
-    private static final Logger logger = LoggerFactory.getLogger(GameBoard.class);
-
     private GameService gameService;
 
     public GameBoard() {

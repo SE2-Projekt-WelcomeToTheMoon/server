@@ -26,11 +26,8 @@ import static org.mockito.Mockito.*;
 class GameBoardTest {
 
     @Mock
-    private SystemErrors systemErrors;
-    
-    @Mock
     private GameService gameService;
-    
+
     @Mock
     private MissionCard missionCard;
 
@@ -465,10 +462,8 @@ class GameBoardTest {
         gameBoard.setMissionCards(List.of(card));
         gameBoard.setGameService(gameService);
 
-        // Mock the gameBoard to return true for areAllFieldsNumbered
         doReturn(true).when(gameBoard).areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER);
 
-        // Call checkMissions and verify behavior
         gameBoard.checkMissions(gameService, new ArrayList<>());
 
         verify(gameService, times(1)).notifyPlayersMissionFlipped(any(MissionCard.class));
@@ -480,10 +475,8 @@ class GameBoardTest {
         gameBoard.setMissionCards(List.of(card));
         gameBoard.setGameService(gameService);
 
-        // Mock the gameBoard to return false for areAllFieldsNumbered
         doReturn(false).when(gameBoard).areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER);
 
-        // Call checkMissions and verify behavior
         gameBoard.checkMissions(gameService, new ArrayList<>());
 
         verify(gameService, never()).notifyPlayersMissionFlipped(any(MissionCard.class));
@@ -530,12 +523,16 @@ class GameBoardTest {
         gameBoard.setMissionCards(List.of(card));
         gameBoard.setGameService(gameService);
 
-        assertThrows(IllegalArgumentException.class, () -> gameBoard.checkMissions(gameService, new ArrayList<>()));
+        assertThrows(IllegalArgumentException.class, () -> invokeCheckMissions(gameBoard, gameService));
+    }
+
+    public void invokeCheckMissions(GameBoard gameBoard, GameService gameService) {
+        gameBoard.checkMissions(gameService, new ArrayList<>());
     }
 
     @Test
     void testHandleMissionReward() throws Exception {
-        MissionCard missionCard = new MissionCard(MissionType.A1, new Reward(RewardCategory.ROCKET, 3));
+        missionCard = new MissionCard(MissionType.A1, new Reward(RewardCategory.ROCKET, 3));
         CreateUserService player1 = mock(CreateUserService.class);
         CreateUserService player2 = mock(CreateUserService.class);
 
