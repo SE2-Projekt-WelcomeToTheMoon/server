@@ -203,17 +203,14 @@ public class GameBoard {
         List<MissionCard> cards = new ArrayList<>();
         Random random = new Random();
 
-        try {
-            cards.add(new MissionCard(random.nextBoolean() ? MissionType.A1 : MissionType.A2, new Reward(RewardCategory.ROCKET, 3)));
-            cards.add(new MissionCard(random.nextBoolean() ? MissionType.B1 : MissionType.B2, new Reward(RewardCategory.ROCKET, 3)));
-            cards.add(new MissionCard(random.nextBoolean() ? MissionType.C1 : MissionType.C2, new Reward(RewardCategory.ROCKET, 3)));
-        } catch (Exception e) {
-            // If random selection fails, default to A1, B1, and C1
-            cards.clear();
+        //The random mission cards work, but the updating of the picture on client doesn't so stadart are mission cards 1 now
+            //cards.add(new MissionCard(random.nextBoolean() ? MissionType.A1 : MissionType.A2, new Reward(RewardCategory.ROCKET, 3)));
+            //cards.add(new MissionCard(random.nextBoolean() ? MissionType.B1 : MissionType.B2, new Reward(RewardCategory.ROCKET, 3)));
+            //cards.add(new MissionCard(random.nextBoolean() ? MissionType.C1 : MissionType.C2, new Reward(RewardCategory.ROCKET, 3)));
+
             cards.add(new MissionCard(MissionType.A1, new Reward(RewardCategory.ROCKET, 3)));
             cards.add(new MissionCard(MissionType.B1, new Reward(RewardCategory.ROCKET, 3)));
             cards.add(new MissionCard(MissionType.C1, new Reward(RewardCategory.ROCKET, 3)));
-        }
 
         this.missionCards = cards; // Store the mission cards in the instance variable
         return cards;
