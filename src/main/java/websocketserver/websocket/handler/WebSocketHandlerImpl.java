@@ -129,6 +129,22 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
                     logger.info("Case sendGameState: {} ", username);
                     gameService.informClientsAboutGameState();
                     break;
+
+                case "initializeMissionCards":
+                    logger.info("Initializing mission cards for user: {}", username);
+                    gameService.initializeMissionCards(session, username);
+                    break;
+
+                case "missionFlipped":
+                    logger.info("Flipping mission card: {} for user: {}", messageValue, username);
+                    gameService.flipMissionCard(session, username, messageValue);
+                    break;
+
+                case "requestMissionCards":
+                    logger.info("Requesting mission cards for user: {}", username);
+                    gameService.sendMissionCards(session, username);
+                    break;
+
                 default:
                     JSONObject response = new JSONObject();
                     response.put("error", "Unbekannte Aktion");

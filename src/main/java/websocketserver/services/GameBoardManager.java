@@ -42,6 +42,10 @@ public class GameBoardManager {
         initGameBoardJSON();
     }
 
+    public GameBoard getGameBoard() {
+        return gameBoardRocket;
+    }
+
     public void initGameBoardJSON() {
         GameBoardService gameBoardService = new GameBoardService();
         gameBoardRocket = gameBoardService.createGameBoard();
@@ -155,6 +159,20 @@ public class GameBoardManager {
         SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
     }
 
+    public void notifyPlayersMissionFlipped(List<CreateUserService> players, MissionCard missionCard) {
+        String missionCardJson = serializeMission(missionCard);
+        if (missionCardJson == null) {
+            logger.error("Failed to serialize mission card.");
+            return;
+        }
+
+        for (CreateUserService player : players) {
+            logger.info("Notifying player {} about completed mission: {}", player.getUsername(), missionCard.getMissionType());
+            JSONObject jsonObject = new GenerateJSONObjectService("missionFlipped", player.getUsername(), true, missionCardJson, "").generateJSONObject();
+            SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
+        }
+    }
+
     private String serializeMission(Object mission) {
         try {
             return objectMapper.writeValueAsString(mission);
@@ -174,20 +192,6 @@ public class GameBoardManager {
         for (CreateUserService player : players) {
             logger.info("Sending initial mission cards to player: {}", player.getUsername());
             JSONObject jsonObject = new GenerateJSONObjectService("initialMissionCards", player.getUsername(), true, missionCardsJson, "").generateJSONObject();
-            SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
-        }
-    }
-
-    public void notifyPlayersMissionFlipped(List<CreateUserService> players, MissionCard missionCard) {
-        String missionCardJson = serializeMission(missionCard);
-        if (missionCardJson == null) {
-            logger.error("Failed to serialize mission card.");
-            return;
-        }
-
-        for (CreateUserService player : players) {
-            logger.info("Notifying player {} about completed mission: {}", player.getUsername(), missionCard.getMissionType());
-            JSONObject jsonObject = new GenerateJSONObjectService("missionFlipped", player.getUsername(), true, missionCardJson, "").generateJSONObject();
             SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
         }
     }

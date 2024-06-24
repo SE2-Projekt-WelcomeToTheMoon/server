@@ -13,6 +13,7 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websocketserver.services.user.CreateUserService;
+import websocketserver.services.user.UserListService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -197,11 +198,11 @@ public class GameBoard {
     public List<Floor> getFloors() {
         return new ArrayList<>(floors);
     }
-    
+
     public List<MissionCard> initializeMissionCards() {
         List<MissionCard> cards = new ArrayList<>();
         Random random = new Random();
-    
+
         try {
             cards.add(new MissionCard(random.nextBoolean() ? MissionType.A1 : MissionType.A2, new Reward(RewardCategory.ROCKET, 3)));
             cards.add(new MissionCard(random.nextBoolean() ? MissionType.B1 : MissionType.B2, new Reward(RewardCategory.ROCKET, 3)));
@@ -213,19 +214,22 @@ public class GameBoard {
             cards.add(new MissionCard(MissionType.B1, new Reward(RewardCategory.ROCKET, 3)));
             cards.add(new MissionCard(MissionType.C1, new Reward(RewardCategory.ROCKET, 3)));
         }
-    
+
+        this.missionCards = cards; // Store the mission cards in the instance variable
         return cards;
     }
 
     public void notifyPlayersInitialMissionCards() {
-        gameService.notifyPlayersInitialMissionCards(missionCards);
+        List<CreateUserService> players = new ArrayList<>(UserListService.userList.getAllUsers());
+        gameService.notifyPlayersInitialMissionCards(players, missionCards);
     }
 
     public void checkAndFlipMissionCards(MissionType missionType) {
         for (MissionCard card : missionCards) {
             if (!card.isFlipped() && card.getMissionType() == missionType) {
                 card.flipCard();
-                gameService.notifyPlayersMissionFlipped(card);
+                List<CreateUserService> players = new ArrayList<>(UserListService.userList.getAllUsers());
+                gameService.notifyPlayersMissionFlipped(players, card);
             }
         }
     }
@@ -290,7 +294,8 @@ public class GameBoard {
         for (MissionCard card : missionCards) {
             if (!card.isFlipped() && card.getMissionType() == missionType) {
                 card.flipCard();
-                gameService.notifyPlayersMissionFlipped(card);
+                List<CreateUserService> players = new ArrayList<>(UserListService.userList.getAllUsers());
+                gameService.notifyPlayersMissionFlipped(players, card);
             }
         }
     }
@@ -304,10 +309,10 @@ public class GameBoard {
 
     public boolean areAllFieldsNumbered(FieldCategory... categories) {
         return floors.stream()
-            .filter(floor -> Arrays.asList(categories).contains(floor.getFieldCategory()))
-            .allMatch(floor -> floor.getChambers().stream()
-                .allMatch(chamber -> chamber.getFields().stream()
-                    .allMatch(field -> field.getFieldValue() != FieldValue.NONE)));
+                .filter(floor -> Arrays.asList(categories).contains(floor.getFieldCategory()))
+                .allMatch(floor -> floor.getChambers().stream()
+                        .allMatch(chamber -> chamber.getFields().stream()
+                                .allMatch(field -> field.getFieldValue() != FieldValue.NONE)));
     }
 
     public void cheat() {

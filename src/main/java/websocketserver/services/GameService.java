@@ -3,7 +3,9 @@ package websocketserver.services;
 import lombok.Setter;
 import org.json.JSONArray;
 import websocketserver.game.enums.EndType;
+import websocketserver.game.enums.MissionType;
 import websocketserver.game.model.Game;
+import websocketserver.game.model.GameBoard;
 import websocketserver.game.model.MissionCard;
 import websocketserver.services.json.GenerateJSONObjectService;
 import websocketserver.services.user.CreateUserService;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -147,14 +150,33 @@ public class GameService {
         gameBoardManager.addRocketToPlayer(player, rocketCount);
     }
 
-
-    public void notifyPlayersInitialMissionCards(List<MissionCard> missionCards) {
-        logger.info("Sending initial mission cards to players");
-        gameBoardManager.notifyPlayersInitialMissionCards(game.getPlayers(), missionCards);
+    public void initializeMissionCards(WebSocketSession session, String username) {
+        List<MissionCard> missionCards = gameBoardManager.getGameBoard().initializeMissionCards();
+        gameBoardManager.notifyPlayersInitialMissionCards(Collections.singletonList(new CreateUserService(session, username)), missionCards);
     }
 
-    public void notifyPlayersMissionFlipped(MissionCard missionCard) {
-        logger.info("Mission {} completed. Notifying players.", missionCard.getMissionType());
-        gameBoardManager.notifyPlayersMissionFlipped(game.getPlayers(), missionCard);
+    public void flipMissionCard(WebSocketSession session, String username, String missionType) {
+        MissionType type = MissionType.valueOf(missionType);
+        GameBoard gameBoard = gameBoardManager.getGameBoard();
+        gameBoard.checkAndFlipMissionCards(type);
+        for (MissionCard missionCard : gameBoard.getMissionCards()) {
+            if (missionCard.getMissionType().equals(type) && missionCard.isFlipped()) {
+                gameBoardManager.notifyPlayersMissionFlipped(Collections.singletonList(new CreateUserService(session, username)), missionCard);
+                break;
+            }
+        }
+    }
+
+    public void sendMissionCards(WebSocketSession session, String username) {
+        List<MissionCard> missionCards = gameBoardManager.getGameBoard().getMissionCards();
+        gameBoardManager.notifyPlayersInitialMissionCards(Collections.singletonList(new CreateUserService(session, username)), missionCards);
+    }
+
+    public void notifyPlayersInitialMissionCards(List<CreateUserService> players, List<MissionCard> missionCards) {
+        gameBoardManager.notifyPlayersInitialMissionCards(players, missionCards);
+    }
+
+    public void notifyPlayersMissionFlipped(List<CreateUserService> players, MissionCard missionCard) {
+        gameBoardManager.notifyPlayersMissionFlipped(players, missionCard);
     }
 }
