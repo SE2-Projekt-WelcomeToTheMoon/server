@@ -201,12 +201,6 @@ public class GameBoard {
 
     public List<MissionCard> initializeMissionCards() {
         List<MissionCard> cards = new ArrayList<>();
-        Random random = new Random();
-
-        //The random mission cards work, but the updating of the picture on client doesn't so stadart are mission cards 1 now
-            //cards.add(new MissionCard(random.nextBoolean() ? MissionType.A1 : MissionType.A2, new Reward(RewardCategory.ROCKET, 3)));
-            //cards.add(new MissionCard(random.nextBoolean() ? MissionType.B1 : MissionType.B2, new Reward(RewardCategory.ROCKET, 3)));
-            //cards.add(new MissionCard(random.nextBoolean() ? MissionType.C1 : MissionType.C2, new Reward(RewardCategory.ROCKET, 3)));
 
             cards.add(new MissionCard(MissionType.A1, new Reward(RewardCategory.ROCKET, 3)));
             cards.add(new MissionCard(MissionType.B1, new Reward(RewardCategory.ROCKET, 3)));
