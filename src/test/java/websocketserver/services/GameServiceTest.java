@@ -3,10 +3,12 @@ package websocketserver.services;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.mockito.Mock;
 import websocketserver.game.enums.GameState;
+import websocketserver.game.enums.MissionType;
 import websocketserver.game.model.MissionCard;
 import websocketserver.services.user.CreateUserService;
 import org.springframework.web.socket.WebSocketSession;
@@ -14,13 +16,12 @@ import websocketserver.game.enums.EndType;
 import websocketserver.game.model.Game;
 import websocketserver.game.model.GameBoard;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.*;
 
 class GameServiceTest {
     private GameService gameServiceObject;
@@ -39,12 +40,18 @@ class GameServiceTest {
     @Mock
     CreateUserService mockPlayer;
     @Mock
-    private MissionCard missionCard;
+    private CreateUserService user;
+
+    @Mock
+    private GameBoard gameBoard;
+
+    private GameService gameService;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
         mockPlayer = mock(CreateUserService.class);
+        gameService = new GameService();
 
         loggerObject = mock(Logger.class);
         this.gameServiceObject = new GameService();
@@ -67,6 +74,10 @@ class GameServiceTest {
         when(game.getGameState()).thenReturn(GameState.INITIAL);
         when(game.detectCheat(any(WebSocketSession.class), anyString(),anyString())).thenReturn(true);
         setGameInGameService(gameServiceObject, game);
+
+        Field gameBoardManagerField = GameService.class.getDeclaredField("gameBoardManager");
+        gameBoardManagerField.setAccessible(true);
+        gameBoardManagerField.set(gameService, gameBoardManager);
     }
 
     @Test
@@ -177,4 +188,89 @@ class GameServiceTest {
         gameServiceObject.addRocketToPlayer(player, 1);
         verify(loggerObject).info("GameService addRocket");
     }
+
+    @Test
+    void testInitializeMissionCards() {
+        when(gameBoardManager.getGameBoard()).thenReturn(gameBoard);
+        List<MissionCard> missionCards = Collections.singletonList(mock(MissionCard.class));
+        when(gameBoard.initializeMissionCards()).thenReturn(missionCards);
+
+        gameService.initializeMissionCards(session, "testUser");
+
+        ArgumentCaptor<List> playersCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List> missionCardsCaptor = ArgumentCaptor.forClass(List.class);
+
+        verify(gameBoardManager).notifyPlayersInitialMissionCards(playersCaptor.capture(), missionCardsCaptor.capture());
+
+        assertEquals(1, playersCaptor.getValue().size());
+        assertEquals(missionCards, missionCardsCaptor.getValue());
+    }
+
+    @Test
+    void testFlipMissionCard() {
+        when(gameBoardManager.getGameBoard()).thenReturn(gameBoard);
+        MissionCard missionCard = new MissionCard(MissionType.A1, null);
+        missionCard.flipCard();
+        when(gameBoard.getMissionCards()).thenReturn(Collections.singletonList(missionCard));
+
+        gameService.flipMissionCard(session, "testUser", "A1");
+
+        ArgumentCaptor<List> playersCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<MissionCard> missionCardCaptor = ArgumentCaptor.forClass(MissionCard.class);
+
+        verify(gameBoardManager).notifyPlayersMissionFlipped(playersCaptor.capture(), missionCardCaptor.capture());
+
+        assertEquals(1, playersCaptor.getValue().size());
+        assertEquals(missionCard, missionCardCaptor.getValue());
+    }
+
+    @Test
+    void testSendMissionCards() {
+        when(gameBoardManager.getGameBoard()).thenReturn(gameBoard);
+        List<MissionCard> missionCards = Collections.singletonList(mock(MissionCard.class));
+        when(gameBoard.getMissionCards()).thenReturn(missionCards);
+
+        gameService.sendMissionCards(session, "testUser");
+
+        ArgumentCaptor<List> playersCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List> missionCardsCaptor = ArgumentCaptor.forClass(List.class);
+
+        verify(gameBoardManager).notifyPlayersInitialMissionCards(playersCaptor.capture(), missionCardsCaptor.capture());
+
+        assertEquals(1, playersCaptor.getValue().size());
+        assertEquals(missionCards, missionCardsCaptor.getValue());
+    }
+
+    @Test
+    void testNotifyPlayersInitialMissionCards() {
+        List<CreateUserService> players = Collections.singletonList(user);
+        List<MissionCard> missionCards = Collections.singletonList(mock(MissionCard.class));
+
+        gameService.notifyPlayersInitialMissionCards(players, missionCards);
+
+        ArgumentCaptor<List> playersCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List> missionCardsCaptor = ArgumentCaptor.forClass(List.class);
+
+        verify(gameBoardManager).notifyPlayersInitialMissionCards(playersCaptor.capture(), missionCardsCaptor.capture());
+
+        assertEquals(players, playersCaptor.getValue());
+        assertEquals(missionCards, missionCardsCaptor.getValue());
+    }
+
+    @Test
+    void testNotifyPlayersMissionFlipped() {
+        List<CreateUserService> players = Collections.singletonList(user);
+        MissionCard missionCard = mock(MissionCard.class);
+
+        gameService.notifyPlayersMissionFlipped(players, missionCard);
+
+        ArgumentCaptor<List> playersCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<MissionCard> missionCardCaptor = ArgumentCaptor.forClass(MissionCard.class);
+
+        verify(gameBoardManager).notifyPlayersMissionFlipped(playersCaptor.capture(), missionCardCaptor.capture());
+
+        assertEquals(players, playersCaptor.getValue());
+        assertEquals(missionCard, missionCardCaptor.getValue());
+    }
+
 }
