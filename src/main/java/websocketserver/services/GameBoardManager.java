@@ -36,6 +36,7 @@ public class GameBoardManager {
     private Logger logger = LogManager.getLogger(GameBoardManager.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+
     public GameBoardManager() {
         GameBoardService gameBoardService = new GameBoardService();
         this.gameBoardRocket = gameBoardService.createGameBoard();
@@ -155,8 +156,17 @@ public class GameBoardManager {
         SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
     }
 
+    private String serializeMission(Object mission) {
+        try {
+            return objectMapper.writeValueAsString(mission);
+        } catch (JsonProcessingException e) {
+            logger.error("Error serializing mission: ", e);
+            return null;
+        }
+    }
+
     public void notifyPlayersInitialMissionCards(List<CreateUserService> players, List<MissionCard> missionCards) {
-        String missionCardsJson = serializeMissionCards(missionCards);
+        String missionCardsJson = serializeMission(missionCards);
         if (missionCardsJson == null) {
             logger.error("Failed to serialize mission cards.");
             return;
@@ -170,7 +180,7 @@ public class GameBoardManager {
     }
 
     public void notifyPlayersMissionFlipped(List<CreateUserService> players, MissionCard missionCard) {
-        String missionCardJson = serializeMissionCard(missionCard);
+        String missionCardJson = serializeMission(missionCard);
         if (missionCardJson == null) {
             logger.error("Failed to serialize mission card.");
             return;
@@ -180,24 +190,6 @@ public class GameBoardManager {
             logger.info("Notifying player {} about completed mission: {}", player.getUsername(), missionCard.getMissionType());
             JSONObject jsonObject = new GenerateJSONObjectService("missionFlipped", player.getUsername(), true, missionCardJson, "").generateJSONObject();
             SendMessageService.sendSingleMessage(player.getSession(), jsonObject);
-        }
-    }
-
-    private String serializeMissionCards(List<MissionCard> missionCards) {
-        try {
-            return objectMapper.writeValueAsString(missionCards);
-        } catch (JsonProcessingException e) {
-            logger.error("Error serializing mission cards: ", e);
-            return null;
-        }
-    }
-
-    private String serializeMissionCard(MissionCard missionCard) {
-        try {
-            return objectMapper.writeValueAsString(missionCard);
-        } catch (JsonProcessingException e) {
-            logger.error("Error serializing mission card: ", e);
-            return null;
         }
     }
 }

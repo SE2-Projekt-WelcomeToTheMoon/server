@@ -3,8 +3,13 @@ package websocketserver.services;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import org.springframework.web.socket.TextMessage;
 import websocketserver.game.enums.FieldValue;
 import websocketserver.game.enums.GameState;
+import websocketserver.game.enums.MissionType;
+import websocketserver.game.enums.RewardCategory;
+import websocketserver.game.model.MissionCard;
+import websocketserver.game.model.Reward;
 import websocketserver.game.util.FieldUpdateMessage;
 import websocketserver.game.model.GameBoard;
 import websocketserver.game.services.GameBoardService;
@@ -16,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +36,10 @@ class GameBoardManagerTest {
     private List<CreateUserService> players;
     @Mock
     private Logger logger;
+    @Mock
+    private ObjectMapper objectMapper;
+    @Mock
+    private WebSocketSession session;
 
     @BeforeEach
     void setUp() {
@@ -41,6 +51,9 @@ class GameBoardManagerTest {
         this.player = new CreateUserService(mock(WebSocketSession.class), "User");
         this.players = new ArrayList<>();
         players.add(player);
+
+        // Mock session behavior to avoid NullPointerException
+        when(session.isOpen()).thenReturn(true);
     }
 
     @Test
@@ -178,5 +191,47 @@ class GameBoardManagerTest {
         gameBoardManager.addRocketToPlayer(player, 1);
 
         verify(logger).info("Player: {} gets {} Rockets", player.getUsername(), 1);
+    }
+
+    @Test
+    void testNotifyPlayersInitialMissionCards() throws IOException {
+        MissionCard missionCard = mock(MissionCard.class);
+        List<MissionCard> missionCards = List.of(missionCard);
+
+        String missionCardsJson = "[{\"missionType\":\"A1\",\"reward\":{\"category\":\"ROCKET\",\"numberRockets\":3}}]";
+        doReturn(missionCardsJson).when(objectMapper).writeValueAsString(anyList());
+
+        WebSocketSession mockSession = mock(WebSocketSession.class);
+        when(mockSession.isOpen()).thenReturn(true);
+        doNothing().when(mockSession).sendMessage(any(TextMessage.class));
+
+        player = new CreateUserService(mockSession, "User");
+        players = List.of(player);
+
+        gameBoardManager.notifyPlayersInitialMissionCards(players, missionCards);
+
+        verify(logger).info("Sending initial mission cards to player: {}", player.getUsername());
+        verify(mockSession).sendMessage(any(TextMessage.class));
+    }
+
+    @Test
+    void testNotifyPlayersMissionFlipped() throws IOException {
+        MissionCard missionCard = mock(MissionCard.class);
+        when(missionCard.getMissionType()).thenReturn(MissionType.A1);
+
+        String missionCardJson = "{\"missionType\":\"A1\",\"reward\":{\"category\":\"ROCKET\",\"numberRockets\":3}}";
+        doReturn(missionCardJson).when(objectMapper).writeValueAsString(any(MissionCard.class));
+
+        WebSocketSession mockSession = mock(WebSocketSession.class);
+        when(mockSession.isOpen()).thenReturn(true);
+        doNothing().when(mockSession).sendMessage(any(TextMessage.class));
+
+        player = new CreateUserService(mockSession, "User");
+        players = List.of(player);
+
+        gameBoardManager.notifyPlayersMissionFlipped(players, missionCard);
+
+        verify(logger).info("Notifying player {} about completed mission: {}", player.getUsername(), missionCard.getMissionType());
+        verify(mockSession).sendMessage(any(TextMessage.class));
     }
 }

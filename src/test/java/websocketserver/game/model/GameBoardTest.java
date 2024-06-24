@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 
+
 class GameBoardTest {
 
     @Mock
@@ -449,5 +450,59 @@ class GameBoardTest {
         card.flipCard();
         card.applyRewardDecrease();
         assertEquals(2, card.getReward().getNumberRockets(), "The reward should decrease by 1 after the round in which the card is flipped.");
+    }
+
+    @Test
+    void testNotifyPlayersInitialMissionCards() {
+        GameService mockGameService = mock(GameService.class);
+        gameBoard.setGameService(mockGameService);
+
+        MissionCard card1 = new MissionCard(MissionType.A1, new Reward(RewardCategory.ROCKET, 3));
+        gameBoard.setMissionCards(Arrays.asList(card1));
+
+        gameBoard.notifyPlayersInitialMissionCards();
+
+        verify(mockGameService).notifyPlayersInitialMissionCards(any());
+    }
+
+    @Test
+    void testCheckMissionsWithAllFieldsNumbered() {
+        MissionCard card = new MissionCard(MissionType.A1, new Reward(RewardCategory.ROCKET, 3));
+        gameBoard.setMissionCards(List.of(card));
+        gameBoard.setGameService(gameService);
+
+        // Mock the gameBoard to return true for areAllFieldsNumbered
+        doReturn(true).when(gameBoard).areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER);
+
+        // Call checkMissions and verify behavior
+        gameBoard.checkMissions(gameService, new ArrayList<>());
+
+        verify(gameService, times(1)).notifyPlayersMissionFlipped(any(MissionCard.class));
+    }
+
+    @Test
+    void testCheckMissionsWithSomeFieldsUnnumbered() {
+        MissionCard card = new MissionCard(MissionType.A1, new Reward(RewardCategory.ROCKET, 3));
+        gameBoard.setMissionCards(List.of(card));
+        gameBoard.setGameService(gameService);
+
+        // Mock the gameBoard to return false for areAllFieldsNumbered
+        doReturn(false).when(gameBoard).areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER);
+
+        // Call checkMissions and verify behavior
+        gameBoard.checkMissions(gameService, new ArrayList<>());
+
+        verify(gameService, never()).notifyPlayersMissionFlipped(any(MissionCard.class));
+    }
+
+    @Test
+    void testCheatAddsRocket() {
+        gameBoard.addFloor(floor);
+        gameBoard.finalizeGameBoard();
+
+        gameBoard.cheat();
+
+        assertEquals(1, gameBoard.getRocketCount());
+        assertTrue(gameBoard.isHasCheated());
     }
 }
