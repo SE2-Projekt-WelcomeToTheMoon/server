@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websocketserver.services.user.CreateUserService;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -58,7 +57,6 @@ public class GameBoard {
     public List<MissionCard> getMissionCards() {
         return this.missionCards;
     }
-
 
     public void finalizeGameBoard() {
         if (isFinalized) {
@@ -204,7 +202,7 @@ public class GameBoard {
     
     public List<MissionCard> initializeMissionCards() {
         List<MissionCard> cards = new ArrayList<>();
-        SecureRandom random = createSecureRandomInstance();
+        Random random = new Random();
     
         try {
             cards.add(new MissionCard(random.nextBoolean() ? MissionType.A1 : MissionType.A2, new Reward(RewardCategory.ROCKET, 3)));
@@ -317,10 +315,5 @@ public class GameBoard {
     public void cheat() {
         addRockets(1);
         hasCheated = true;
-    }
-
-
-    public SecureRandom createSecureRandomInstance() {
-        return new SecureRandom();
     }
 }

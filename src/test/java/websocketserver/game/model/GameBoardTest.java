@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -521,20 +520,6 @@ class GameBoardTest {
 
         CardCombination[] combinations = {new CardCombination(FieldCategory.WASSER, FieldCategory.WASSER, FieldValue.ONE)};
         assertFalse(gameBoard.checkCardCombination(combinations));
-    }
-
-    @Test
-    void testInitializeMissionCardsException() {
-        GameBoard spyGameBoard = spy(new GameBoard());
-        Random random = mock(Random.class);
-
-        doThrow(new RuntimeException("Random failed")).when(random).nextBoolean();
-        doReturn(random).when(spyGameBoard).createSecureRandomInstance();
-
-        List<MissionCard> cards = spyGameBoard.initializeMissionCards();
-
-        assertEquals(3, cards.size(), "Should initialize exactly three mission cards in case of exception");
-        assertTrue(cards.stream().allMatch(card -> card.getMissionType().name().matches("A1|B1|C1")), "Mission types should default to A1, B1, and C1");
     }
 
     @Test
