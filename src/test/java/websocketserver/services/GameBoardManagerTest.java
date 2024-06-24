@@ -232,14 +232,4 @@ class GameBoardManagerTest {
         verify(logger).info("Notifying player {} about completed mission: {}", player.getUsername(), missionCard.getMissionType());
         verify(mockSession).sendMessage(any(TextMessage.class));
     }
-
-    private void setPrivateField(Object target, String fieldName, Object value) {
-        try {
-            java.lang.reflect.Field field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
