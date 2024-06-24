@@ -529,7 +529,7 @@ class GameBoardTest {
         Random random = mock(Random.class);
 
         doThrow(new RuntimeException("Random failed")).when(random).nextBoolean();
-        doReturn(random).when(spyGameBoard).createRandomInstance();
+        doReturn(random).when(spyGameBoard).createSecureRandomInstance();
 
         List<MissionCard> cards = spyGameBoard.initializeMissionCards();
 
