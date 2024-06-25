@@ -69,6 +69,11 @@ public class Game {
         gameService.informClientsAboutStart();
         logger.info("Now in state ROUND_ONE");
 
+        for (CreateUserService player : players) {
+            player.getGameBoard().setGameService(gameService);
+            player.getGameBoard().notifyPlayersInitialMissionCards();
+        }
+
         doRoundOne();
     }
 
@@ -248,6 +253,9 @@ public class Game {
         //checked whether the game is finished or not.
         List<CreateUserService> winners = checkIfGameIsFinished();
 
+        for (CreateUserService player : players) {
+            player.getGameBoard().checkMissions(gameService, players);
+        }
 
         if (!winners.isEmpty()) {
             gameState = GameState.FINISHED;

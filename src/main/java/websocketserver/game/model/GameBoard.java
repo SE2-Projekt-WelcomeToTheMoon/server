@@ -2,6 +2,7 @@ package websocketserver.game.model;
 
 import websocketserver.game.enums.FieldCategory;
 import websocketserver.game.enums.FieldValue;
+import websocketserver.game.enums.MissionType;
 import websocketserver.game.enums.RewardCategory;
 import websocketserver.game.exceptions.FinalizedException;
 import websocketserver.game.exceptions.FloorSequenceException;
@@ -9,6 +10,10 @@ import websocketserver.services.GameService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import websocketserver.services.user.CreateUserService;
+import websocketserver.services.user.UserListService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +35,7 @@ public class GameBoard {
     @Getter
     private boolean hasCheated;
 
-private GameService gameService;
+    private GameService gameService;
 
     public GameBoard() {
         floors = new ArrayList<>();
@@ -193,75 +198,116 @@ private GameService gameService;
     public List<Floor> getFloors() {
         return new ArrayList<>(floors);
     }
+
     public List<MissionCard> initializeMissionCards() {
         List<MissionCard> cards = new ArrayList<>();
-        Random random = new Random();
 
-        // Initialize mission cards randomly as A1 or A2, B1 or B2, C1 or C2
-        cards.add(new MissionCard("Mission A" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
-        cards.add(new MissionCard("Mission B" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
-        cards.add(new MissionCard("Mission C" + (random.nextBoolean() ? "1" : "2"), new Reward(RewardCategory.ROCKET, 3)));
+            cards.add(new MissionCard(MissionType.A1, new Reward(RewardCategory.ROCKET, 3)));
+            cards.add(new MissionCard(MissionType.B1, new Reward(RewardCategory.ROCKET, 3)));
+            cards.add(new MissionCard(MissionType.C1, new Reward(RewardCategory.ROCKET, 3)));
 
+        this.missionCards = cards; // Store the mission cards in the instance variable
         return cards;
     }
 
-    public void checkAndFlipMissionCards(String missionDescription) {
+    public void notifyPlayersInitialMissionCards() {
+        List<CreateUserService> players = new ArrayList<>(UserListService.userList.getAllUsers());
+        gameService.notifyPlayersInitialMissionCards(players, missionCards);
+    }
+
+    public void checkAndFlipMissionCards(MissionType missionType) {
         for (MissionCard card : missionCards) {
-            if (!card.isFlipped() && card.getMissionDescription().equals(missionDescription)) {
+            if (!card.isFlipped() && card.getMissionType() == missionType) {
                 card.flipCard();
-                gameService.notifyPlayersMissionFlipped(card);
+                List<CreateUserService> players = new ArrayList<>(UserListService.userList.getAllUsers());
+                gameService.notifyPlayersMissionFlipped(players, card);
             }
         }
     }
 
-    public void checkMissions() {
+    public void checkMissions(GameService gameService, List<CreateUserService> players) {
         for (MissionCard missionCard : missionCards) {
-                switch (missionCard.getMissionDescription()) {
-                    case "Mission A1":
+            if (missionCard.isFlipped()) {
+                missionCard.applyRewardDecrease();
+            }
+            MissionType missionType = missionCard.getMissionType();
+            if (checkAndFlipMission(missionType)) {
+                handleMissionReward(missionCard, gameService, players);
+            }
+        }
+    }
+
+    private boolean checkAndFlipMission(MissionType missionType) {
+        switch (missionType) {
+            case A1:
                 if (areAllFieldsNumbered(FieldCategory.RAUMANZUG, FieldCategory.WASSER)) {
-                    checkAndFlipMissionCards("Mission A1");
+                    flipMissionCard(missionType);
+                    return true;
                 }
                 break;
-            case "Mission A2":
+            case A2:
                 if (areAllFieldsNumbered(FieldCategory.ROBOTER, FieldCategory.PLANUNG)) {
-                    checkAndFlipMissionCards("Mission A2");
+                    flipMissionCard(missionType);
+                    return true;
                 }
                 break;
-            case "Mission B1":
+            case B1:
                 if (areAllFieldsNumbered(FieldCategory.ENERGIE)) {
-                    checkAndFlipMissionCards("Mission B1");
+                    flipMissionCard(missionType);
+                    return true;
                 }
                 break;
-            case "Mission B2":
-                if (areAllFieldsNumbered(FieldCategory.PFLANZE)) {
-                    checkAndFlipMissionCards("Mission B2");
+            case B2:
+                if (areAllFieldsNumbered(FieldCategory.PFLANZE, FieldCategory.ANYTHING)) {
+                    flipMissionCard(missionType);
+                    return true;
                 }
                 break;
-            case "Mission C1":
+            case C1:
                 if (systemErrors.getCurrentErrors() >= 5) {
-                    checkAndFlipMissionCards("Mission C1");
+                    flipMissionCard(missionType);
+                    return true;
                 }
                 break;
-            case "Mission C2":
-                //TODO: Implement Mission Card, if 10 X are entered
+            case C2:
+                if (systemErrors.getCurrentErrors() >= 6) {
+                    flipMissionCard(missionType);
+                    return true;
+                }
                 break;
             default:
+                throw new IllegalArgumentException("Unexpected value: " + missionType);
+        }
+        return false;
+    }
+
+    private void flipMissionCard(MissionType missionType) {
+        for (MissionCard card : missionCards) {
+            if (!card.isFlipped() && card.getMissionType() == missionType) {
+                card.flipCard();
+                List<CreateUserService> players = new ArrayList<>(UserListService.userList.getAllUsers());
+                gameService.notifyPlayersMissionFlipped(players, card);
             }
+        }
+    }
+
+    private void handleMissionReward(MissionCard missionCard, GameService gameService, List<CreateUserService> players) {
+        for (CreateUserService player : players) {
+            player.getGameBoard().addRockets(missionCard.getReward().getNumberRockets());
+            gameService.addRocketToPlayer(player, missionCard.getReward().getNumberRockets());
         }
     }
 
     public boolean areAllFieldsNumbered(FieldCategory... categories) {
         return floors.stream()
-            .filter(floor -> Arrays.asList(categories).contains(floor.getFieldCategory()))
-            .allMatch(floor -> floor.getChambers().stream()
-                .allMatch(chamber -> chamber.getFields().stream()
-                    .allMatch(field -> field.getFieldValue() != FieldValue.NONE)));
+                .filter(floor -> Arrays.asList(categories).contains(floor.getFieldCategory()))
+                .allMatch(floor -> floor.getChambers().stream()
+                        .allMatch(chamber -> chamber.getFields().stream()
+                                .allMatch(field -> field.getFieldValue() != FieldValue.NONE)));
     }
 
     public void cheat() {
         addRockets(1);
         hasCheated = true;
     }
-
-
 }

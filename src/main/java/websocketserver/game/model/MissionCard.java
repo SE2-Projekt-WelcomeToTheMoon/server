@@ -1,26 +1,43 @@
 package websocketserver.game.model;
 
-import lombok.Getter;
+import websocketserver.game.enums.MissionType;
 
 public class MissionCard {
-    @Getter
-    private String missionDescription;
-    @Getter
+    private final MissionType missionType;
     private Reward reward;
     private boolean isFlipped;
+    private boolean rewardDecreaseNextRound;
 
-    public MissionCard(String missionDescription, Reward reward) {
-        this.missionDescription = missionDescription;
+    public MissionCard(MissionType missionType, Reward reward) {
+        this.missionType = missionType;
         this.reward = reward;
         this.isFlipped = false;
+        this.rewardDecreaseNextRound = false;
     }
 
     public boolean isFlipped() {
         return isFlipped;
     }
 
+    public MissionType getMissionType() {
+        return missionType;
+    }
+
+    public Reward getReward() {
+        return reward;
+    }
+
     public void flipCard() {
-        this.isFlipped = true;
-        this.reward = new Reward(reward.getCategory(), reward.getNumberRockets() - 1); // Decrease rockets by 1 upon flipping (because all rewards in the first map are decreased by 1)
+        if (!isFlipped) {
+            this.isFlipped = true;
+            this.rewardDecreaseNextRound = true;
+        }
+    }
+
+    public void applyRewardDecrease() {
+        if (rewardDecreaseNextRound) {
+            this.reward = new Reward(reward.getCategory(), reward.getNumberRockets() - 1);
+            this.rewardDecreaseNextRound = false;
+        }
     }
 }

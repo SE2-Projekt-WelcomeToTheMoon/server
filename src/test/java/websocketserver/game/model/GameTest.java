@@ -447,5 +447,20 @@ class GameTest {
         assertEquals(3, game.getPlayers().size());
         assertEquals(game.getPlayers().get(2), player);
     }
+
+    @Test
+    void testDoRoundSix() {
+        game.setGameState(GameState.ROUND_SIX);
+
+        CreateUserService winner = mock(CreateUserService.class);
+        when(winner.getGameBoard()).thenReturn(playerGameBoard);
+        when(playerGameBoard.hasWon()).thenReturn(true);
+        game.addPlayer(winner);
+
+        game.doRoundSix();
+
+        assertEquals(GameState.FINISHED, game.getGameState());
+        verify(mockGameService).informPlayersAboutEndOfGame(game.getPlayers(), EndType.ROCKETS_COMPLETED);
+    }
 }
 
